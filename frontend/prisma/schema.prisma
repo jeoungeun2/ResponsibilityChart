@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime? @map("email_verified")
+  hashedPassword String?   @map("hashed_password")
+  image          String?
+
+  accounts Account[]
+ 
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// generator / datasource 는 기존 프로젝트 설정을 그대로 사용하세요.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // 사용 DB에 맞게 교체
+  url      = env("DATABASE_URL")
+}
+
+/**
+ * 책무구분(예: 경영관리)
+ */
+model DutyCategory {
+  id        String  @id @default(uuid())
+  name      String  @unique               // 책무구분명
+  duties    Duty[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("duty_categories")
+}
+
+/**
+ * 책무 (상위: DutyCategory)
+ * 예: AM-경영관리-C11 / 경영지원업무와 관련된 책무
+ */
+model Duty {
+  id          String  @id @default(uuid())
+  categoryId  String
+  code        String  @unique             // 책무코드
+  name        String                      // 책무명
+  details     DutyDetail[]
+  category    DutyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("duties")
+}
+
+/**
+ * 책무 세부 (상위: Duty)
+ * 예: AM-경영관리-C11-A / 경영지원 업무 관련 기준 수립 및 운영을 관리·감독할 책임
+ */
+model DutyDetail {
+  id        String  @id @default(uuid())
+  dutyId    String
+  code      String  @unique               // 세부코드
+  content   String                        // 세부내용
+  duty      Duty    @relation(fields: [dutyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("duty_details")
+}
