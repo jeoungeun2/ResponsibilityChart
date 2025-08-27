@@ -5,7 +5,12 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect, useMemo } from "react";
 import { DataTable } from '@/components/ui/data-table';
 import { Edit, Trash2, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import { executivesControllerSearch } from '@/generated/openapi-client/sdk.gen';
+import { 
+  executivesControllerSearch, 
+  executivesControllerCreate, 
+  executivesControllerUpdate, 
+  executivesControllerRemove 
+} from '@/generated/openapi-client/sdk.gen';
 import { client } from '@/generated/openapi-client/client.gen';
 
 export default function Ui() {
@@ -32,7 +37,7 @@ export default function Ui() {
     titleLabel: '',
     phone: '',
     email: '',
-    termStartDate: '',
+    termStartDate: new Date().toISOString().split('T')[0], // 오늘 날짜를 기본값으로
     termEndDate: ''
   });
 
@@ -287,6 +292,19 @@ export default function Ui() {
     isArray: Array.isArray((searchResult as any)?.data)
   });
 
+  // 추가 폼 상태 모니터링
+  useEffect(() => {
+    if (showAddForm) {
+      console.log('🔍 추가 폼 상태 모니터링:', {
+        showAddForm,
+        newExecutive,
+        nameLength: newExecutive.name?.length,
+        nameTrimmed: newExecutive.name?.trim(),
+        isNameValid: newExecutive.name?.trim()?.length > 0
+      });
+    }
+  }, [showAddForm, newExecutive]);
+
   // 페이지네이션 상태 업데이트
   useEffect(() => {
     if (searchResult && typeof searchResult === 'object' && (searchResult as any).data?.meta) {
@@ -329,7 +347,7 @@ export default function Ui() {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  // 추가 mutation
+  // 추가 mutation - 실제 API 호출 구현
   const createMutation = useMutation({
     mutationFn: async (data: { 
       name: string; 
@@ -341,13 +359,65 @@ export default function Ui() {
       termStartDate?: string;
       termEndDate?: string;
     }) => {
-      // This part needs to be implemented using the generated client
-      // For now, it's a placeholder.
-      console.warn('Create mutation is not yet implemented with the generated client.');
-      return Promise.resolve({ success: false, message: 'Create not implemented' });
+      try {
+        console.log('📝 임원 추가 API 호출 시작:', data);
+        
+        // 필수 필드 검증
+        if (!data.name || !data.name.trim()) {
+          throw new Error('이름은 필수 입력 항목입니다.');
+        }
+
+        // API 호출을 위한 데이터 준비
+        const createData = {
+          name: data.name.trim(),
+          employeeNo: data.employeeNo?.trim() || '',
+          positionLabel: data.positionLabel?.trim() || '',
+          titleLabel: data.titleLabel?.trim() || '',
+          phone: data.phone?.trim() || '',
+          email: data.email?.trim() || '',
+          termStartDate: data.termStartDate || new Date().toISOString().split('T')[0],
+          termEndDate: data.termEndDate?.trim() || undefined
+        } as any; // 타입 에러 해결을 위한 타입 단언
+
+        console.log('📝 API 호출 데이터 준비 완료:', createData);
+        console.log('📝 client 객체 확인:', client);
+        console.log('📝 executivesControllerCreate 함수 확인:', executivesControllerCreate);
+        console.log('📝 전송할 데이터 JSON:', JSON.stringify(createData, null, 2));
+
+        const response = await executivesControllerCreate({
+          client,
+          body: createData
+        });
+
+        console.log('📡 API 응답 받음:', response);
+        console.log('📡 응답 타입:', typeof response);
+        console.log('📡 응답 키들:', response ? Object.keys(response) : 'no response');
+        
+        // HTTP 응답 상태 확인
+        if (response && typeof response === 'object' && 'response' in response) {
+          const httpResponse = (response as any).response;
+          console.log('📡 HTTP 응답 상세:', httpResponse);
+          
+          if (httpResponse && httpResponse.status >= 400) {
+            throw new Error(`HTTP ${httpResponse.status}: ${httpResponse.statusText || 'Bad Request'}`);
+          }
+        }
+
+        console.log('✅ 임원 추가 성공:', response);
+        return response;
+      } catch (error) {
+        console.error('❌ 임원 추가 실패:', error);
+        console.error('❌ 에러 상세 정보:', {
+          message: (error as any)?.message,
+          response: (error as any)?.response,
+          status: (error as any)?.response?.status,
+          data: (error as any)?.response?.data
+        });
+        throw error;
+      }
     },
-    onSuccess: () => {
-      console.log('Create mutation success, invalidating queries');
+    onSuccess: (data) => {
+      console.log('✅ 임원 추가 성공 콜백 실행:', data);
       queryClient.invalidateQueries({ queryKey: ['executives'] });
       setShowAddForm(false);
       setNewExecutive({ 
@@ -357,16 +427,22 @@ export default function Ui() {
         titleLabel: '',
         phone: '',
         email: '',
-        termStartDate: '',
+        termStartDate: new Date().toISOString().split('T')[0],
         termEndDate: ''
       });
+      
+      // 성공 메시지 표시
+      alert('임원이 성공적으로 추가되었습니다.');
     },
-    onError: (error) => {
-      console.error('Create mutation error:', error);
+    onError: (error: any) => {
+      console.error('❌ 임원 추가 에러 콜백 실행:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || '임원 추가 중 오류가 발생했습니다.';
+      console.error('❌ 사용자에게 표시할 에러 메시지:', errorMessage);
+      alert(`오류: ${errorMessage}`);
     }
   });
 
-  // 수정 mutation
+  // 수정 mutation - 실제 API 호출 구현
   const updateMutation = useMutation({
     mutationFn: async (data: { 
       id: string; 
@@ -379,53 +455,164 @@ export default function Ui() {
       termStartDate?: string;
       termEndDate?: string;
     }) => {
-      // This part needs to be implemented using the generated client
-      // For now, it's a placeholder.
-      console.warn('Update mutation is not yet implemented with the generated client.');
-      return Promise.resolve({ success: false, message: 'Update not implemented' });
+      try {
+        console.log('📝 임원 수정 API 호출:', data);
+        
+        // 필수 필드 검증
+        if (!data.name) {
+          throw new Error('이름은 필수 입력 항목입니다.');
+        }
+
+        // API 호출을 위한 데이터 준비
+        const updateData = {
+          name: data.name,
+          employeeNo: data.employeeNo || undefined,
+          positionLabel: data.positionLabel || undefined,
+          titleLabel: data.titleLabel || undefined,
+          phone: data.phone || undefined,
+          email: data.email || undefined,
+          termStartDate: data.termStartDate || undefined,
+          termEndDate: data.termEndDate || undefined
+        };
+
+        console.log('📝 API 호출 데이터:', updateData);
+
+        const response = await executivesControllerUpdate({
+          client,
+          path: { id: data.id },
+          body: updateData
+        });
+
+        console.log('✅ 임원 수정 성공:', response);
+        return response;
+      } catch (error) {
+        console.error('❌ 임원 수정 실패:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
-      console.log('Update mutation success, invalidating queries');
+      console.log('✅ 임원 수정 성공, 쿼리 무효화');
       queryClient.invalidateQueries({ queryKey: ['executives'] });
       setShowEditForm(false);
       setEditingExecutive(null);
+      
+      // 성공 메시지 표시
+      alert('임원 정보가 성공적으로 수정되었습니다.');
     },
-    onError: (error) => {
-      console.error('Update mutation error:', error);
+    onError: (error: any) => {
+      console.error('❌ 임원 수정 에러:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || '임원 수정 중 오류가 발생했습니다.';
+      alert(`오류: ${errorMessage}`);
     }
   });
 
-  // 삭제 mutation
+  // 삭제 mutation - 실제 API 호출 구현
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      // This part needs to be implemented using the generated client
-      // For now, it's a placeholder.
-      console.warn('Delete mutation is not yet implemented with the generated client.');
-      return Promise.resolve({ success: false, message: 'Delete not implemented' });
+      try {
+        console.log('🗑️ 임원 삭제 API 호출:', id);
+        
+        const response = await executivesControllerRemove({
+          client,
+          path: { id }
+        });
+
+        console.log('✅ 임원 삭제 성공:', response);
+        return response;
+      } catch (error) {
+        console.error('❌ 임원 삭제 실패:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
-      console.log('Delete mutation success, invalidating queries');
+      console.log('✅ 임원 삭제 성공, 쿼리 무효화');
       queryClient.invalidateQueries({ queryKey: ['executives'] });
+      
+      // 성공 메시지 표시
+      alert('임원이 성공적으로 삭제되었습니다.');
     },
-    onError: (error) => {
-      console.error('Delete mutation error:', error);
+    onError: (error: any) => {
+      console.error('❌ 임원 삭제 에러:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || '임원 삭제 중 오류가 발생했습니다.';
+      alert(`오류: ${errorMessage}`);
     }
   });
 
-  const handleAdd = () => {
-    if (newExecutive.name) {
-      createMutation.mutate(newExecutive);
+  // 추가 폼 열기/닫기 핸들러
+  const handleShowAddForm = () => {
+    console.log('🔘 추가 폼 토글 버튼 클릭됨, 현재 상태:', showAddForm);
+    
+    if (showAddForm) {
+      // 폼 닫기
+      console.log('🔘 폼 닫기 실행');
+      setShowAddForm(false);
+      setNewExecutive({ 
+        name: '', 
+        employeeNo: '',
+        positionLabel: '', 
+        titleLabel: '',
+        phone: '',
+        email: '',
+        termStartDate: '',
+        termEndDate: ''
+      });
+      console.log('🔘 폼 상태 초기화 완료');
+    } else {
+      // 폼 열기 - 기본값 설정
+      console.log('🔘 폼 열기 실행');
+      const defaultDate = new Date().toISOString().split('T')[0];
+      const newState = { 
+        name: '', 
+        employeeNo: '',
+        positionLabel: '', 
+        titleLabel: '',
+        phone: '',
+        email: '',
+        termStartDate: defaultDate,
+        termEndDate: ''
+      };
+      console.log('🔘 새 상태 설정:', newState);
+      setShowAddForm(true);
+      setNewExecutive(newState);
+      console.log('🔘 폼 열기 완료');
     }
   };
 
-  const handleEdit = (executive: any) => {
+  // 수정 폼 열기/닫기 핸들러
+  const handleShowEditForm = (executive: any) => {
     setEditingExecutive(executive);
     setShowEditForm(true);
+  };
+
+  // 수정 폼 닫기 핸들러
+  const handleCloseEditForm = () => {
+    setShowEditForm(false);
+    setEditingExecutive(null);
+  };
+
+  const handleAdd = () => {
+    console.log('🔘 추가 버튼 클릭됨');
+    console.log('🔘 현재 newExecutive 상태:', newExecutive);
+    
+    if (!newExecutive.name || !newExecutive.name.trim()) {
+      console.log('❌ 이름이 비어있음');
+      alert('이름은 필수 입력 항목입니다.');
+      return;
+    }
+    
+    console.log('✅ 유효성 검사 통과, mutation 실행');
+    createMutation.mutate(newExecutive);
+  };
+
+  const handleEdit = (executive: any) => {
+    handleShowEditForm(executive);
   };
 
   const handleUpdate = () => {
     if (editingExecutive && editingExecutive.name) {
       updateMutation.mutate(editingExecutive);
+    } else {
+      alert('이름은 필수 입력 항목입니다.');
     }
   };
 
@@ -458,6 +645,7 @@ export default function Ui() {
             <button 
               onClick={() => handleEdit(executive)}
               className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center"
+              title="수정"
             >
               <Edit className="h-4 w-4 mr-1" /> 수정
             </button>
@@ -465,6 +653,7 @@ export default function Ui() {
               onClick={() => handleDelete(executive.id)}
               disabled={deleteMutation.isPending}
               className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center"
+              title="삭제"
             >
               <Trash2 className="h-4 w-4 mr-1" /> 삭제
             </button>
@@ -594,7 +783,7 @@ export default function Ui() {
         
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={handleShowAddForm}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             {showAddForm ? '취소' : '추가'}
@@ -607,70 +796,115 @@ export default function Ui() {
         <div className="bg-gray-50 p-4 rounded-lg border">
           <h3 className="text-lg font-medium text-gray-900 mb-4">새 임원 추가</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="이름 *"
-              value={newExecutive.name}
-              onChange={(e) => setNewExecutive({ ...newExecutive, name: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="사번"
-              value={newExecutive.employeeNo}
-              onChange={(e) => setNewExecutive({ ...newExecutive, employeeNo: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="직위"
-              value={newExecutive.positionLabel}
-              onChange={(e) => setNewExecutive({ ...newExecutive, positionLabel: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="직책"
-              value={newExecutive.titleLabel}
-              onChange={(e) => setNewExecutive({ ...newExecutive, titleLabel: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="tel"
-              placeholder="연락처"
-              value={newExecutive.phone}
-              onChange={(e) => setNewExecutive({ ...newExecutive, phone: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              placeholder="이메일"
-              value={newExecutive.email}
-              onChange={(e) => setNewExecutive({ ...newExecutive, email: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="date"
-              placeholder="재임시작일"
-              value={newExecutive.termStartDate}
-              onChange={(e) => setNewExecutive({ ...newExecutive, termStartDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="date"
-              placeholder="재임종료일"
-              value={newExecutive.termEndDate}
-              onChange={(e) => setNewExecutive({ ...newExecutive, termEndDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                이름 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="이름을 입력하세요"
+                value={newExecutive.name}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  console.log('📝 이름 입력 필드 변경:', { oldValue: newExecutive.name, newValue });
+                  setNewExecutive({ ...newExecutive, name: newValue });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">사번</label>
+              <input
+                type="text"
+                placeholder="사번을 입력하세요"
+                value={newExecutive.employeeNo}
+                onChange={(e) => setNewExecutive({ ...newExecutive, employeeNo: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">직위</label>
+              <input
+                type="text"
+                placeholder="직위를 입력하세요"
+                value={newExecutive.positionLabel}
+                onChange={(e) => setNewExecutive({ ...newExecutive, positionLabel: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">직책</label>
+              <input
+                type="text"
+                placeholder="직책을 입력하세요"
+                value={newExecutive.titleLabel}
+                onChange={(e) => setNewExecutive({ ...newExecutive, titleLabel: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+              <input
+                type="tel"
+                placeholder="연락처를 입력하세요"
+                value={newExecutive.phone}
+                onChange={(e) => setNewExecutive({ ...newExecutive, phone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <input
+                type="email"
+                placeholder="이메일을 입력하세요"
+                value={newExecutive.email}
+                onChange={(e) => setNewExecutive({ ...newExecutive, email: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">재임시작일</label>
+              <input
+                type="date"
+                value={newExecutive.termStartDate}
+                onChange={(e) => setNewExecutive({ ...newExecutive, termStartDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">재임종료일</label>
+              <input
+                type="date"
+                value={newExecutive.termEndDate}
+                onChange={(e) => setNewExecutive({ ...newExecutive, termEndDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
-          <button
-            onClick={handleAdd}
-            disabled={createMutation.isPending}
-            className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            {createMutation.isPending ? '추가 중...' : '추가'}
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleAdd}
+              disabled={createMutation.isPending || !newExecutive.name.trim()}
+              className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+              title={createMutation.isPending ? '처리 중...' : !newExecutive.name.trim() ? '이름을 입력해주세요' : '임원 추가'}
+            >
+              {createMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  추가 중...
+                </>
+              ) : (
+                '추가'
+              )}
+            </button>
+            <button
+              onClick={handleShowAddForm}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              취소
+            </button>
+          </div>
         </div>
       )}
 
@@ -679,76 +913,105 @@ export default function Ui() {
         <div className="bg-gray-50 p-4 rounded-lg border">
           <h3 className="text-lg font-medium text-gray-900 mb-4">임원 정보 수정</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="이름 *"
-              value={editingExecutive.name}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, name: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="사번"
-              value={editingExecutive.employeeNo || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, employeeNo: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="직위"
-              value={editingExecutive.positionLabel || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, positionLabel: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              placeholder="직책"
-              value={editingExecutive.titleLabel || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, titleLabel: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="tel"
-              placeholder="연락처"
-              value={editingExecutive.phone || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, phone: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              placeholder="이메일"
-              value={editingExecutive.email || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, email: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="date"
-              placeholder="재임시작일"
-              value={editingExecutive.termStartDate || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, termStartDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="date"
-              placeholder="재임종료일"
-              value={editingExecutive.termEndDate || ''}
-              onChange={(e) => setEditingExecutive({ ...editingExecutive, termEndDate: e.target.value })}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                이름 <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="이름을 입력하세요"
+                value={editingExecutive.name}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">사번</label>
+              <input
+                type="text"
+                placeholder="사번을 입력하세요"
+                value={editingExecutive.employeeNo || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, employeeNo: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">직위</label>
+              <input
+                type="text"
+                placeholder="직위를 입력하세요"
+                value={editingExecutive.positionLabel || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, positionLabel: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">직책</label>
+              <input
+                type="text"
+                placeholder="직책을 입력하세요"
+                value={editingExecutive.titleLabel || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, titleLabel: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+              <input
+                type="tel"
+                placeholder="연락처를 입력하세요"
+                value={editingExecutive.phone || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, phone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <input
+                type="email"
+                placeholder="이메일을 입력하세요"
+                value={editingExecutive.email || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, email: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">재임시작일</label>
+              <input
+                type="date"
+                value={editingExecutive.termStartDate || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, termStartDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">재임종료일</label>
+              <input
+                type="date"
+                value={editingExecutive.termEndDate || ''}
+                onChange={(e) => setEditingExecutive({ ...editingExecutive, termEndDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
           <div className="flex space-x-2">
             <button
               onClick={handleUpdate}
-              disabled={updateMutation.isPending}
-              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors"
+              disabled={updateMutation.isPending || !editingExecutive.name.trim()}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
             >
-              {updateMutation.isPending ? '수정 중...' : '수정'}
+              {updateMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  수정 중...
+                </>
+              ) : (
+                '수정'
+              )}
             </button>
             <button
-              onClick={() => {
-                setShowEditForm(false);
-                setEditingExecutive(null);
-              }}
+              onClick={handleCloseEditForm}
               className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
             >
               취소
