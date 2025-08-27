@@ -120,6 +120,300 @@ export type UpdateDutyDto = {
     details?: Array<UpdateDutyDetailDto>;
 };
 
+export type CreateExecutiveDto = {
+    /**
+     * 임원 이름
+     */
+    name: string;
+    /**
+     * 사원번호
+     */
+    employeeNo: string;
+    /**
+     * 직위
+     */
+    positionLabel: string;
+    /**
+     * 직책
+     */
+    titleLabel: string;
+    /**
+     * 전화번호
+     */
+    phone: string;
+    /**
+     * 이메일
+     */
+    email: string;
+    /**
+     * 재임 시작일
+     */
+    termStartDate: string;
+    /**
+     * 재임 종료일
+     */
+    termEndDate?: string;
+};
+
+export type UpdateExecutiveDto = {
+    /**
+     * 임원 이름
+     */
+    name?: string;
+    /**
+     * 사원번호
+     */
+    employeeNo?: string;
+    /**
+     * 직위
+     */
+    positionLabel?: string;
+    /**
+     * 직책
+     */
+    titleLabel?: string;
+    /**
+     * 전화번호
+     */
+    phone?: string;
+    /**
+     * 이메일
+     */
+    email?: string;
+    /**
+     * 재임 시작일
+     */
+    termStartDate?: string;
+    /**
+     * 재임 종료일
+     */
+    termEndDate?: string;
+};
+
+export type CreateOrgRegistrationDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId: string;
+    /**
+     * 관리대상조직
+     */
+    managingOrg?: string;
+    /**
+     * 소관부서/본부
+     */
+    division?: string;
+    /**
+     * 소관팀
+     */
+    team?: string;
+    /**
+     * 관할의체(위원회명 등)
+     */
+    councilBody?: string;
+    /**
+     * 위원장/위원
+     */
+    committeeRole?: 'CHAIR' | 'MEMBER';
+    /**
+     * 개최주기
+     */
+    meetingFreq?: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUAL' | 'ANNUAL' | 'AD_HOC';
+    /**
+     * 주요 심의·의결사항
+     */
+    majorAgenda?: string;
+};
+
+export type UpdateOrgRegistrationDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId?: string;
+    /**
+     * 관리대상조직
+     */
+    managingOrg?: string;
+    /**
+     * 소관부서/본부
+     */
+    division?: string;
+    /**
+     * 소관팀
+     */
+    team?: string;
+    /**
+     * 관할의체(위원회명 등)
+     */
+    councilBody?: string;
+    /**
+     * 위원장/위원
+     */
+    committeeRole?: 'CHAIR' | 'MEMBER';
+    /**
+     * 개최주기
+     */
+    meetingFreq?: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUAL' | 'ANNUAL' | 'AD_HOC';
+    /**
+     * 주요 심의·의결사항
+     */
+    majorAgenda?: string;
+};
+
+export type CreateQualiItemDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId: string;
+    /**
+     * 업무경험/전문성 유형
+     */
+    type: 'WORK' | 'EDUCATION' | 'AWARD' | 'CERT' | 'OTHER';
+    /**
+     * 회사명
+     */
+    companyName?: string;
+    /**
+     * 직위
+     */
+    positionLabel?: string;
+    /**
+     * 직책
+     */
+    titleLabel?: string;
+    /**
+     * 재직 시작일
+     */
+    periodStart?: string;
+    /**
+     * 재직 종료일
+     */
+    periodEnd?: string;
+    /**
+     * 내용(학력, 수상내역, 자격증명 등)
+     */
+    content?: string;
+    /**
+     * 발생일자
+     */
+    occurredAt?: string;
+};
+
+export type UpdateQualiItemDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId?: string;
+    /**
+     * 업무경험/전문성 유형
+     */
+    type?: 'WORK' | 'EDUCATION' | 'AWARD' | 'CERT' | 'OTHER';
+    /**
+     * 회사명
+     */
+    companyName?: string;
+    /**
+     * 직위
+     */
+    positionLabel?: string;
+    /**
+     * 직책
+     */
+    titleLabel?: string;
+    /**
+     * 재직 시작일
+     */
+    periodStart?: string;
+    /**
+     * 재직 종료일
+     */
+    periodEnd?: string;
+    /**
+     * 내용(학력, 수상내역, 자격증명 등)
+     */
+    content?: string;
+    /**
+     * 발생일자
+     */
+    occurredAt?: string;
+};
+
+export type CreateIntegrityItemDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId: string;
+    /**
+     * 정직성 항목 카테고리
+     */
+    category: 'DISCIPLINARY_LOOKUP' | 'CRIMINAL_RECORD_LOOKUP' | 'DISQUALIFICATION_LOOKUP' | 'LAW_TRAINING_ISSUE' | 'OTHER';
+    /**
+     * 정직성 검증 결과
+     */
+    result?: 'NONE' | 'ISSUE' | 'PASSED' | 'FAILED';
+    /**
+     * 내용 (해당없음 등)
+     */
+    content?: string;
+    /**
+     * 비고
+     */
+    note?: string;
+};
+
+export type UpdateIntegrityItemDto = {
+    /**
+     * 임원 ID
+     */
+    executiveId?: string;
+    /**
+     * 정직성 항목 카테고리
+     */
+    category?: 'DISCIPLINARY_LOOKUP' | 'CRIMINAL_RECORD_LOOKUP' | 'DISQUALIFICATION_LOOKUP' | 'LAW_TRAINING_ISSUE' | 'OTHER';
+    /**
+     * 정직성 검증 결과
+     */
+    result?: 'NONE' | 'ISSUE' | 'PASSED' | 'FAILED';
+    /**
+     * 내용 (해당없음 등)
+     */
+    content?: string;
+    /**
+     * 비고
+     */
+    note?: string;
+};
+
+export type CreateEvaluationDto = {
+    /**
+     * 평가결과(자유 입력). 생성시 비워도 됨
+     */
+    evaluationResult?: string;
+    /**
+     * 판단사유(자유 입력). 생성시 비워도 됨
+     */
+    decisionReason?: string;
+    /**
+     * 상태(미보내면 NOT_STARTED)
+     */
+    status?: 'NOT_STARTED' | 'STARTED' | 'IN_PROGRESS';
+};
+
+export type PatchEvaluationDto = {
+    /**
+     * 평가결과(자유 입력)
+     */
+    evaluationResult?: string;
+    /**
+     * 판단사유(자유 입력)
+     */
+    decisionReason?: string;
+    /**
+     * 상태 변경
+     */
+    status?: 'NOT_STARTED' | 'STARTED' | 'IN_PROGRESS';
+};
+
 export type AppControllerGetHelloData = {
     body?: never;
     path?: never;
@@ -296,6 +590,762 @@ export type ResponsibilitiesControllerGetCategoriesResponses = {
 };
 
 export type ResponsibilitiesControllerGetCategoriesResponse = ResponsibilitiesControllerGetCategoriesResponses[keyof ResponsibilitiesControllerGetCategoriesResponses];
+
+export type ExecutivesControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/executives';
+};
+
+export type ExecutivesControllerFindAllResponses = {
+    /**
+     * 모든 임원 목록 반환
+     */
+    200: unknown;
+};
+
+export type ExecutivesControllerCreateData = {
+    body: CreateExecutiveDto;
+    path?: never;
+    query?: never;
+    url: '/executives';
+};
+
+export type ExecutivesControllerCreateErrors = {
+    /**
+     * 이미 존재하는 임원입니다.
+     */
+    409: unknown;
+};
+
+export type ExecutivesControllerCreateResponses = {
+    /**
+     * 임원이 생성되었습니다.
+     */
+    201: unknown;
+};
+
+export type ExecutivesControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/executives/{id}';
+};
+
+export type ExecutivesControllerRemoveErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type ExecutivesControllerRemoveResponses = {
+    /**
+     * 임원이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type ExecutivesControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/executives/{id}';
+};
+
+export type ExecutivesControllerFindOneErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type ExecutivesControllerFindOneResponses = {
+    /**
+     * 임원 단건 반환
+     */
+    200: unknown;
+};
+
+export type ExecutivesControllerUpdateData = {
+    body: UpdateExecutiveDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/executives/{id}';
+};
+
+export type ExecutivesControllerUpdateErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type ExecutivesControllerUpdateResponses = {
+    /**
+     * 임원이 수정되었습니다.
+     */
+    200: unknown;
+};
+
+export type ExecutivesControllerFindByNameData = {
+    body?: never;
+    path: {
+        name: string;
+    };
+    query?: never;
+    url: '/executives/search/{name}';
+};
+
+export type ExecutivesControllerFindByNameResponses = {
+    /**
+     * 검색 결과 반환
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/org-registrations';
+};
+
+export type OrgRegistrationsControllerFindAllResponses = {
+    /**
+     * 모든 조직등록 목록 반환
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerCreateData = {
+    body: CreateOrgRegistrationDto;
+    path?: never;
+    query?: never;
+    url: '/org-registrations';
+};
+
+export type OrgRegistrationsControllerCreateErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+    /**
+     * 해당 임원의 조직등록이 이미 존재합니다.
+     */
+    409: unknown;
+};
+
+export type OrgRegistrationsControllerCreateResponses = {
+    /**
+     * 조직등록이 생성되었습니다.
+     */
+    201: unknown;
+};
+
+export type OrgRegistrationsControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/org-registrations/{id}';
+};
+
+export type OrgRegistrationsControllerRemoveErrors = {
+    /**
+     * 조직등록을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type OrgRegistrationsControllerRemoveResponses = {
+    /**
+     * 조직등록이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/org-registrations/{id}';
+};
+
+export type OrgRegistrationsControllerFindOneErrors = {
+    /**
+     * 조직등록을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type OrgRegistrationsControllerFindOneResponses = {
+    /**
+     * 조직등록 단건 반환
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerUpdateData = {
+    body: UpdateOrgRegistrationDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/org-registrations/{id}';
+};
+
+export type OrgRegistrationsControllerUpdateErrors = {
+    /**
+     * 조직등록을 찾을 수 없습니다.
+     */
+    404: unknown;
+    /**
+     * 해당 임원의 조직등록이 이미 존재합니다.
+     */
+    409: unknown;
+};
+
+export type OrgRegistrationsControllerUpdateResponses = {
+    /**
+     * 조직등록이 수정되었습니다.
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerRemoveByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/org-registrations/executive/{executiveId}';
+};
+
+export type OrgRegistrationsControllerRemoveByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type OrgRegistrationsControllerRemoveByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 조직등록이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type OrgRegistrationsControllerFindByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/org-registrations/executive/{executiveId}';
+};
+
+export type OrgRegistrationsControllerFindByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type OrgRegistrationsControllerFindByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 조직등록 반환
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/quali-items';
+};
+
+export type QualiItemDtoTsControllerFindAllResponses = {
+    /**
+     * 모든 업무경험/전문성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerCreateData = {
+    body: CreateQualiItemDto;
+    path?: never;
+    query?: never;
+    url: '/quali-items';
+};
+
+export type QualiItemDtoTsControllerCreateErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerCreateResponses = {
+    /**
+     * 업무경험/전문성 항목이 생성되었습니다.
+     */
+    201: unknown;
+};
+
+export type QualiItemDtoTsControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/quali-items/{id}';
+};
+
+export type QualiItemDtoTsControllerRemoveErrors = {
+    /**
+     * 업무경험/전문성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerRemoveResponses = {
+    /**
+     * 업무경험/전문성 항목이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/quali-items/{id}';
+};
+
+export type QualiItemDtoTsControllerFindOneErrors = {
+    /**
+     * 업무경험/전문성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerFindOneResponses = {
+    /**
+     * 업무경험/전문성 항목 단건 반환
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerUpdateData = {
+    body: UpdateQualiItemDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/quali-items/{id}';
+};
+
+export type QualiItemDtoTsControllerUpdateErrors = {
+    /**
+     * 업무경험/전문성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerUpdateResponses = {
+    /**
+     * 업무경험/전문성 항목이 수정되었습니다.
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerRemoveByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/quali-items/executive/{executiveId}';
+};
+
+export type QualiItemDtoTsControllerRemoveByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerRemoveByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 모든 업무경험/전문성 항목이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerFindByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/quali-items/executive/{executiveId}';
+};
+
+export type QualiItemDtoTsControllerFindByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type QualiItemDtoTsControllerFindByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 업무경험/전문성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type QualiItemDtoTsControllerFindByTypeData = {
+    body?: never;
+    path: {
+        type: 'WORK' | 'EDUCATION' | 'AWARD' | 'CERT' | 'OTHER';
+    };
+    query?: never;
+    url: '/quali-items/type/{type}';
+};
+
+export type QualiItemDtoTsControllerFindByTypeResponses = {
+    /**
+     * 해당 유형의 업무경험/전문성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/integrity-items';
+};
+
+export type IntegrityItemControllerFindAllResponses = {
+    /**
+     * 모든 정직성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerCreateData = {
+    body: CreateIntegrityItemDto;
+    path?: never;
+    query?: never;
+    url: '/integrity-items';
+};
+
+export type IntegrityItemControllerCreateErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+    /**
+     * 해당 임원의 동일한 카테고리 항목이 이미 존재합니다.
+     */
+    409: unknown;
+};
+
+export type IntegrityItemControllerCreateResponses = {
+    /**
+     * 정직성 항목이 생성되었습니다.
+     */
+    201: unknown;
+};
+
+export type IntegrityItemControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/integrity-items/{id}';
+};
+
+export type IntegrityItemControllerRemoveErrors = {
+    /**
+     * 정직성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type IntegrityItemControllerRemoveResponses = {
+    /**
+     * 정직성 항목이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/integrity-items/{id}';
+};
+
+export type IntegrityItemControllerFindOneErrors = {
+    /**
+     * 정직성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type IntegrityItemControllerFindOneResponses = {
+    /**
+     * 정직성 항목 단건 반환
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerUpdateData = {
+    body: UpdateIntegrityItemDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/integrity-items/{id}';
+};
+
+export type IntegrityItemControllerUpdateErrors = {
+    /**
+     * 정직성 항목을 찾을 수 없습니다.
+     */
+    404: unknown;
+    /**
+     * 해당 임원의 동일한 카테고리 항목이 이미 존재합니다.
+     */
+    409: unknown;
+};
+
+export type IntegrityItemControllerUpdateResponses = {
+    /**
+     * 정직성 항목이 수정되었습니다.
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerRemoveByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/integrity-items/executive/{executiveId}';
+};
+
+export type IntegrityItemControllerRemoveByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type IntegrityItemControllerRemoveByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 모든 정직성 항목이 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerFindByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/integrity-items/executive/{executiveId}';
+};
+
+export type IntegrityItemControllerFindByExecutiveIdErrors = {
+    /**
+     * 임원을 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type IntegrityItemControllerFindByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 정직성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type IntegrityItemControllerFindByCategoryData = {
+    body?: never;
+    path: {
+        category: 'DISCIPLINARY_LOOKUP' | 'CRIMINAL_RECORD_LOOKUP' | 'DISQUALIFICATION_LOOKUP' | 'LAW_TRAINING_ISSUE' | 'OTHER';
+    };
+    query?: never;
+    url: '/integrity-items/category/{category}';
+};
+
+export type IntegrityItemControllerFindByCategoryResponses = {
+    /**
+     * 해당 카테고리의 정직성 항목 목록 반환
+     */
+    200: unknown;
+};
+
+export type EvaluationsControllerFindByExecutiveIdData = {
+    body?: never;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/evaluations/executive/{executiveId}';
+};
+
+export type EvaluationsControllerFindByExecutiveIdErrors = {
+    /**
+     * 해당 임원의 평가가 없습니다.
+     */
+    404: unknown;
+};
+
+export type EvaluationsControllerFindByExecutiveIdResponses = {
+    /**
+     * 해당 임원의 평가 반환
+     */
+    200: unknown;
+};
+
+export type EvaluationsControllerCreateForExecutiveData = {
+    body: CreateEvaluationDto;
+    path: {
+        executiveId: string;
+    };
+    query?: never;
+    url: '/evaluations/executive/{executiveId}';
+};
+
+export type EvaluationsControllerCreateForExecutiveErrors = {
+    /**
+     * 이미 평가가 존재합니다.
+     */
+    409: unknown;
+};
+
+export type EvaluationsControllerCreateForExecutiveResponses = {
+    /**
+     * 평가가 생성되었습니다.
+     */
+    201: unknown;
+};
+
+export type EvaluationsControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/evaluations/{id}';
+};
+
+export type EvaluationsControllerRemoveErrors = {
+    /**
+     * 평가를 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type EvaluationsControllerRemoveResponses = {
+    /**
+     * 평가가 삭제되었습니다.
+     */
+    200: unknown;
+};
+
+export type EvaluationsControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/evaluations/{id}';
+};
+
+export type EvaluationsControllerFindOneErrors = {
+    /**
+     * 평가를 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type EvaluationsControllerFindOneResponses = {
+    /**
+     * 평가 단건 반환
+     */
+    200: unknown;
+};
+
+export type EvaluationsControllerUpdateData = {
+    body: PatchEvaluationDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/evaluations/{id}';
+};
+
+export type EvaluationsControllerUpdateErrors = {
+    /**
+     * 평가를 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type EvaluationsControllerUpdateResponses = {
+    /**
+     * 평가가 수정되었습니다.
+     */
+    200: unknown;
+};
+
+export type EvaluationsControllerSaveDraftData = {
+    body: PatchEvaluationDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/evaluations/{id}/draft';
+};
+
+export type EvaluationsControllerSaveDraftErrors = {
+    /**
+     * 평가를 찾을 수 없습니다.
+     */
+    404: unknown;
+};
+
+export type EvaluationsControllerSaveDraftResponses = {
+    /**
+     * 임시저장 완료
+     */
+    200: unknown;
+};
 
 export type ClientOptions = {
     baseUrl: string;

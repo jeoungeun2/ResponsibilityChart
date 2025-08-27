@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Navigation from './sidebar';
-import Footer from './footer';
+import Footer from './Footer/Footer';
 import Header from './header';
 
 

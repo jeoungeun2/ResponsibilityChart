@@ -33,6 +33,7 @@ interface DataTableProps<T> {
   onColumnsChange: (columns: Column<T>[]) => void
   searchPlaceholder?: string
   className?: string
+  isLoading?: boolean
 }
 
 // 액션 드롭다운 프롭스 인터페이스
@@ -73,7 +74,8 @@ export function DataTable<T extends Record<string, any>>({
   columns,
   onColumnsChange,
   searchPlaceholder = "검색...",
-  className
+  className,
+  isLoading
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
@@ -123,7 +125,7 @@ export function DataTable<T extends Record<string, any>>({
   return (
     <div className={cn("space-y-4", className)}>
       {/* 검색 및 컬럼 필터 영역 */}
-      <div className="flex items-center justify-between bg-white p-4 border">
+      <div className="flex items-center justify-between bg-white p-3 border">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
@@ -189,7 +191,16 @@ export function DataTable<T extends Record<string, any>>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center text-gray-500">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                    <span>데이터를 불러오는 중입니다...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center text-gray-500">
                   {searchTerm ? "검색 결과가 없습니다." : "데이터가 없습니다."}
@@ -218,11 +229,16 @@ export function DataTable<T extends Record<string, any>>({
                     </TableCell>
                   ))}
                   <TableCell className="p-1.5">
-                    <ActionDropdown
-                      onCopyId={() => console.log('ID 복사:', item.id || item.code)}
-                      onViewCustomer={() => console.log('고객 보기:', item)}
-                      onViewDetails={() => console.log('상세 정보 보기:', item)}
-                    />
+                    {/* 사용자 정의 액션이 있으면 렌더링, 없으면 기본 액션 드롭다운 */}
+                    {item.actions ? (
+                      item.actions
+                    ) : (
+                      <ActionDropdown
+                        onCopyId={() => console.log('ID 복사:', item.id || item.code)}
+                        onViewCustomer={() => console.log('고객 보기:', item)}
+                        onViewDetails={() => console.log('상세 정보 보기:', item)}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))

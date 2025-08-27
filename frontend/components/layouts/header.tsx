@@ -24,7 +24,7 @@ export default function Header({ isSidebarCollapsed }: HeaderProps) {
                 className="w-15 h-17 object-contain "
               />
             )}
-            <span className="text-xl font-semibold font-pretendard text-white">책무구조시스템</span>
+            <span className="text-xl font-semibold font-pretendard text-white">책무관리시스템</span>
           </Link>
         </div>
 

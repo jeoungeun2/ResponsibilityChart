@@ -53,7 +53,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("비밀번호가 일치하지 않습니다.");
         }
 
-        return user;
+        // User 타입에 맞는 객체 반환
+        return {
+          id: user.id,
+          email: user.email || '',
+          name: user.name || '',
+          image: user.image,
+          emailVerified: user.emailVerified
+        };
       },
     }),
   ],
@@ -69,6 +76,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return jwt.verify(token as string, secret as string) as JWT;
     },
   },
+  
+  callbacks: {
+    async jwt({ token, user, account }) {
+      // 최초 로그인 시 user 정보를 token에 저장
+      if (account && user) {
+        token.accessToken = jwt.sign(
+          { 
+            userId: user.id, 
+            email: user.email,
+            name: user.name 
+          },
+          process.env.AUTH_SECRET || 'fallback-secret',
+          { expiresIn: '7d' }
+        );
+        token.userId = user.id;
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+    
+    async session({ session, token }) {
+      // token의 정보를 session에 포함
+      if (token) {
+        // session.user 객체가 없으면 초기화
+        if (!session.user) {
+          session.user = {
+            id: '',
+            email: '',
+            name: ''
+          };
+        }
+        
+        // accessToken을 세션에 추가
+        if (token.accessToken) {
+          session.accessToken = token.accessToken as string;
+        }
+        
+        // 사용자 정보를 세션에 추가
+        if (token.userId) {
+          session.user.id = token.userId as string;
+        }
+        if (token.email) {
+          session.user.email = token.email as string;
+        }
+        if (token.name) {
+          session.user.name = token.name as string;
+        }
+      }
+      return session;
+    },
+  },
+  
   pages: {},
-  callbacks: {},
 });

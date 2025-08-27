@@ -1,12 +1,3 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model Account {
   id                String  @id @default(cuid())
   userId            String  @map("user_id")
@@ -27,7 +18,6 @@ model Account {
   @@map("accounts")
 }
 
-
 model User {
   id             String    @id @default(cuid())
   name           String?
@@ -37,7 +27,6 @@ model User {
   image          String?
 
   accounts Account[]
- 
 
   @@map("users")
 }
@@ -51,22 +40,12 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// generator / datasource 는 기존 프로젝트 설정을 그대로 사용하세요.
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql" // 사용 DB에 맞게 교체
-  url      = env("DATABASE_URL")
-}
-
 /**
  * 책무구분(예: 경영관리)
  */
 model DutyCategory {
-  id        String  @id @default(uuid())
-  name      String  @unique               // 책무구분명
+  id        String   @id @default(uuid())
+  name      String   @unique // 책무구분명
   duties    Duty[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,14 +58,14 @@ model DutyCategory {
  * 예: AM-경영관리-C11 / 경영지원업무와 관련된 책무
  */
 model Duty {
-  id          String  @id @default(uuid())
-  categoryId  String
-  code        String  @unique             // 책무코드
-  name        String                      // 책무명
-  details     DutyDetail[]
-  category    DutyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String       @id @default(uuid())
+  categoryId String
+  code       String       @unique // 책무코드
+  name       String // 책무명
+  details    DutyDetail[]
+  category   DutyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
   @@map("duties")
 }
@@ -96,13 +75,160 @@ model Duty {
  * 예: AM-경영관리-C11-A / 경영지원 업무 관련 기준 수립 및 운영을 관리·감독할 책임
  */
 model DutyDetail {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   dutyId    String
-  code      String  @unique               // 세부코드
-  content   String                        // 세부내용
-  duty      Duty    @relation(fields: [dutyId], references: [id], onDelete: Cascade)
+  code      String   @unique // 세부코드
+  content   String // 세부내용
+  duty      Duty     @relation(fields: [dutyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("duty_details")
+}
+
+enum CommitteeRole {
+  CHAIR
+  MEMBER
+}
+
+enum MeetingFrequency {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  AD_HOC
+}
+
+enum QualiType {
+  WORK // 업무경험
+  EDUCATION
+  AWARD
+  CERT
+  OTHER
+}
+enum EvaluationStatus {
+  NOT_STARTED  // 미시작
+  STARTED      // 시작
+  IN_PROGRESS  // 진행중
+}
+
+enum IntegrityCategory {
+  DISCIPLINARY_LOOKUP
+  CRIMINAL_RECORD_LOOKUP
+  DISQUALIFICATION_LOOKUP
+  LAW_TRAINING_ISSUE
+  OTHER
+}
+
+enum IntegrityResult {
+  NONE
+  ISSUE
+  PASSED
+  FAILED
+}
+
+// ① 임원등록 (개인 기본/연락/재임기간)
+model Executive {
+  id            String    @id @default(uuid())
+  name          String
+  employeeNo    String?   @map("employee_no")
+  positionLabel String? // 직위(드롭다운 값 텍스트)
+  titleLabel    String? // 직책(드롭다운 값 텍스트)
+  phone         String?
+  email         String?
+  termStartDate DateTime? @map("term_start_date")
+  termEndDate   DateTime? @map("term_end_date")
+
+  // 연관 - cascade 삭제 설정
+  orgReg     ExecutiveOrgRegistration?
+  qualiItems ExecutiveQualiItem[] // (업무경험+전문성)
+  integrity  ExecutiveIntegrityItem[]
+  evaluation ExecutiveEvaluation?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@map("executives")
+}
+
+// ② 조직등록 (관리대상조직/부서/팀 + 관할의체/역할/개최주기/주요 심의의결사항)
+model ExecutiveOrgRegistration {
+  id          String    @id @default(uuid())
+  executiveId String    @unique
+  executive   Executive @relation(fields: [executiveId], references: [id], onDelete: Cascade)
+
+  managingOrg   String? // 관리대상조직
+  division      String? // 소관부서/본부
+  team          String? // 소관팀
+  councilBody   String? // 관할의체(위원회명 등)
+  committeeRole CommitteeRole? // 위원장/위원
+  meetingFreq   MeetingFrequency? // 개최주기
+  majorAgenda   String? // 주요 심의·의결사항
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("executive_org_registrations")
+}
+
+// ③ (업무경험) + ④ (전문성) — 하나의 목록 테이블로 통합
+model ExecutiveQualiItem {
+  id          String    @id @default(uuid())
+  executiveId String
+  executive   Executive @relation(fields: [executiveId], references: [id], onDelete: Cascade)
+
+  type QualiType // WORK / EDUCATION / AWARD / CERT / OTHER
+
+  // WORK(업무경험) 용 필드
+  companyName   String?
+  positionLabel String? // 직위
+  titleLabel    String? // 직책
+  periodStart   DateTime?
+  periodEnd     DateTime?
+
+  // EDUCATION/AWARD/CERT/OTHER 용 필드
+  content    String? // 내용(학력, 수상내역, 자격증명 등)
+  occurredAt DateTime? // 일자
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([executiveId, type])
+  @@map("executive_quali_items")
+}
+
+// ⑤ 정직성/신뢰성 (목록)
+model ExecutiveIntegrityItem {
+  id          String    @id @default(uuid())
+  executiveId String
+  executive   Executive @relation(fields: [executiveId], references: [id], onDelete: Cascade)
+
+  category IntegrityCategory
+  result   IntegrityResult?
+  content  String? // 내용("해당없음" 등)
+  note     String? // 비고
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([executiveId, category])
+  @@map("executive_integrity_items")
+}
+
+// ⑤와 같은 화면에 있는 평가/판단 (1:1)
+model ExecutiveEvaluation {
+  id          String    @id @default(uuid())
+  executiveId String    @unique
+  executive   Executive @relation(fields: [executiveId], references: [id], onDelete: Cascade)
+
+  evaluationResult String? // 평가결과(자유 입력)
+  decisionReason   String? // 판단사유(자유 입력)
+  status           EvaluationStatus @default(NOT_STARTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("executive_evaluations")
 }
