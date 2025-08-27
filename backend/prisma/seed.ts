@@ -1,4 +1,4 @@
-import { PrismaClient, CommitteeRole, MeetingFrequency, QualiType, IntegrityCategory, IntegrityResult, Executive } from '@prisma/client';
+import { PrismaClient, CommitteeRole, MeetingFrequency, QualiType, IntegrityCategory, IntegrityResult, Executive, EvaluationStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,7 @@ async function main() {
   const execs: Executive[] = [];
 
   // Dummy executives 3-20 (18 executives)
-  for (let i = 3; i <= 30; i++) {
+  for (let i = 31; i <= 50; i++) {
     const executive = await prisma.executive.create({
       data: {
         name: `임원${i}`,
@@ -20,10 +20,10 @@ async function main() {
         termEndDate: new Date("2026-12-31"),
         orgReg: {
           create: {
-            managingOrg: "관리본부",
+            managingOrg: "재무본부",
             division: `Division${i}`,
             team: `Team${i}`,
-            councilBody: "경영위원회",
+            councilBody: "재무위원회",
             committeeRole: i % 2 === 0 ? CommitteeRole.CHAIR : CommitteeRole.MEMBER,
             meetingFreq: MeetingFrequency.QUARTERLY,
             majorAgenda: `Agenda ${i}`
@@ -31,8 +31,8 @@ async function main() {
         },
         qualiItems: {
           create: [
-            { type: QualiType.WORK, companyName: `회사${i}`, positionLabel: "과장", titleLabel: "담당자", periodStart: new Date("2020-01-01"), periodEnd: new Date("2023-12-31") },
-            { type: QualiType.EDUCATION, content: `대학교${i} 졸업`, occurredAt: new Date("2010-02-01") },
+            { type: QualiType.WORK, companyName: `회사${i}`, positionLabel: "과장", titleLabel: "담당자", periodStart: new Date("2020-01-01"), periodEnd: new Date("2024-12-31") },
+            { type: QualiType.EDUCATION, content: `대학교${i} 졸업`, occurredAt: new Date("2011-02-01") },
             { type: QualiType.CERT, content: "자격증" }
           ]
         },
@@ -41,7 +41,7 @@ async function main() {
             { category: IntegrityCategory.DISCIPLINARY_LOOKUP, result: IntegrityResult.NONE, content: "없음" }
           ]
         },
-        evaluation: { create: { evaluationResult: "적합", decisionReason: `사유${i}` } }
+        evaluation: { create: { evaluationResult: "적합", decisionReason: `사유${i}`, status: EvaluationStatus.STARTED } }
       }
     });
     
