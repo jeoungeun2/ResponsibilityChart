@@ -24,6 +24,7 @@ interface Column<T> {
   header: string
   visible: boolean
   width?: string
+  render?: (value: any, row: T) => React.ReactNode
 }
 
 // 데이터 테이블 프롭스 인터페이스
@@ -225,7 +226,7 @@ export function DataTable<T extends Record<string, any>>({
                   </TableCell>
                   {visibleColumns.map((column) => (
                     <TableCell key={String(column.key)} className="p-2 text-gray-700">
-                      {String(item[column.key] || '')}
+                      {column.render ? column.render(item[column.key], item) : String(item[column.key] || '')}
                     </TableCell>
                   ))}
                   <TableCell className="p-1.5">

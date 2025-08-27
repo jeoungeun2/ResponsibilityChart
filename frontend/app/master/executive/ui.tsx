@@ -115,12 +115,11 @@ export default function Ui() {
       visible: false
     },
     {
-      key: "evaluation.status" as keyof any,
+      key: "evaluationStatus" as keyof any,
       header: "평가상태",
       visible: true,
       render: (value: any, row: any) => {
-        if (!row.evaluation?.status) return '-';
-        const status = row.evaluation.status;
+        const status = value || 'NOT_STARTED';
         const statusLabels: Record<string, string> = {
           'NOT_STARTED': '미시작',
           'STARTED': '시작',
@@ -330,11 +329,6 @@ export default function Ui() {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  // 페이지 크기 변경 핸들러
-  const handleTakeChange = (newTake: number) => {
-    setPagination(prev => ({ ...prev, page: 1, take: newTake }));
-  };
-
   // 추가 mutation
   const createMutation = useMutation({
     mutationFn: async (data: { 
@@ -452,25 +446,30 @@ export default function Ui() {
 
     const result = executives.map((executive: any, index: number) => {
       console.log(`📝 임원 ${index + 1} 처리:`, executive.name);
+      
+      // 평가상태 데이터 준비
+      const evaluationStatus = executive.evaluation?.status || 'NOT_STARTED';
+      
       return {
-    ...executive,
-    actions: (
-      <div className="flex items-center space-x-2">
-        <button 
-          onClick={() => handleEdit(executive)}
-          className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center"
-        >
-          <Edit className="h-4 w-4 mr-1" /> 수정
-        </button>
-        <button 
-          onClick={() => handleDelete(executive.id)}
-          disabled={deleteMutation.isPending}
-          className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center"
-        >
-          <Trash2 className="h-4 w-4 mr-1" /> 삭제
-        </button>
-      </div>
-    )
+        ...executive,
+        evaluationStatus, // 평가상태 필드 추가
+        actions: (
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => handleEdit(executive)}
+              className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center"
+            >
+              <Edit className="h-4 w-4 mr-1" /> 수정
+            </button>
+            <button 
+              onClick={() => handleDelete(executive.id)}
+              disabled={deleteMutation.isPending}
+              className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center"
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> 삭제
+            </button>
+          </div>
+        )
       };
     });
 
@@ -492,19 +491,8 @@ export default function Ui() {
   console.log('Table data:', tableData);
   console.log('Columns:', columnsWithActions);
 
-  // 로딩 상태 표시
-  if (isLoading) {
-    console.log('⏳ 로딩 상태 표시');
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">데이터를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // 로딩 상태 표시 제거 - 테이블 내부에서 처리
+  
   // 에러 상태 표시
   if (error || isError) {
     console.log('❌ 에러 상태 표시:', error);
@@ -777,29 +765,27 @@ export default function Ui() {
       
       {/* DataTable 사용 */}
       <DataTable
-        data={tableData}
+        data={isLoading ? [] : tableData}
         columns={columnsWithActions}
         searchPlaceholder="임원 검색..."
         className="w-full"
         onColumnsChange={handleColumnsChange}
         isLoading={isLoading}
       />
+      
+      {/* 로딩 중일 때 테이블 하단에 로딩 표시 */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p className="text-gray-600 text-sm">데이터를 불러오는 중...</p>
+        </div>
+      )}
 
       {/* 페이지네이션 */}
       {meta && meta.totalPages > 1 && (
         <div className="flex items-center justify-between bg-white p-4 rounded-lg border shadow-sm">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">페이지당 행 수:</span>
-            <select
-              value={pagination.take}
-              onChange={(e) => handleTakeChange(Number(e.target.value))}
-              className="px-2 py-1 border border-gray-300 rounded text-sm"
-            >
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+            <span className="text-sm text-gray-600">페이지당 15행</span>
           </div>
 
           <div className="flex items-center space-x-2">
