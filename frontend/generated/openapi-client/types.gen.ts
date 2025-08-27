@@ -626,6 +626,74 @@ export type ExecutivesControllerCreateResponses = {
     201: unknown;
 };
 
+export type ExecutivesControllerSearchData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * 정직성 카테고리 필터
+         */
+        integrityCategory?: 'DISCIPLINARY_LOOKUP' | 'CRIMINAL_RECORD_LOOKUP' | 'DISQUALIFICATION_LOOKUP' | 'LAW_TRAINING_ISSUE' | 'OTHER';
+        /**
+         * 자격/경험 유형 필터
+         */
+        qualiItemType?: 'WORK' | 'EDUCATION' | 'AWARD' | 'CERT' | 'OTHER';
+        /**
+         * 평가 상태 필터
+         */
+        evaluationStatus?: 'NOT_STARTED' | 'STARTED' | 'IN_PROGRESS';
+        /**
+         * 종료 날짜 (ISO 문자열)
+         */
+        endDate?: string;
+        /**
+         * 시작 날짜 (ISO 문자열)
+         */
+        startDate?: string;
+        /**
+         * 정렬 순서
+         */
+        order?: 'asc' | 'desc';
+        /**
+         * 정렬 기준
+         */
+        sortBy?: 'name' | 'createdAt' | 'email' | 'positionLabel';
+        /**
+         * 검색 키워드 (이름/이메일)
+         */
+        keyword?: string;
+        /**
+         * 페이지당 항목 수 (기본값: 10, 최대: 100)
+         */
+        take?: number;
+        /**
+         * 페이지 번호 (기본값: 1)
+         */
+        page?: number;
+    };
+    url: '/executives/search';
+};
+
+export type ExecutivesControllerSearchResponses = {
+    200: unknown;
+};
+
+export type ExecutivesControllerFindByNameData = {
+    body?: never;
+    path: {
+        name: string;
+    };
+    query?: never;
+    url: '/executives/search/{name}';
+};
+
+export type ExecutivesControllerFindByNameResponses = {
+    /**
+     * 검색 결과 반환
+     */
+    200: unknown;
+};
+
 export type ExecutivesControllerRemoveData = {
     body?: never;
     path: {
@@ -644,7 +712,7 @@ export type ExecutivesControllerRemoveErrors = {
 
 export type ExecutivesControllerRemoveResponses = {
     /**
-     * 임원이 삭제되었습니다.
+     * 임원이 수정되었습니다.
      */
     200: unknown;
 };
@@ -691,22 +759,6 @@ export type ExecutivesControllerUpdateErrors = {
 export type ExecutivesControllerUpdateResponses = {
     /**
      * 임원이 수정되었습니다.
-     */
-    200: unknown;
-};
-
-export type ExecutivesControllerFindByNameData = {
-    body?: never;
-    path: {
-        name: string;
-    };
-    query?: never;
-    url: '/executives/search/{name}';
-};
-
-export type ExecutivesControllerFindByNameResponses = {
-    /**
-     * 검색 결과 반환
      */
     200: unknown;
 };
