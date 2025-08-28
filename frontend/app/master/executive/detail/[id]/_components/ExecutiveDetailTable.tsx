@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 
 interface ExecutiveDetailTableProps {
+  employeeNo?: string;
   phone?: string;
   email?: string;
   termStartDate?: string;
@@ -20,6 +21,7 @@ interface ExecutiveDetailTableProps {
 }
 
 export default function ExecutiveDetailTable({
+  employeeNo,
   phone,
   email,
   termStartDate,
@@ -46,7 +48,7 @@ export default function ExecutiveDetailTable({
   );
 
   return (
-    <div className="bg-white p-6 rounded-lg border shadow-sm">
+    <div className="bg-white p-6 rounded-lg border shadow-sm h-[450px]">
       <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">상세 정보</h3>
       
       <Table>
@@ -57,6 +59,11 @@ export default function ExecutiveDetailTable({
           </TableRow>
         </TableHeader>
         <TableBody>
+          <TableRow>
+            <TableCell className="font-medium">사번</TableCell>
+            <TableCell>{employeeNo || '미입력'}</TableCell>
+          </TableRow>
+          
           <TableRow>
             <TableCell className="font-medium">연락처</TableCell>
             <TableCell>{phone || '미입력'}</TableCell>

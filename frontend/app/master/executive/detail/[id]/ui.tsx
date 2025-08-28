@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import H1 from '@/components/layouts/h1';
-import ExecutiveInfoCard from './components/ExecutiveInfoCard';
-import ExecutiveDetailTable from './components/ExecutiveDetailTable';
+import ExecutiveInfoCard from './_components/ExecutiveInfoCard';
+import ExecutiveDetailTable from './_components/ExecutiveDetailTable';
 
 // React Query를 사용하여 임원 데이터 조회
 const fetchExecutiveData = async (id: string) => {
@@ -77,24 +77,31 @@ export default function ExecutiveDetailUI() {
     <div className="space-y-6">
       <H1 title={`임원 상세정보 - ${executive.name} (${executive.employeeNo || '사번없음'})`} />
       
-      {/* 기본 정보 카드 */}
-      <ExecutiveInfoCard
-        name={executive.name}
-        employeeNo={executive.employeeNo}
-        positionLabel={executive.positionLabel}
-        titleLabel={executive.titleLabel}
-      />
-      
-      {/* 상세 정보 테이블 */}
-      <ExecutiveDetailTable
-        phone={executive.phone}
-        email={executive.email}
-        termStartDate={executive.termStartDate}
-        termEndDate={executive.termEndDate}
-        evaluationStatus={executive.evaluation?.status}
-        createdAt={executive.createdAt}
-        updatedAt={executive.updatedAt}
-      />
+      {/* 1:2 그리드 레이아웃 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 기본 정보 카드 - 1/3 */}
+        <div className="lg:col-span-1">
+          <ExecutiveInfoCard
+            name={executive.name}
+            positionLabel={executive.positionLabel}
+            titleLabel={executive.titleLabel}
+          />
+        </div>
+        
+        {/* 상세 정보 테이블 - 2/3 */}
+        <div className="lg:col-span-2">
+          <ExecutiveDetailTable
+            employeeNo={executive.employeeNo}
+            phone={executive.phone}
+            email={executive.email}
+            termStartDate={executive.termStartDate}
+            termEndDate={executive.termEndDate}
+            evaluationStatus={executive.evaluation?.status}
+            createdAt={executive.createdAt}
+            updatedAt={executive.updatedAt}
+          />
+        </div>
+      </div>
     </div>
   );
 }
