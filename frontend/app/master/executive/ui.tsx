@@ -4,15 +4,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useMemo } from "react";
 import { DataTable } from '@/components/ui/data-table';
-import { Edit, Trash2, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Pagination } from '@/components/ui/pagination';
+import { Edit, Trash2, Eye } from 'lucide-react';
 
-import AddFormDialog from './_components/AddFormDialog';
+
 import { useRouter } from 'next/navigation';
 import { 
   executivesControllerSearch, 
   executivesControllerCreate, 
   executivesControllerUpdate, 
-  executivesControllerRemove 
+  executivesControllerRemove,
+  executivesControllerFindAll
 } from '@/generated/openapi-client/sdk.gen';
 import { client } from '@/generated/openapi-client/client.gen';
 
@@ -40,12 +42,55 @@ export default function Ui() {
   });
 
   // 검색 필터 상태
-  const [searchFilters, setSearchFilters] = useState({
-    keyword: '',
-    evaluationStatus: '' as 'NOT_STARTED' | 'STARTED' | 'IN_PROGRESS' | '',
-    sortBy: 'createdAt' as 'name' | 'positionLabel' | 'email' | 'createdAt',
-    order: 'desc' as 'asc' | 'desc'
+  const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
+    name: '',
+    evaluationStatus: ''
   });
+
+  // 이름 리스트 상태 (전체 이름 목록)
+  const [nameList, setNameList] = useState<Array<{ value: string; label: string }>>([]);
+
+  // 필터 설정 정의
+  const filters = [
+    {
+      key: 'name',
+      label: '이름',
+      type: 'dropdown' as const,
+      placeholder: '모든 이름',
+      width: 'w-40'
+    },
+    {
+      key: 'evaluationStatus',
+      label: '평가상태',
+      type: 'dropdown' as const,
+      placeholder: '모든 상태',
+      width: 'w-32'
+    }
+  ];
+
+  // 필터 옵션들 정의 (새로운 구조)
+  const filterOptions = {
+    name: nameList,
+    evaluationStatus: [
+      { value: 'NOT_STARTED', label: '미시작' },
+      { value: 'STARTED', label: '시작' },
+      { value: 'IN_PROGRESS', label: '진행중' }
+    ]
+  };
+
+
+
+  // 폼 필드 정의
+  const formFields = [
+    { key: 'name', label: '이름', type: 'text' as const, placeholder: '이름을 입력하세요', required: true },
+    { key: 'employeeNo', label: '사번', type: 'text' as const, placeholder: '사번을 입력하세요' },
+    { key: 'positionLabel', label: '직위', type: 'text' as const, placeholder: '직위를 입력하세요' },
+    { key: 'titleLabel', label: '직책', type: 'text' as const, placeholder: '직책을 입력하세요' },
+    { key: 'phone', label: '연락처', type: 'tel' as const, placeholder: '연락처를 입력하세요' },
+    { key: 'email', label: '이메일', type: 'email' as const, placeholder: '이메일을 입력하세요' },
+    { key: 'termStartDate', label: '재임시작일', type: 'date' as const },
+    { key: 'termEndDate', label: '재임종료일', type: 'date' as const }
+  ];
 
   // 페이지네이션 상태
   const [pagination, setPagination] = useState({
@@ -59,10 +104,8 @@ export default function Ui() {
   const searchParams: any = {
     page: pagination.page,
     take: pagination.take,
-    keyword: searchFilters.keyword || undefined,
-    evaluationStatus: searchFilters.evaluationStatus || undefined,
-    sortBy: searchFilters.sortBy,
-    order: searchFilters.order
+    name: searchFilters.name || undefined,
+    evaluationStatus: searchFilters.evaluationStatus || undefined
   };
 
   // 컬럼 정의 (확장)
@@ -171,6 +214,35 @@ export default function Ui() {
     retry: 1,       
   });
 
+  // 전체 이름 목록을 가져오는 쿼리 (드롭다운용)
+  const { data: allNamesResult, isLoading: isLoadingNames, error: namesError } = useQuery({
+    queryKey: ['executives', 'all-names'],
+    queryFn: async () => {
+      try {
+
+        
+        // findAll을 사용해서 모든 임원 데이터 가져오기
+        const response = await executivesControllerFindAll({
+          client
+        });
+        
+
+        return response;
+      } catch (error) {
+
+        return null;
+      }
+    },
+    enabled,                               // 인증 준비될 때만
+    staleTime: 300_000,            // 5분 내 재렌더시 재요청 방지 (이름 목록은 자주 변경되지 않음)
+    refetchOnWindowFocus: false,   // 포커스마다 재요청 방지
+    retry: 1,
+  });
+
+
+
+
+
 
 
   // 데이터 추출 로직
@@ -218,6 +290,8 @@ export default function Ui() {
     return [];
   }, [searchResult]);
 
+
+
   const meta = useMemo(() => {
     if (searchResult && typeof searchResult === 'object' && (searchResult as any).data?.meta) {
       return (searchResult as any).data.meta;
@@ -242,6 +316,57 @@ export default function Ui() {
     }
   }, [searchResult]);
 
+  // 전체 이름 목록에서 이름 리스트 생성
+  useEffect(() => {
+
+    
+    if (allNamesResult && typeof allNamesResult === 'object') {
+      let allNamesData: any[] = [];
+      
+      // allNamesResult에서 데이터 추출 (searchResult와 동일한 로직)
+      if ((allNamesResult as any).data && Array.isArray((allNamesResult as any).data)) {
+        allNamesData = (allNamesResult as any).data;
+
+      } else if (Array.isArray(allNamesResult)) {
+        allNamesData = allNamesResult;
+
+      } else if ((allNamesResult as any).response) {
+        if ((allNamesResult as any).data && Array.isArray((allNamesResult as any).data)) {
+          allNamesData = (allNamesResult as any).data;
+  
+        } else if (typeof (allNamesResult as any).response === 'object' && (allNamesResult as any).response.data) {
+          if (Array.isArray((allNamesResult as any).response.data)) {
+            allNamesData = (allNamesResult as any).response.data;
+    
+          }
+        }
+      }
+
+
+
+      // 이름 리스트 생성 (중복 제거)
+      if (allNamesData.length > 0) {
+        const uniqueNames = Array.from(
+          new Set(
+            allNamesData
+              .map((exec: any) => exec.name)
+              .filter((name: string) => name && name.trim())
+          )
+        ).map(name => ({
+          value: name,
+          label: name
+        }));
+        
+
+        setNameList(uniqueNames);
+      } else {
+
+      }
+    } else {
+      console.log('allNamesResult가 없거나 객체가 아님');
+    }
+  }, [allNamesResult]);
+
 
 
   // 폼 데이터 변경 핸들러
@@ -250,20 +375,12 @@ export default function Ui() {
   };
 
   // 검색 필터 변경 핸들러
-  const handleFilterChange = (key: keyof typeof searchFilters, value: string) => {
+  const handleFilterChange = (key: string, value: string) => {
     setSearchFilters(prev => ({ ...prev, [key]: value }));
     setPagination(prev => ({ ...prev, page: 1 })); // 필터 변경시 첫 페이지로
   };
 
-  // 정렬 변경 핸들러
-  const handleSortChange = (sortBy: 'name' | 'createdAt') => {
-    setSearchFilters(prev => ({
-      ...prev,
-      sortBy,
-      order: prev.sortBy === sortBy && prev.order === 'asc' ? 'desc' : 'asc'
-    }));
-    setPagination(prev => ({ ...prev, page: 1 })); // 정렬 변경시 첫 페이지로
-  };
+
 
   // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
@@ -304,7 +421,7 @@ export default function Ui() {
           client,
           body: createData
         });
-
+        
         // HTTP 응답 상태 확인
         if (response && typeof response === 'object' && 'response' in response) {
           const httpResponse = (response as any).response;
@@ -424,6 +541,45 @@ export default function Ui() {
     }
   });
 
+  // 선택 삭제 핸들러
+  const handleBulkDelete = async (selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      alert('삭제할 항목을 선택해주세요.');
+      return;
+    }
+
+    const confirmMessage = `선택된 ${selectedIds.length}명의 임원을 삭제하시겠습니까?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      // 선택된 모든 ID에 대해 삭제 API 호출
+      const deletePromises = selectedIds.map(id => 
+        executivesControllerRemove({
+          client,
+          path: { id }
+        })
+      );
+
+      await Promise.all(deletePromises);
+      
+      // 성공 시 쿼리 무효화 및 메시지 표시
+      queryClient.invalidateQueries({ queryKey: ['executives'] });
+      alert(`${selectedIds.length}명의 임원이 성공적으로 삭제되었습니다.`);
+      
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || '선택 삭제 중 오류가 발생했습니다.';
+      alert(`오류: ${errorMessage}`);
+    }
+  };
+
+  // 선택 상태 초기화 핸들러
+  const handleSelectionReset = () => {
+    // 선택 상태 초기화 로직이 필요하면 여기에 추가
+    console.log('선택 상태가 초기화되었습니다.');
+  };
+
   // 추가 폼 열기/닫기 핸들러
   const handleShowAddForm = () => {
     if (showAddForm) {
@@ -519,7 +675,7 @@ const handleViewDetail = (executive: any) => {
           <div className="flex items-center space-x-2">
             <button 
               onClick={() => handleEdit(executive)}
-              className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center"
+              className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center cursor-pointer"
               title="수정"
             >
               <Edit className="h-4 w-4 mr-1" /> 수정
@@ -527,7 +683,7 @@ const handleViewDetail = (executive: any) => {
             <button 
               onClick={() => handleDelete(executive.id)}
               disabled={deleteMutation.isPending}
-              className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center"
+              className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center cursor-pointer"
               title="삭제"
             >
               <Trash2 className="h-4 w-4 mr-1" /> 삭제
@@ -550,22 +706,18 @@ const handleViewDetail = (executive: any) => {
       render: (value: any, row: any) => (
         <button 
           onClick={() => handleViewDetail(row)}
-          className="text-green-500 hover:text-green-700 text-sm transition-colors px-2 py-1 rounded hover:bg-green-50 flex items-center"
+          className="text-gray-700 hover:text-gray-900 text-sm transition-colors px-2 py-1 rounded hover:bg-gray-50 flex items-center"
+          style={{ cursor: 'pointer' }}
           title="상세보기"
         >
           <Eye className="h-4 w-4 mr-1" /> 상세보기
         </button>
       )
-    },
-    {
-      key: "actions",
-      header: "액션",
-      visible: true
     }
   ];
 
 
-
+  
   // 에러 상태 표시
   if (error || isError) {
     return (
@@ -593,40 +745,12 @@ const handleViewDetail = (executive: any) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-4 pb-6">
 
 
-      {/* 상단 정보 및 추가 버튼 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">
-            총 {meta?.total || 0}명의 임원
-          </span>
-          <span className="text-sm text-gray-500">
-            (페이지 {pagination.page} / {pagination.pageCount})
-          </span>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleShowAddForm}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            {showAddForm ? '취소' : '추가'}
-          </button>
-        </div>
-      </div>
 
-      {/* 추가 폼 다이얼로그 */}
-      <AddFormDialog
-        formData={newExecutive}
-        onFormDataChange={handleFormDataChange}
-        onAdd={handleAdd}
-        isLoading={createMutation.isPending}
-        isNameValid={newExecutive.name.trim().length > 0}
-        open={showAddForm}
-        onOpenChange={setShowAddForm}
-      />
+
+
 
       {/* 수정 폼 */}
       {showEditForm && editingExecutive && (
@@ -715,11 +839,12 @@ const handleViewDetail = (executive: any) => {
               />
             </div>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 ">
             <button
               onClick={handleUpdate}
               disabled={updateMutation.isPending || !editingExecutive.name.trim()}
-              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center "
+               
             >
               {updateMutation.isPending ? (
                 <>
@@ -727,12 +852,13 @@ const handleViewDetail = (executive: any) => {
                   수정 중...
                 </>
               ) : (
+                
                 '수정'
               )}
             </button>
             <button
               onClick={handleCloseEditForm}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
             >
               취소
             </button>
@@ -755,43 +881,30 @@ const handleViewDetail = (executive: any) => {
         isLoading={isLoading}
         searchFilters={searchFilters}
         onFilterChange={handleFilterChange}
-        onSortChange={handleSortChange}
+        filters={filters}
+        filterOptions={filterOptions}
+        onBulkDelete={handleBulkDelete}
+        onSelectionReset={handleSelectionReset}
+        enableBulkDelete={true}
+        enableRowSelection={true}
+        enableAddForm={true}
+        showAddForm={showAddForm}
+        onShowAddForm={handleShowAddForm}
+        formData={newExecutive}
+        formFields={formFields}
+        onFormDataChange={handleFormDataChange}
+        onAdd={handleAdd}
+        isAddLoading={createMutation.isPending}
+        isNameValid={newExecutive.name.trim().length > 0}
+        showActionColumn={true}
       />
 
       {/* 페이지네이션 */}
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white p-4 rounded-lg border shadow-sm">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">페이지당 15행</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-              className="p-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            
-            <span className="text-sm text-gray-600">
-              {pagination.page} / {pagination.pageCount}
-            </span>
-            
-            <button
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page >= pagination.pageCount}
-              className="p-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="text-sm text-gray-600">
-            총 {meta.total}개 항목
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={pagination.page}
+        totalPages={pagination.pageCount}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }

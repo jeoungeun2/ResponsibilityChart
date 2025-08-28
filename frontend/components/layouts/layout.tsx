@@ -37,7 +37,7 @@ export default function DynamicLayout({ children }: DynamicLayoutProps) {
           isSidebarCollapsed ? 'ml-16' : 'ml-64'
         }`}
       >
-        <main className="flex-1 px-4  max-w-7xl mx-auto pt-12 min-h-screen">
+        <main className="flex-1 px-4  max-w-7xl mx-auto pt-4 min-h-screen">
           {children}
         </main>
         <Footer />

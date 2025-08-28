@@ -57,7 +57,7 @@ export default function FilterSection({
         <div>
           <select
             value={searchFilters.sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={(e) => onSortChange(e.target.value as 'name' | 'createdAt')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="createdAt">생성일순</option>

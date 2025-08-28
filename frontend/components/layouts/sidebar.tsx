@@ -31,7 +31,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       subItems: [
         { href: '/master/department', label: '책무 Master' },
         { href: '/master/executive', label: '임원 Master' },
-        { href: '/master/executive_detail', label: '임원 상세' },
+        
         { href: '/master/organization', label: '조직 Master' },
       ],
       imageSrc: '/images/data-analysis (1).png',
