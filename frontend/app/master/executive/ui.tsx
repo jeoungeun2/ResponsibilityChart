@@ -185,7 +185,33 @@ export default function Ui() {
     }
   ];
 
-  const [tableColumns, setTableColumns] = useState(columns);
+  // 상세보기 핸들러
+  const handleViewDetail = (executive: any) => {
+    // 실제 ID를 URL 경로에, 이름과 사번을 쿼리 파라미터로 전달
+    router.push(`/master/executive/detail/${executive.id}?name=${encodeURIComponent(executive.name)}&employeeNo=${encodeURIComponent(executive.employeeNo || '')}`);
+  };
+
+  // 상세보기 열 추가
+  const columnsWithDetail = [
+    ...columns,
+    {
+      key: "detail",
+      header: "상세보기",
+      visible: true,
+      render: (value: any, row: any) => (
+        <button 
+          onClick={() => handleViewDetail(row)}
+          className="text-brand-500 hover:text-brand-400 text-sm transition-colors px-2 py-1 rounded hover:bg-brand-50 underline"
+          style={{ cursor: 'pointer' }}
+          title="상세보기"
+        >
+          Link
+        </button>
+      )
+    }
+  ];
+
+  const [tableColumns, setTableColumns] = useState(columnsWithDetail);
 
   // 컬럼 변경 핸들러
   const handleColumnsChange = (newColumns: any[]) => {
@@ -613,12 +639,6 @@ export default function Ui() {
     }
   };
 
-  // ui.tsx에서
-const handleViewDetail = (executive: any) => {
-  // 실제 ID를 URL 경로에, 이름과 사번을 쿼리 파라미터로 전달
-  router.push(`/master/executive/detail/${executive.id}?name=${encodeURIComponent(executive.name)}&employeeNo=${encodeURIComponent(executive.employeeNo || '')}`);
-};
-
   // 수정 폼 열기/닫기 핸들러
   const handleShowEditForm = (executive: any) => {
     setEditingExecutive(executive);
@@ -675,10 +695,10 @@ const handleViewDetail = (executive: any) => {
           <div className="flex items-center space-x-2">
             <button 
               onClick={() => handleEdit(executive)}
-              className="text-blue-500 hover:text-blue-700 text-sm transition-colors px-2 py-1 rounded hover:bg-blue-50 flex items-center cursor-pointer"
+              className="text-navy-600 hover:text-navy-800 text-sm transition-colors px-2 py-1 rounded hover:bg-navy-50 flex items-center cursor-pointer"
               title="수정"
             >
-              <Edit className="h-4 w-4 mr-1" /> 수정
+              <Edit className="h-4 w-4" />
             </button>
             <button 
               onClick={() => handleDelete(executive.id)}
@@ -686,7 +706,7 @@ const handleViewDetail = (executive: any) => {
               className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center cursor-pointer"
               title="삭제"
             >
-              <Trash2 className="h-4 w-4 mr-1" /> 삭제
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         )
@@ -695,26 +715,6 @@ const handleViewDetail = (executive: any) => {
 
     return result;
   }, [executives, handleEdit, handleDelete, deleteMutation.isPending]);
-
-  // 상세보기 열 추가
-  const columnsWithDetail = [
-    ...columns,
-    {
-      key: "detail",
-      header: "상세보기",
-      visible: true,
-      render: (value: any, row: any) => (
-        <button 
-          onClick={() => handleViewDetail(row)}
-          className="text-gray-700 hover:text-gray-900 text-sm transition-colors px-2 py-1 rounded hover:bg-gray-50 flex items-center"
-          style={{ cursor: 'pointer' }}
-          title="상세보기"
-        >
-          <Eye className="h-4 w-4 mr-1" /> 상세보기
-        </button>
-      )
-    }
-  ];
 
 
   
@@ -875,7 +875,7 @@ const handleViewDetail = (executive: any) => {
       {/* DataTable 사용 */}
       <DataTable
         data={isLoading ? [] : tableData}
-        columns={columnsWithDetail}
+        columns={tableColumns}
         className="w-full"
         onColumnsChange={handleColumnsChange}
         isLoading={isLoading}

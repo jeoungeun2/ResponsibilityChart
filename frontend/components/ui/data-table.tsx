@@ -196,7 +196,7 @@ export function DataTable<T extends Record<string, any>>({
   return (
     <div className={cn("space-y-4", className)}>
       {/* 통합된 필터 및 컬럼 영역 */}
-      <div className="flex items-center justify-between bg-white p-3 border">
+      <div className="flex items-center justify-between p-3 bg-brand-grey-50">
         {/* 왼쪽: 검색 및 필터 */}
         <div className="flex items-center space-x-6">
           {/* 검색 및 필터들 */}
@@ -210,7 +210,7 @@ export function DataTable<T extends Record<string, any>>({
                   const options = filterOptions?.[filter.key] || [];
                   return (
                     <div key={filter.key} className="flex items-center space-x-2">
-                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                      <label className=" font-medium text-gray-700 whitespace-nowrap">
                         {filter.label}
                       </label>
                       <DropdownMenu>
@@ -219,8 +219,9 @@ export function DataTable<T extends Record<string, any>>({
                             variant="outline" 
                             className={`h-10 px-4 border-gray-200 hover:bg-gray-50 ${filter.width ? filter.width : 'w-auto'}`}
                           >
-                            {filterValue === '' ? `모든 ${filter.label}` : 
-                             options.find(opt => opt.value === filterValue)?.label || filterValue}
+                            {filterValue ? 
+                              (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
+                              : "전체선택"}
                             <ChevronDown className="ml-2 h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -240,7 +241,7 @@ export function DataTable<T extends Record<string, any>>({
                             onClick={() => onFilterChange(filter.key, '')}
                             className="cursor-pointer"
                           >
-                            모든 {filter.label}
+                            전체선택
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {getFilteredOptions(filter.key).map((option) => (
@@ -283,44 +284,53 @@ export function DataTable<T extends Record<string, any>>({
 
                 {/* 오른쪽: 컬럼 필터, 추가 버튼, 선택 삭제 */}
         <div className="flex items-center space-x-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
-                컬럼
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-                             <DropdownMenuCheckboxItem
-                 checked={visibleColumns.length === columns.length}
-                 onCheckedChange={(checked) => {
-                   if (checked) {
-                     onColumnsChange(columns.map(col => ({ ...col, visible: true })))
-                   } else {
-                     onColumnsChange(columns.map(col => ({ ...col, visible: false })))
-                   }
-                 }}
-               >
-                 모든 컬럼
-               </DropdownMenuCheckboxItem>
-               <DropdownMenuSeparator />
-               {columns.map((column) => (
-                 <DropdownMenuCheckboxItem
-                   key={String(column.key)}
-                   checked={column.visible}
-                   onCheckedChange={() => toggleColumnVisibility(column.key)}
-                 >
-                   {column.header}
-                 </DropdownMenuCheckboxItem>
-               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center space-x-2">
+            <label className="font-medium text-gray-700 whitespace-nowrap">
+              컬럼
+            </label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
+                   {visibleColumns.length === columns.length 
+                     ? "전체선택" 
+                     : visibleColumns.length === 1 
+                       ? visibleColumns[0].header 
+                       : `${visibleColumns.length}개 컬럼`}
+                   <ChevronDown className="ml-2 h-4 w-4" />
+                 </Button>
+               </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.length === columns.length}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      onColumnsChange(columns.map(col => ({ ...col, visible: true })))
+                    } else {
+                      onColumnsChange(columns.map(col => ({ ...col, visible: false })))
+                    }
+                  }}
+                >
+                  모든 컬럼
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                {columns.map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={String(column.key)}
+                    checked={column.visible}
+                    onCheckedChange={() => toggleColumnVisibility(column.key)}
+                  >
+                    {column.header}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           {/* 추가 버튼 */}
           {enableAddForm && onShowAddForm && (
             <button
               onClick={onShowAddForm}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-1.5 rounded-md transition-colors"
+              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-1.5 rounded-md transition-colors cursor-pointer"
             >
               {showAddForm ? '취소' : '추가'}
             </button>
@@ -336,9 +346,10 @@ export function DataTable<T extends Record<string, any>>({
                  // 부모 컴포넌트에도 알림
                  onSelectionReset?.();
                }}
-               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+               className="text-brand-500 px-2 py-1.5 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-[#fff5ed]"
+               
              >
-               <span>선택 삭제 ({selectedRows.size})</span>
+               <span>삭제 ({selectedRows.size})</span>
              </button>
            )}
         </div>
