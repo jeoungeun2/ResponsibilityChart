@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useMemo } from "react";
 import { DataTable } from '@/components/ui/data-table';
-import { Edit, Trash2, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Trash2, Search, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { 
   executivesControllerSearch, 
   executivesControllerCreate, 
@@ -17,6 +18,7 @@ export default function Ui() {
   const { data: session, status } = useSession();
   const enabled = status === "authenticated" && !!session?.accessToken;
   const queryClient = useQueryClient();
+  const router = useRouter();
   
   // 인증 상태 로깅
   console.log('🔐 인증 상태:', {
@@ -578,6 +580,12 @@ export default function Ui() {
     }
   };
 
+  // ui.tsx에서
+const handleViewDetail = (executive: any) => {
+  // 실제 ID를 URL 경로에, 이름과 사번을 쿼리 파라미터로 전달
+  router.push(`/master/executive/detail/${executive.id}?name=${encodeURIComponent(executive.name)}&employeeNo=${encodeURIComponent(executive.employeeNo || '')}`);
+};
+
   // 수정 폼 열기/닫기 핸들러
   const handleShowEditForm = (executive: any) => {
     setEditingExecutive(executive);
@@ -666,9 +674,23 @@ export default function Ui() {
     return result;
   }, [executives, handleEdit, handleDelete, deleteMutation.isPending]);
 
-  // 액션 컬럼 추가
-  const columnsWithActions = [
+  // 상세보기 열 추가
+  const columnsWithDetail = [
     ...columns,
+    {
+      key: "detail",
+      header: "상세보기",
+      visible: true,
+      render: (value: any, row: any) => (
+        <button 
+          onClick={() => handleViewDetail(row)}
+          className="text-green-500 hover:text-green-700 text-sm transition-colors px-2 py-1 rounded hover:bg-green-50 flex items-center"
+          title="상세보기"
+        >
+          <Eye className="h-4 w-4 mr-1" /> 상세보기
+        </button>
+      )
+    },
     {
       key: "actions",
       header: "액션",
@@ -678,7 +700,7 @@ export default function Ui() {
 
   // 디버깅용 로그
   console.log('Table data:', tableData);
-  console.log('Columns:', columnsWithActions);
+  console.log('Columns:', columnsWithDetail);
 
   // 로딩 상태 표시 제거 - 테이블 내부에서 처리
   
@@ -697,7 +719,7 @@ export default function Ui() {
   }
 
   // 데이터가 없을 때 표시 (로딩이 완료된 후에만)
-  if (!isLoading && (!searchResult || !Array.isArray(executives) || executives.length === 0)) {
+  if (!isLoading && !isError && (!searchResult || !Array.isArray(executives) || executives.length === 0)) {
     console.log('📋 데이터 없음 상태 표시:', { searchResult, executives });
     return (
       <div className="flex items-center justify-center h-64">
@@ -1029,20 +1051,12 @@ export default function Ui() {
       {/* DataTable 사용 */}
       <DataTable
         data={isLoading ? [] : tableData}
-        columns={columnsWithActions}
+        columns={columnsWithDetail}
         searchPlaceholder="임원 검색..."
         className="w-full"
         onColumnsChange={handleColumnsChange}
         isLoading={isLoading}
       />
-      
-      {/* 로딩 중일 때 테이블 하단에 로딩 표시 */}
-      {isLoading && (
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-          <p className="text-gray-600 text-sm">데이터를 불러오는 중...</p>
-        </div>
-      )}
 
       {/* 페이지네이션 */}
       {meta && meta.totalPages > 1 && (
