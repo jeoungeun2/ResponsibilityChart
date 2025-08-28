@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-export default function MasterLayout({
+export default function ManagementActionLayout({
   children,
 }: {
   children: React.ReactNode;

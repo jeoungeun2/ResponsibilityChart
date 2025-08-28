@@ -9,33 +9,43 @@ import Header from '../executive/_components/Header';
 import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
-import { DutyData, sampleData } from '@/data/department-data';
+import { OrganizationData, organizationSampleData } from '@/data/organization-data';
 
 // 컬럼 정의
 const columns: any[] = [
   {
-    key: "category" as keyof DutyData,
-    header: "책무구분",
+    key: "orgCodeLv1" as keyof OrganizationData,
+    header: "관리대상조직코드 Lv1",
     visible: true
   },
   {
-    key: "code" as keyof DutyData,
-    header: "책무코드",
+    key: "orgNameLv1" as keyof OrganizationData,
+    header: "관리대상조직명",
     visible: true
   },
   {
-    key: "name" as keyof DutyData,
-    header: "책무",
+    key: "deptCodeLv2" as keyof OrganizationData,
+    header: "소관부서/본부코드 Lv2",
     visible: true
   },
   {
-    key: "detailCode" as keyof DutyData,
-    header: "책무 세부코드",
+    key: "deptNameLv2" as keyof OrganizationData,
+    header: "소관부서/본부명",
     visible: true
   },
   {
-    key: "detailContent" as keyof DutyData,
-    header: "책무 세부내용",
+    key: "teamCodeLv3" as keyof OrganizationData,
+    header: "소관팀코드 Lv3",
+    visible: true
+  },
+  {
+    key: "teamNameLv3" as keyof OrganizationData,
+    header: "소관팀명",
+    visible: true
+  },
+  {
+    key: "registrationDate" as keyof OrganizationData,
+    header: "등록일자",
     visible: true
   },
   {
@@ -57,7 +67,7 @@ const columns: any[] = [
   }
 ];
 
-export default function DepartmentPage() {
+export default function OrganizationPage() {
   const { isSidebarCollapsed } = useSidebar();
   const [tableColumns, setTableColumns] = useState(columns);
   // 추가 폼 관련 상태 관리
@@ -66,7 +76,7 @@ export default function DepartmentPage() {
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    category: ''
+    orgCodeLv1: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -76,8 +86,8 @@ export default function DepartmentPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "category",
-      label: "책무구분",
+      key: "orgCodeLv1",
+      label: "조직코드",
       type: "dropdown" as const,
       width: "w-32"
     }
@@ -85,32 +95,28 @@ export default function DepartmentPage() {
 
   // 필터 옵션들
   const filterOptions = {
-    category: [
-      { value: "경영관리", label: "경영관리" },
-      { value: "인사관리", label: "인사관리" },
-      { value: "재무관리", label: "재무관리" },
-      { value: "정보관리", label: "정보관리" },
-      { value: "법무관리", label: "법무관리" },
-      { value: "보안관리", label: "보안관리" },
-      { value: "품질관리", label: "품질관리" },
-      { value: "환경관리", label: "환경관리" },
-      { value: "시설관리", label: "시설관리" },
-      { value: "구매관리", label: "구매관리" },
-      { value: "물류관리", label: "물류관리" },
-      { value: "고객관리", label: "고객관리" },
-      { value: "마케팅관리", label: "마케팅관리" },
-      { value: "연구개발관리", label: "연구개발관리" },
-      { value: "지식관리", label: "지식관리" }
+    orgCodeLv1: [
+      { value: "ET", label: "ET - ETF투자부문" },
+      { value: "AU", label: "AU - 자산운용부문" },
+      { value: "AM", label: "AM - 자산관리부문" },
+      { value: "GI", label: "GI - 글로벌투자부문" },
+      { value: "CP", label: "CP - 금융소비자보호실" },
+      { value: "IT", label: "IT - IT부문" },
+      { value: "HR", label: "HR - 인사부문" },
+      { value: "FI", label: "FI - 재무부문" },
+      { value: "LE", label: "LE - 법무부문" }
     ]
   };
 
   // 폼 필드 정의
   const formFields = [
-    { key: "category", label: "책무구분", type: "text" as const, required: true },
-    { key: "code", label: "책무코드", type: "text" as const, required: true },
-    { key: "name", label: "책무", type: "text" as const, required: true },
-    { key: "detailCode", label: "책무 세부코드", type: "text" as const, required: true },
-    { key: "detailContent", label: "책무 세부내용", type: "text" as const, required: true }
+    { key: "orgCodeLv1", label: "관리대상조직코드 Lv1", type: "text" as const, required: true },
+    { key: "orgNameLv1", label: "관리대상조직명", type: "text" as const, required: true },
+    { key: "deptCodeLv2", label: "소관부서/본부코드 Lv2", type: "text" as const, required: true },
+    { key: "deptNameLv2", label: "소관부서/본부명", type: "text" as const, required: true },
+    { key: "teamCodeLv3", label: "소관팀코드 Lv3", type: "text" as const, required: true },
+    { key: "teamNameLv3", label: "소관팀명", type: "text" as const, required: true },
+    { key: "registrationDate", label: "등록일자", type: "date" as const, required: true }
   ];
 
   // 폼 데이터 변경 핸들러
@@ -161,7 +167,13 @@ export default function DepartmentPage() {
               </svg>
               <span>업로드</span>
             </button>
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2" />
+              </svg>
+              <span>직전회차 조직도</span>
+            </button>
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -172,10 +184,10 @@ export default function DepartmentPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="책무 Master" />
+        <H1 title="조직 Master" />
         
         <DataTable
-          data={sampleData}
+          data={organizationSampleData}
           columns={tableColumns}
           onColumnsChange={setTableColumns}
           className="w-full"

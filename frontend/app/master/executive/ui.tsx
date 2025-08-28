@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect, useMemo } from "react";
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
-import { Edit, Trash2, Eye } from 'lucide-react';
+import EditIcon from '@/components/ui/edit-icon';
+import DeleteIcon from '@/components/ui/delete-icon';
 
 
 import { useRouter } from 'next/navigation';
@@ -698,7 +699,7 @@ export default function Ui() {
               className="text-navy-600 hover:text-navy-800 text-sm transition-colors px-2 py-1 rounded hover:bg-navy-50 flex items-center cursor-pointer"
               title="수정"
             >
-              <Edit className="h-4 w-4" />
+              <EditIcon className="h-4 w-4" />
             </button>
             <button 
               onClick={() => handleDelete(executive.id)}
@@ -706,7 +707,7 @@ export default function Ui() {
               className="text-red-500 hover:text-red-700 disabled:text-gray-400 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50 flex items-center cursor-pointer"
               title="삭제"
             >
-              <Trash2 className="h-4 w-4" />
+              <DeleteIcon className="h-4 w-4" />
             </button>
           </div>
         )

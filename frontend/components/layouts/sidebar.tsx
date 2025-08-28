@@ -59,17 +59,10 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       label: '책무 이행 점검',
       href: '/responsibility-check',
       subItems: [
-        { label: '책무 이행점검 Dashboard', href: '/responsibility-check/dashboard' },
         { label: '이행점검 현황 조회', href: '/responsibility-check/status' },
         { label: '책무 이행점검 관리', href: '/responsibility-check/management' },
       ],
       imageSrc: '/images/check (2).png',
-    },
-    {
-      label: 'AI 실효성 점검',
-      href: '/ai-effectiveness',
-      subItems: [{ label: 'AI 실효성 점검', href: '/ai-effectiveness/' }],
-      imageSrc: '/images/ai-technology.png',
     },
   ];
 
@@ -81,14 +74,14 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
   return (
     <aside
       className={[
-        'fixed left-0 top-0 z-40 h-screen bg-white shadow-lg',
+        'fixed left-0 top-0 z-40 h-screen backdrop-blur-sm shadow-lg',
         'flex flex-col transition-[width] duration-300 ease-in-out',
         isCollapsed ? 'w-16' : 'w-64',
       ].join(' ')}
       aria-label="사이드바 내비게이션"
     >
       {/* 헤더 / 토글 버튼 */}
-      <div className="flex items-center justify-between px-6 border-b border-gray-200 h-15 flex-shrink-0 bg-[#ec5a29]">
+      <div className="flex items-center justify-between px-6  h-15 flex-shrink-0 bg-[#ec5a29]">
         <div className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
           {!isCollapsed && (
             <div className="w-16 h-12 flex items-center justify-center  ">
@@ -146,7 +139,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
                   {/* collapsed 상태 툴팁 */}
                   {isCollapsed && (
                     <span
-                      className="pointer-events-none absolute left-14 z-50 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
+                      className="pointer-events-none absolute left-16 z-[100] whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100"
                       role="tooltip"
                     >
                       {item.label}

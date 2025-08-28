@@ -4,8 +4,8 @@ import { useState } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
-import CommonBreadcrumb from '../executive/_components/Breadcrumb';
-import Header from '../executive/_components/Header';
+import CommonBreadcrumb from '../_components/Breadcrumb';
+import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
@@ -57,7 +57,7 @@ const columns: any[] = [
   }
 ];
 
-export default function DepartmentPage() {
+export default function ExecutivePage() {
   const { isSidebarCollapsed } = useSidebar();
   const [tableColumns, setTableColumns] = useState(columns);
   // 추가 폼 관련 상태 관리
@@ -161,7 +161,7 @@ export default function DepartmentPage() {
               </svg>
               <span>업로드</span>
             </button>
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -172,7 +172,7 @@ export default function DepartmentPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="책무 Master" />
+        <H1 title="Executive Management Action" />
         
         <DataTable
           data={sampleData}
