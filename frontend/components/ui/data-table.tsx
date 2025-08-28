@@ -329,20 +329,7 @@ export function DataTable<T extends Record<string, any>>({
         </Table>
       </div>
 
-      {/* 선택된 행 정보 및 페이지네이션 */}
-      <div className="flex items-center justify-between text-sm bg-white ">
-        <div className="text-gray-600 font-medium">
-          {selectedRows.size} / {filteredData.length} 행 선택됨
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" disabled className="h-8 px-3 text-gray-400 border-gray-200">
-            이전
-          </Button>
-          <Button variant="outline" size="sm" disabled className="h-8 px-3 text-gray-400 border-gray-200">
-            다음
-          </Button>
-        </div>
-      </div>
+     
     </div>
   )
 }
