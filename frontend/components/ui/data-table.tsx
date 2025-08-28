@@ -196,7 +196,7 @@ export function DataTable<T extends Record<string, any>>({
   return (
     <div className={cn("space-y-4", className)}>
       {/* 통합된 필터 및 컬럼 영역 */}
-      <div className="flex items-center justify-between p-3 bg-brand-grey-50">
+      <div className="flex items-center justify-between p-3 bg-brand-grey-100 border border-brand-grey-200">
         {/* 왼쪽: 검색 및 필터 */}
         <div className="flex items-center space-x-6">
           {/* 검색 및 필터들 */}
@@ -206,25 +206,25 @@ export function DataTable<T extends Record<string, any>>({
               {filters?.map((filter) => {
                 const filterValue = searchFilters[filter.key] || '';
                 
-                if (filter.type === 'dropdown') {
-                  const options = filterOptions?.[filter.key] || [];
-                  return (
-                    <div key={filter.key} className="flex items-center space-x-2">
-                      <label className=" font-medium text-gray-700 whitespace-nowrap">
-                        {filter.label}
-                      </label>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            className={`h-10 px-4 border-gray-200 hover:bg-gray-50 ${filter.width ? filter.width : 'w-auto'}`}
-                          >
-                            {filterValue ? 
-                              (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
-                              : "전체선택"}
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
+                                 if (filter.type === 'dropdown') {
+                   const options = filterOptions?.[filter.key] || [];
+                   return (
+                     <div key={filter.key} className="flex items-center space-x-2  w-full">
+                       <label className="font-medium text-gray-700 whitespace-nowrap">
+                         {filter.label}
+                       </label>
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button 
+                             variant="outline" 
+                             className={`h-10 px-4 border-gray-200 hover:bg-gray-50 ${filter.width ? filter.width : 'w-auto'}`}
+                           >
+                             {filterValue ? 
+                               (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
+                               : "전체선택"}
+                             <ChevronDown className="ml-2 h-4 w-4" />
+                           </Button>
+                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
                           {/* 검색 입력 필드 */}
                           <div className="p-2 border-b">
@@ -326,35 +326,37 @@ export function DataTable<T extends Record<string, any>>({
             </DropdownMenu>
           </div>
 
-          {/* 추가 버튼 */}
-          {enableAddForm && onShowAddForm && (
-            <button
-              onClick={onShowAddForm}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-1.5 rounded-md transition-colors cursor-pointer"
-            >
-              {showAddForm ? '취소' : '추가'}
-            </button>
-          )}
+                    {/* 추가/삭제 버튼 그룹 */}
+          <div className="flex items-center space-x-2">
+            {/* 추가 버튼 */}
+            {enableAddForm && onShowAddForm && (
+              <button
+                onClick={onShowAddForm}
+                className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
+              >
+                {showAddForm ? '취소' : '추가'}
+              </button>
+            )}
 
-                     {/* 선택 삭제 버튼 */}
-           {enableBulkDelete && selectedRows.size > 0 && (
-             <button
-               onClick={() => {
-                 onBulkDelete?.(Array.from(selectedRows));
-                 // 선택 상태 초기화
-                 setSelectedRows(new Set());
-                 // 부모 컴포넌트에도 알림
-                 onSelectionReset?.();
-               }}
-               className="text-brand-500 px-2 py-1.5 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-[#fff5ed]"
-               
-             >
-               <span>삭제 ({selectedRows.size})</span>
-             </button>
-           )}
+            {/* 선택 삭제 버튼 */}
+            {enableBulkDelete && selectedRows.size > 0 && (
+              <button
+                onClick={() => {
+                  onBulkDelete?.(Array.from(selectedRows));
+                  // 선택 상태 초기화
+                  setSelectedRows(new Set());
+                  // 부모 컴포넌트에도 알림
+                  onSelectionReset?.();
+                }}
+                className="text-brand-500 px-2 py-1 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-brand-200/30"
+              >
+                <span>삭제 ({selectedRows.size})</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
-
+      {/* bg-[#fff5ed] */}
       {/* 테이블 */}
       <div className="border-t border-b bg-white">
         <Table>
@@ -413,7 +415,7 @@ export function DataTable<T extends Record<string, any>>({
                      </TableCell>
                    )}
                    {visibleColumns.map((column) => (
-                     <TableCell key={String(column.key)} className="p-2 text-gray-700">
+                     <TableCell key={String(column.key)} className="p-2 text-gray-700 text-sm">
                        {column.render ? column.render(item[column.key], item) : String(item[column.key] || '')}
                      </TableCell>
                    ))}

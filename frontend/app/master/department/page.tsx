@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
+import { Pagination } from '@/components/ui/pagination';
 
 // 책무 데이터 타입 정의
 interface DutyData {
@@ -113,6 +114,88 @@ const columns = [
 
 export default function DepartmentPage() {
   const [tableColumns, setTableColumns] = useState(columns);
+  // 추가 폼 관련 상태 관리
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  
+  // 필터 관련 상태 관리
+  const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
+    category: ''
+  });
+
+  // 페이지네이션 관련 상태 관리
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 5; // 5개 페이지가 있다고 가정
+
+  // 필터 설정 정의
+  const filters = [
+    {
+      key: "category",
+      label: "책무구분",
+      type: "dropdown" as const,
+      width: "w-32"
+    }
+  ];
+
+  // 필터 옵션들
+  const filterOptions = {
+    category: [
+      { value: "경영관리", label: "경영관리" },
+      { value: "인사관리", label: "인사관리" },
+      { value: "재무관리", label: "재무관리" },
+      { value: "정보관리", label: "정보관리" },
+      { value: "법무관리", label: "법무관리" },
+      { value: "보안관리", label: "보안관리" },
+      { value: "품질관리", label: "품질관리" },
+      { value: "환경관리", label: "환경관리" }
+    ]
+  };
+
+  // 폼 필드 정의
+  const formFields = [
+    { key: "category", label: "책무구분", type: "text" as const, required: true },
+    { key: "code", label: "책무코드", type: "text" as const, required: true },
+    { key: "name", label: "책무", type: "text" as const, required: true },
+    { key: "detailCode", label: "책무 세부코드", type: "text" as const, required: true },
+    { key: "detailContent", label: "책무 세부내용", type: "text" as const, required: true }
+  ];
+
+  // 폼 데이터 변경 핸들러
+  const handleFormDataChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // 추가 버튼 클릭 핸들러
+  const handleShowAddForm = () => {
+    setShowAddForm(!showAddForm);
+    if (!showAddForm) {
+      setFormData({}); // 폼 초기화
+    }
+  };
+
+  // 추가 처리 핸들러 (기능 없음)
+  const handleAdd = () => {
+    console.log('추가 기능은 구현되지 않았습니다.', formData);
+    // 여기에 실제 추가 로직을 구현할 수 있습니다
+  };
+
+  // 필터 변경 핸들러
+  const handleFilterChange = (key: string, value: string) => {
+    setSearchFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    console.log(`페이지 ${page}로 이동`);
+    // 여기에 실제 페이지 변경 로직을 구현할 수 있습니다
+  };
 
   return (
     <div className="space-y-6">
@@ -122,8 +205,30 @@ export default function DepartmentPage() {
         data={sampleData}
         columns={tableColumns}
         onColumnsChange={setTableColumns}
-        searchPlaceholder="책무 검색..."
         className="w-full"
+        // 필터 관련 props
+        searchFilters={searchFilters}
+        onFilterChange={handleFilterChange}
+        filterOptions={filterOptions}
+        filters={filters}
+        // 추가 버튼 관련 props
+        enableAddForm={true}
+        showAddForm={showAddForm}
+        onShowAddForm={handleShowAddForm}
+        formData={formData}
+        formFields={formFields}
+        onFormDataChange={handleFormDataChange}
+        onAdd={handleAdd}
+        isAddLoading={false}
+        isNameValid={true}
+      />
+
+      {/* 페이지네이션 */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        className="mt-6"
       />
     </div>
   );

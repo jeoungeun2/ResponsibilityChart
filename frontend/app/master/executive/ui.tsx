@@ -201,7 +201,7 @@ export default function Ui() {
       render: (value: any, row: any) => (
         <button 
           onClick={() => handleViewDetail(row)}
-          className="text-brand-500 hover:text-brand-400 text-sm transition-colors px-2 py-1 rounded hover:bg-brand-50 underline"
+          className="text-gray-700 hover:text-gray-800 text-base transition-colors px-2 py-1 rounded hover:bg-gray-50 underline"
           style={{ cursor: 'pointer' }}
           title="상세보기"
         >

@@ -66,28 +66,31 @@ export default function MasterLayout({
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8 pt-1">
+      <div className="space-y-8 pt-1">
         {/* Breadcrumb */}
-        <Breadcrumb>
-          <BreadcrumbList className="text-base font-medium">
-            {breadcrumbs.map((breadcrumb, index) => (
-              <React.Fragment key={index}>
-                <BreadcrumbItem>
-                  {breadcrumb.isActive ? (
-                    <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={breadcrumb.href}>
-                      {breadcrumb.label}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-        
+        <div className="max-w-7xl mx-auto">
+          <Breadcrumb>
+            <BreadcrumbList className="text-base font-medium">
+              {breadcrumbs.map((breadcrumb, index) => (
+                <React.Fragment key={index}>
+                  <BreadcrumbItem>
+                    {breadcrumb.isActive ? (
+                      <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={breadcrumb.href}>
+                        {breadcrumb.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {index < breadcrumbs.length - 1 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="max-w-7xl mx-auto">
         {children}
+      </div>
       </div>
     </div>
   );

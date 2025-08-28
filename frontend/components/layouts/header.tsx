@@ -57,7 +57,7 @@ export default function Header({ isSidebarCollapsed }: HeaderProps) {
               {/* 로그아웃 버튼 */}
               <button
                 onClick={handleSignOut}
-                className="px-3 py-1.5 text-sm text-white bg-gray-900 hover:bg-gray-800 rounded-full transition-colors"
+                className="px-3 py-1.5 text-sm text-white bg-gray-900 hover:bg-gray-800 rounded-full transition-colors cursor-pointer"
               >
                 로그아웃
               </button>
@@ -65,7 +65,7 @@ export default function Header({ isSidebarCollapsed }: HeaderProps) {
           ) : (
             <Link 
               href="/signin"
-              className="px-3 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+              className="px-3 py-1.5 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors cursor-pointer"
             >
               로그인
             </Link>
