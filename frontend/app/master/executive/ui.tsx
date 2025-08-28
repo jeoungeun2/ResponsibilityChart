@@ -4,7 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useMemo } from "react";
 import { DataTable } from '@/components/ui/data-table';
-import { Edit, Trash2, Search, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Edit, Trash2, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+
+import AddFormDialog from './_components/AddFormDialog';
 import { useRouter } from 'next/navigation';
 import { 
   executivesControllerSearch, 
@@ -20,13 +22,7 @@ export default function Ui() {
   const queryClient = useQueryClient();
   const router = useRouter();
   
-  // 인증 상태 로깅
-  console.log('🔐 인증 상태:', {
-    status,
-    hasSession: !!session,
-    hasAccessToken: !!session?.accessToken,
-    enabled
-  });
+
   
   // 상태 관리
   const [showAddForm, setShowAddForm] = useState(false);
@@ -157,8 +153,6 @@ export default function Ui() {
   const { data: searchResult, isLoading, error, isError, isSuccess } = useQuery({
     queryKey: ['executives', 'search', searchParams],
     queryFn: async () => {
-      console.log('🔍 React Query 실행 중...', searchParams);
-      
       try {
         // OpenAPI SDK 사용
         const response = await executivesControllerSearch({
@@ -166,24 +160,8 @@ export default function Ui() {
           query: searchParams
         });
         
-        console.log('📡 OpenAPI SDK 응답 받음:', response);
-        console.log('📡 응답 타입:', typeof response);
-        console.log('📡 응답 키들:', response ? Object.keys(response) : 'no response');
-        
-        // 응답 구조 상세 분석
-        if (response && typeof response === 'object') {
-          console.log('🔍 응답 상세 분석:', {
-            hasData: 'data' in response,
-            hasMeta: 'meta' in response,
-            dataType: typeof (response as any).data,
-            metaType: typeof (response as any).meta,
-            allKeys: Object.keys(response)
-          });
-        }
-        
         return response;
       } catch (error) {
-        console.error('❌ API 호출 에러:', error);
         throw error;
       }
     },
@@ -193,63 +171,31 @@ export default function Ui() {
     retry: 1,       
   });
 
-  // React Query 상태 로깅
-  console.log('🔍 React Query 상태:', {
-    enabled,
-    isLoading,
-    isError,
-    isSuccess,
-    hasData: !!searchResult,
-    dataType: typeof searchResult,
-    error: error?.message
-  });
 
-  // 데이터 추출 로직 개선
+
+  // 데이터 추출 로직
   const executives = useMemo(() => {
-    console.log('🔍 데이터 추출 시작:', { 
-      searchResult, 
-      type: typeof searchResult,
-      keys: searchResult ? Object.keys(searchResult) : 'no keys'
-    });
-
-    // OpenAPI SDK 응답 구조 상세 분석
+    // OpenAPI SDK 응답 구조 분석
     if (searchResult && typeof searchResult === 'object') {
-      console.log('🔍 searchResult 상세 분석:', {
-        hasData: 'data' in searchResult,
-        hasResponse: 'response' in searchResult,
-        dataType: typeof (searchResult as any).data,
-        responseType: typeof (searchResult as any).response,
-        allKeys: Object.keys(searchResult),
-        dataKeys: (searchResult as any).data ? Object.keys((searchResult as any).data) : 'no data',
-        responseKeys: (searchResult as any).response ? Object.keys((searchResult as any).response) : 'no response'
-      });
-
       // searchResult.data가 있는 경우 (일반적인 응답)
       if ((searchResult as any).data && Array.isArray((searchResult as any).data)) {
-        console.log('✅ searchResult.data 배열 발견:', (searchResult as any).data);
         return (searchResult as any).data;
       }
       
       // searchResult 자체가 배열인 경우
       if (Array.isArray(searchResult)) {
-        console.log('✅ searchResult 자체가 배열입니다:', searchResult);
         return searchResult;
       }
       
       // searchResult.response가 있는 경우 (OpenAPI SDK 응답)
       if ((searchResult as any).response) {
-        console.log('🔍 OpenAPI SDK 응답 구조:', searchResult);
-        console.log('🔍 response 상세:', (searchResult as any).response);
-        
         // response에서 데이터 추출 시도
         if ((searchResult as any).data && Array.isArray((searchResult as any).data)) {
-          console.log('✅ response.data 배열 발견:', (searchResult as any).data);
           return (searchResult as any).data;
         }
         
         // response 자체가 데이터인 경우
         if (typeof (searchResult as any).response === 'object' && (searchResult as any).response.data) {
-          console.log('✅ response.response.data 발견:', (searchResult as any).response.data);
           if (Array.isArray((searchResult as any).response.data)) {
             return (searchResult as any).response.data;
           }
@@ -258,54 +204,31 @@ export default function Ui() {
       
       // searchResult.data가 객체인 경우 (배열이 아닌 경우)
       if ((searchResult as any).data && typeof (searchResult as any).data === 'object' && !Array.isArray((searchResult as any).data)) {
-        console.log('🔍 data가 객체입니다. 내용:', (searchResult as any).data);
         const data = (searchResult as any).data;
         
         // data 내부에서 배열 찾기
         for (const [key, value] of Object.entries(data)) {
           if (Array.isArray(value)) {
-            console.log(`✅ data.${key} 배열 발견:`, value);
             return value;
           }
         }
       }
     }
 
-    console.log('❌ 데이터를 찾을 수 없습니다. searchResult:', searchResult);
     return [];
   }, [searchResult]);
 
   const meta = useMemo(() => {
     if (searchResult && typeof searchResult === 'object' && (searchResult as any).data?.meta) {
-      console.log('✅ meta 발견:', (searchResult as any).data.meta);
       return (searchResult as any).data.meta;
     }
     
-    console.log('❌ meta를 찾을 수 없습니다');
     return null;
   }, [searchResult]);
 
-  // 디버깅용 로그
-  console.log('📊 데이터 추출 결과:', {
-    searchResult,
-    executives,
-    executivesLength: executives.length,
-    meta,
-    isArray: Array.isArray((searchResult as any)?.data)
-  });
 
-  // 추가 폼 상태 모니터링
-  useEffect(() => {
-    if (showAddForm) {
-      console.log('🔍 추가 폼 상태 모니터링:', {
-        showAddForm,
-        newExecutive,
-        nameLength: newExecutive.name?.length,
-        nameTrimmed: newExecutive.name?.trim(),
-        isNameValid: newExecutive.name?.trim()?.length > 0
-      });
-    }
-  }, [showAddForm, newExecutive]);
+
+
 
   // 페이지네이션 상태 업데이트
   useEffect(() => {
@@ -319,14 +242,12 @@ export default function Ui() {
     }
   }, [searchResult]);
 
-  // 페이지네이션 상태 로깅 (간단하게)
-  console.log('📊 페이지네이션 상태:', {
-    hasMeta: !!meta,
-    totalPages: meta?.totalPages,
-    currentPage: pagination.page,
-    hasNext: pagination.page < pagination.pageCount,
-    hasPrev: pagination.page > 1
-  });
+
+
+  // 폼 데이터 변경 핸들러
+  const handleFormDataChange = (field: string, value: string) => {
+    setNewExecutive(prev => ({ ...prev, [field]: value }));
+  };
 
   // 검색 필터 변경 핸들러
   const handleFilterChange = (key: keyof typeof searchFilters, value: string) => {
@@ -362,8 +283,6 @@ export default function Ui() {
       termEndDate?: string;
     }) => {
       try {
-        console.log('📝 임원 추가 API 호출 시작:', data);
-        
         // 필수 필드 검증
         if (!data.name || !data.name.trim()) {
           throw new Error('이름은 필수 입력 항목입니다.');
@@ -381,45 +300,26 @@ export default function Ui() {
           termEndDate: data.termEndDate?.trim() || undefined
         } as any; // 타입 에러 해결을 위한 타입 단언
 
-        console.log('📝 API 호출 데이터 준비 완료:', createData);
-        console.log('📝 client 객체 확인:', client);
-        console.log('📝 executivesControllerCreate 함수 확인:', executivesControllerCreate);
-        console.log('📝 전송할 데이터 JSON:', JSON.stringify(createData, null, 2));
-
         const response = await executivesControllerCreate({
           client,
           body: createData
         });
 
-        console.log('📡 API 응답 받음:', response);
-        console.log('📡 응답 타입:', typeof response);
-        console.log('📡 응답 키들:', response ? Object.keys(response) : 'no response');
-        
         // HTTP 응답 상태 확인
         if (response && typeof response === 'object' && 'response' in response) {
           const httpResponse = (response as any).response;
-          console.log('📡 HTTP 응답 상세:', httpResponse);
           
           if (httpResponse && httpResponse.status >= 400) {
             throw new Error(`HTTP ${httpResponse.status}: ${httpResponse.statusText || 'Bad Request'}`);
           }
         }
 
-        console.log('✅ 임원 추가 성공:', response);
         return response;
       } catch (error) {
-        console.error('❌ 임원 추가 실패:', error);
-        console.error('❌ 에러 상세 정보:', {
-          message: (error as any)?.message,
-          response: (error as any)?.response,
-          status: (error as any)?.response?.status,
-          data: (error as any)?.response?.data
-        });
         throw error;
       }
     },
     onSuccess: (data) => {
-      console.log('✅ 임원 추가 성공 콜백 실행:', data);
       queryClient.invalidateQueries({ queryKey: ['executives'] });
       setShowAddForm(false);
       setNewExecutive({ 
@@ -437,9 +337,7 @@ export default function Ui() {
       alert('임원이 성공적으로 추가되었습니다.');
     },
     onError: (error: any) => {
-      console.error('❌ 임원 추가 에러 콜백 실행:', error);
       const errorMessage = error?.response?.data?.message || error?.message || '임원 추가 중 오류가 발생했습니다.';
-      console.error('❌ 사용자에게 표시할 에러 메시지:', errorMessage);
       alert(`오류: ${errorMessage}`);
     }
   });
@@ -458,8 +356,6 @@ export default function Ui() {
       termEndDate?: string;
     }) => {
       try {
-        console.log('📝 임원 수정 API 호출:', data);
-        
         // 필수 필드 검증
         if (!data.name) {
           throw new Error('이름은 필수 입력 항목입니다.');
@@ -477,23 +373,18 @@ export default function Ui() {
           termEndDate: data.termEndDate || undefined
         };
 
-        console.log('📝 API 호출 데이터:', updateData);
-
         const response = await executivesControllerUpdate({
           client,
           path: { id: data.id },
           body: updateData
         });
 
-        console.log('✅ 임원 수정 성공:', response);
         return response;
       } catch (error) {
-        console.error('❌ 임원 수정 실패:', error);
         throw error;
       }
     },
     onSuccess: () => {
-      console.log('✅ 임원 수정 성공, 쿼리 무효화');
       queryClient.invalidateQueries({ queryKey: ['executives'] });
       setShowEditForm(false);
       setEditingExecutive(null);
@@ -502,7 +393,6 @@ export default function Ui() {
       alert('임원 정보가 성공적으로 수정되었습니다.');
     },
     onError: (error: any) => {
-      console.error('❌ 임원 수정 에러:', error);
       const errorMessage = error?.response?.data?.message || error?.message || '임원 수정 중 오류가 발생했습니다.';
       alert(`오류: ${errorMessage}`);
     }
@@ -512,29 +402,23 @@ export default function Ui() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       try {
-        console.log('🗑️ 임원 삭제 API 호출:', id);
-        
         const response = await executivesControllerRemove({
           client,
           path: { id }
         });
 
-        console.log('✅ 임원 삭제 성공:', response);
         return response;
       } catch (error) {
-        console.error('❌ 임원 삭제 실패:', error);
         throw error;
       }
     },
     onSuccess: () => {
-      console.log('✅ 임원 삭제 성공, 쿼리 무효화');
       queryClient.invalidateQueries({ queryKey: ['executives'] });
       
       // 성공 메시지 표시
       alert('임원이 성공적으로 삭제되었습니다.');
     },
     onError: (error: any) => {
-      console.error('❌ 임원 삭제 에러:', error);
       const errorMessage = error?.response?.data?.message || error?.message || '임원 삭제 중 오류가 발생했습니다.';
       alert(`오류: ${errorMessage}`);
     }
@@ -542,11 +426,8 @@ export default function Ui() {
 
   // 추가 폼 열기/닫기 핸들러
   const handleShowAddForm = () => {
-    console.log('🔘 추가 폼 토글 버튼 클릭됨, 현재 상태:', showAddForm);
-    
     if (showAddForm) {
       // 폼 닫기
-      console.log('🔘 폼 닫기 실행');
       setShowAddForm(false);
       setNewExecutive({ 
         name: '', 
@@ -558,10 +439,8 @@ export default function Ui() {
         termStartDate: '',
         termEndDate: ''
       });
-      console.log('🔘 폼 상태 초기화 완료');
     } else {
       // 폼 열기 - 기본값 설정
-      console.log('🔘 폼 열기 실행');
       const defaultDate = new Date().toISOString().split('T')[0];
       const newState = { 
         name: '', 
@@ -573,10 +452,8 @@ export default function Ui() {
         termStartDate: defaultDate,
         termEndDate: ''
       };
-      console.log('🔘 새 상태 설정:', newState);
       setShowAddForm(true);
       setNewExecutive(newState);
-      console.log('🔘 폼 열기 완료');
     }
   };
 
@@ -599,16 +476,11 @@ const handleViewDetail = (executive: any) => {
   };
 
   const handleAdd = () => {
-    console.log('🔘 추가 버튼 클릭됨');
-    console.log('🔘 현재 newExecutive 상태:', newExecutive);
-    
     if (!newExecutive.name || !newExecutive.name.trim()) {
-      console.log('❌ 이름이 비어있음');
       alert('이름은 필수 입력 항목입니다.');
       return;
     }
     
-    console.log('✅ 유효성 검사 통과, mutation 실행');
     createMutation.mutate(newExecutive);
   };
 
@@ -632,16 +504,11 @@ const handleViewDetail = (executive: any) => {
 
   // 테이블 데이터 준비 (actions 필드 추가)
   const tableData = useMemo(() => {
-    console.log('🔧 테이블 데이터 준비 시작:', { executives, isArray: Array.isArray(executives) });
-    
     if (!Array.isArray(executives) || executives.length === 0) {
-      console.log('⚠️ 테이블 데이터 없음');
       return [];
     }
 
-    const result = executives.map((executive: any, index: number) => {
-      console.log(`📝 임원 ${index + 1} 처리:`, executive.name);
-      
+    const result = executives.map((executive: any) => {
       // 평가상태 데이터 준비
       const evaluationStatus = executive.evaluation?.status || 'NOT_STARTED';
       
@@ -670,7 +537,6 @@ const handleViewDetail = (executive: any) => {
       };
     });
 
-    console.log('✅ 테이블 데이터 준비 완료:', { count: result.length });
     return result;
   }, [executives, handleEdit, handleDelete, deleteMutation.isPending]);
 
@@ -698,15 +564,10 @@ const handleViewDetail = (executive: any) => {
     }
   ];
 
-  // 디버깅용 로그
-  console.log('Table data:', tableData);
-  console.log('Columns:', columnsWithDetail);
 
-  // 로딩 상태 표시 제거 - 테이블 내부에서 처리
-  
+
   // 에러 상태 표시
   if (error || isError) {
-    console.log('❌ 에러 상태 표시:', error);
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -720,12 +581,11 @@ const handleViewDetail = (executive: any) => {
 
   // 데이터가 없을 때 표시 (로딩이 완료된 후에만)
   if (!isLoading && !isError && (!searchResult || !Array.isArray(executives) || executives.length === 0)) {
-    console.log('📋 데이터 없음 상태 표시:', { searchResult, executives });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">📋</div>
-          <p className="text-gray-600 text-lg mb-2">표시할 데이터가 없습니다</p>
+          <p className="text-red-600 text-lg mb-2">표시할 데이터가 없습니다</p>
           <p className="text-gray-500 text-sm">검색 조건을 변경해보세요</p>
         </div>
       </div>
@@ -734,63 +594,7 @@ const handleViewDetail = (executive: any) => {
 
   return (
     <div className="space-y-6">
-      {/* 검색 및 필터링 섹션 */}
-      <div className="bg-white p-4 rounded-lg border shadow-sm">
-        <div className="flex items-center space-x-4 mb-4">
-          <Filter className="h-5 w-5 text-gray-500" />
-          <h3 className="text-lg font-medium text-gray-900">검색 및 필터</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* 키워드 검색 */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="이름/이메일 검색..."
-              value={searchFilters.keyword}
-              onChange={(e) => handleFilterChange('keyword', e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
 
-          {/* 평가상태 필터 */}
-          <div>
-            <select
-              value={searchFilters.evaluationStatus}
-              onChange={(e) => handleFilterChange('evaluationStatus', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">모든 상태</option>
-              <option value="NOT_STARTED">미시작</option>
-              <option value="STARTED">시작</option>
-              <option value="IN_PROGRESS">진행중</option>
-            </select>
-          </div>
-
-          {/* 정렬 기준 */}
-          <div>
-            <select
-              value={searchFilters.sortBy}
-              onChange={(e) => handleSortChange(e.target.value as 'name' | 'createdAt')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="createdAt">생성일순</option>
-              <option value="name">이름순</option>
-            </select>
-          </div>
-
-          {/* 정렬 순서 */}
-          <div>
-            <button
-              onClick={() => handleFilterChange('order', searchFilters.order === 'asc' ? 'desc' : 'asc')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
-            >
-              {searchFilters.order === 'asc' ? '오름차순' : '내림차순'}
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* 상단 정보 및 추가 버튼 */}
       <div className="flex items-center justify-between">
@@ -813,122 +617,16 @@ const handleViewDetail = (executive: any) => {
         </div>
       </div>
 
-      {/* 추가 폼 */}
-      {showAddForm && (
-        <div className="bg-gray-50 p-4 rounded-lg border">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">새 임원 추가</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                이름 <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="이름을 입력하세요"
-                value={newExecutive.name}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  console.log('📝 이름 입력 필드 변경:', { oldValue: newExecutive.name, newValue });
-                  setNewExecutive({ ...newExecutive, name: newValue });
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">사번</label>
-              <input
-                type="text"
-                placeholder="사번을 입력하세요"
-                value={newExecutive.employeeNo}
-                onChange={(e) => setNewExecutive({ ...newExecutive, employeeNo: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">직위</label>
-              <input
-                type="text"
-                placeholder="직위를 입력하세요"
-                value={newExecutive.positionLabel}
-                onChange={(e) => setNewExecutive({ ...newExecutive, positionLabel: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">직책</label>
-              <input
-                type="text"
-                placeholder="직책을 입력하세요"
-                value={newExecutive.titleLabel}
-                onChange={(e) => setNewExecutive({ ...newExecutive, titleLabel: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-              <input
-                type="tel"
-                placeholder="연락처를 입력하세요"
-                value={newExecutive.phone}
-                onChange={(e) => setNewExecutive({ ...newExecutive, phone: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-              <input
-                type="email"
-                placeholder="이메일을 입력하세요"
-                value={newExecutive.email}
-                onChange={(e) => setNewExecutive({ ...newExecutive, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">재임시작일</label>
-              <input
-                type="date"
-                value={newExecutive.termStartDate}
-                onChange={(e) => setNewExecutive({ ...newExecutive, termStartDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">재임종료일</label>
-              <input
-                type="date"
-                value={newExecutive.termEndDate}
-                onChange={(e) => setNewExecutive({ ...newExecutive, termEndDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={handleAdd}
-              disabled={createMutation.isPending || !newExecutive.name.trim()}
-              className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
-              title={createMutation.isPending ? '처리 중...' : !newExecutive.name.trim() ? '이름을 입력해주세요' : '임원 추가'}
-            >
-              {createMutation.isPending ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  추가 중...
-                </>
-              ) : (
-                '추가'
-              )}
-            </button>
-            <button
-              onClick={handleShowAddForm}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
+      {/* 추가 폼 다이얼로그 */}
+      <AddFormDialog
+        formData={newExecutive}
+        onFormDataChange={handleFormDataChange}
+        onAdd={handleAdd}
+        isLoading={createMutation.isPending}
+        isNameValid={newExecutive.name.trim().length > 0}
+        open={showAddForm}
+        onOpenChange={setShowAddForm}
+      />
 
       {/* 수정 폼 */}
       {showEditForm && editingExecutive && (
@@ -1052,10 +750,12 @@ const handleViewDetail = (executive: any) => {
       <DataTable
         data={isLoading ? [] : tableData}
         columns={columnsWithDetail}
-        searchPlaceholder="임원 검색..."
         className="w-full"
         onColumnsChange={handleColumnsChange}
         isLoading={isLoading}
+        searchFilters={searchFilters}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
       />
 
       {/* 페이지네이션 */}

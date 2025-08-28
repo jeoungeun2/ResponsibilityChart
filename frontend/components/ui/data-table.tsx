@@ -2,9 +2,7 @@
 
 import * as React from "react"
 import { useState, useMemo } from "react"
-import { Search, MoreHorizontal, ChevronDown } from "lucide-react"
-
-import { Input } from "@/components/ui/input"
+import { MoreHorizontal, ChevronDown, Filter, Search } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -16,6 +14,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 // 컬럼 정의 인터페이스
@@ -32,9 +31,17 @@ interface DataTableProps<T> {
   data: T[]
   columns: Column<T>[]
   onColumnsChange: (columns: Column<T>[]) => void
-  searchPlaceholder?: string
   className?: string
   isLoading?: boolean
+  // 필터 관련 props 추가
+  searchFilters?: {
+    keyword: string;
+    evaluationStatus: 'NOT_STARTED' | 'STARTED' | 'IN_PROGRESS' | '';
+    sortBy: 'name' | 'positionLabel' | 'email' | 'createdAt';
+    order: 'asc' | 'desc';
+  };
+  onFilterChange?: (key: 'keyword' | 'evaluationStatus' | 'order' | 'sortBy', value: string) => void;
+  onSortChange?: (sortBy: 'name' | 'createdAt') => void;
 }
 
 // 액션 드롭다운 프롭스 인터페이스
@@ -74,23 +81,16 @@ export function DataTable<T extends Record<string, any>>({
   data,
   columns,
   onColumnsChange,
-  searchPlaceholder = "검색...",
   className,
-  isLoading
+  isLoading,
+  searchFilters,
+  onFilterChange,
+  onSortChange
 }: DataTableProps<T>) {
-  const [searchTerm, setSearchTerm] = useState("")
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
 
-  // 검색어에 따른 필터링된 데이터
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return data
-    
-    return data.filter(item => 
-      Object.values(item).some(value => 
-        String(value).toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    )
-  }, [data, searchTerm])
+  // 검색 기능 제거로 인해 데이터를 그대로 사용
+  const filteredData = data
 
   // 모든 행 선택/해제
   const handleSelectAll = (checked: boolean) => {
@@ -125,50 +125,131 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* 검색 및 컬럼 필터 영역 */}
+      {/* 통합된 필터 및 컬럼 영역 */}
       <div className="flex items-center justify-between bg-white p-3 border">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto h-10 px-4 border-gray-200 hover:bg-gray-50">
-              컬럼
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuCheckboxItem
-              checked={visibleColumns.length === columns.length}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  onColumnsChange(columns.map(col => ({ ...col, visible: true })))
-                } else {
-                  onColumnsChange(columns.map(col => ({ ...col, visible: false })))
-                }
-              }}
+        {/* 왼쪽: 검색 및 필터 */}
+        {searchFilters && onFilterChange && onSortChange && (
+          <div className="flex items-center space-x-3">
+                         {/* 키워드 검색 */}
+             <div className="relative">
+               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                               <Input
+                  type="text"
+                  placeholder="이름/이메일 검색..."
+                  value={searchFilters.keyword}
+                  onChange={(e) => onFilterChange('keyword', e.target.value)}
+                  className="w-64 pl-10"
+                />
+             </div>
+
+            {/* 평가상태 필터 */}
+            <DropdownMenu  >
+              <DropdownMenuTrigger asChild >
+                <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
+                  {searchFilters.evaluationStatus === '' ? '모든 상태' : 
+                   searchFilters.evaluationStatus === 'NOT_STARTED' ? '미시작' :
+                   searchFilters.evaluationStatus === 'STARTED' ? '시작' : '진행중'}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-32">
+                <DropdownMenuItem 
+                  onClick={() => onFilterChange('evaluationStatus', '')}
+                  className="cursor-pointer"
+                >
+                  모든 상태
+                </DropdownMenuItem>
+               
+                <DropdownMenuItem 
+                  onClick={() => onFilterChange('evaluationStatus', 'NOT_STARTED')}
+                  className="cursor-pointer"
+                >
+                  미시작
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onFilterChange('evaluationStatus', 'STARTED')}
+                  className="cursor-pointer"
+                >
+                  시작
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onFilterChange('evaluationStatus', 'IN_PROGRESS')}
+                  className="cursor-pointer"
+                >
+                  진행중
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 정렬 기준 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
+                  {searchFilters.sortBy === 'createdAt' ? '생성일순' : '이름순'}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-32">
+                <DropdownMenuItem 
+                  onClick={() => onSortChange('createdAt')}
+                  className="cursor-pointer"
+                >
+                  생성일순
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onSortChange('name')}
+                  className="cursor-pointer"
+                >
+                  이름순
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 정렬 순서 */}
+            <button
+              onClick={() => onFilterChange('order', searchFilters.order === 'asc' ? 'desc' : 'asc')}
+              className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center"
             >
-              모든 컬럼
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuSeparator />
-            {columns.map((column) => (
+              {searchFilters.order === 'asc' ? '오름차순' : '내림차순'}
+            </button>
+          </div>
+        )}
+
+        {/* 오른쪽: 컬럼 필터 */}
+        <div className="flex items-center space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
+                컬럼
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuCheckboxItem
-                key={String(column.key)}
-                checked={column.visible}
-                onCheckedChange={() => toggleColumnVisibility(column.key)}
+                checked={visibleColumns.length === columns.length}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onColumnsChange(columns.map(col => ({ ...col, visible: true })))
+                  } else {
+                    onColumnsChange(columns.map(col => ({ ...col, visible: false })))
+                  }
+                }}
               >
-                {column.header}
+                모든 컬럼
               </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuSeparator />
+              {columns.map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={String(column.key)}
+                  checked={column.visible}
+                  onCheckedChange={() => toggleColumnVisibility(column.key)}
+                >
+                  {column.header}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* 테이블 */}
@@ -203,9 +284,9 @@ export function DataTable<T extends Record<string, any>>({
               </TableRow>
             ) : filteredData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center text-gray-500">
-                  {searchTerm ? "검색 결과가 없습니다." : "데이터가 없습니다."}
-                </TableCell>
+                              <TableCell colSpan={visibleColumns.length + 2} className="h-16 text-center text-gray-500">
+                데이터가 없습니다.
+              </TableCell>
               </TableRow>
             ) : (
               filteredData.map((item, index) => (

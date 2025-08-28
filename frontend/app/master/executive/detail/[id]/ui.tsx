@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import H1 from '@/components/layouts/h1';
-import ExecutiveInfoCard from './_components/ExecutiveInfoCard';
-import ExecutiveDetailTable from './_components/ExecutiveDetailTable';
+import ExecutiveInfoCard from '../../_components/ExecutiveInfoCard';
+import ExecutiveDetailTable from '../../_components/ExecutiveDetailTable';
 
 // React Query를 사용하여 임원 데이터 조회
 const fetchExecutiveData = async (id: string) => {
