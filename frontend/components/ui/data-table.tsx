@@ -73,6 +73,10 @@ interface DataTableProps<T> {
   onAdd?: () => void;
   isAddLoading?: boolean;
   isNameValid?: boolean;
+  // 추가 버전 2 관련 props
+  enableAddFormV2?: boolean; // 추가 버전 2 활성화 여부
+  addFormV2Modal?: React.ReactNode; // 추가 버전 2 모달 컴포넌트
+  onShowAddFormV2?: () => void; // 추가 버전 2 모달 열기 핸들러
   // 액션 열 표시 여부
   showActionColumn?: boolean;
 }
@@ -133,6 +137,9 @@ export function DataTable<T extends Record<string, any>>({
   onAdd,
   isAddLoading,
   isNameValid,
+  enableAddFormV2,
+  addFormV2Modal,
+  onShowAddFormV2,
   showActionColumn = true
 }: DataTableProps<T>) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
@@ -198,10 +205,10 @@ export function DataTable<T extends Record<string, any>>({
       {/* 통합된 필터 및 컬럼 영역 */}
       <div className="flex items-center justify-between p-3 bg-brand-grey-100 border border-brand-grey-200">
         {/* 왼쪽: 검색 및 필터 */}
-        <div className="flex items-center space-x-6">
+        <div className="flex-1">
           {/* 검색 및 필터들 */}
           {searchFilters && onFilterChange && (
-            <>
+            <div className="grid grid-cols-3 gap-4 max-w-3xl">
               {/* 동적 필터들 */}
               {filters?.map((filter) => {
                 const filterValue = searchFilters[filter.key] || '';
@@ -209,22 +216,22 @@ export function DataTable<T extends Record<string, any>>({
                                  if (filter.type === 'dropdown') {
                    const options = filterOptions?.[filter.key] || [];
                    return (
-                     <div key={filter.key} className="flex items-center space-x-2  w-full">
-                       <label className="font-medium text-gray-700 whitespace-nowrap">
+                     <div key={filter.key} className="flex items-center space-x-2">
+                       <label className="text-base text-gray-700 whitespace-nowrap">
                          {filter.label}
                        </label>
-                       <DropdownMenu>
-                         <DropdownMenuTrigger asChild>
-                           <Button 
-                             variant="outline" 
-                             className={`h-10 px-4 border-gray-200 hover:bg-gray-50 ${filter.width ? filter.width : 'w-auto'}`}
-                           >
-                             {filterValue ? 
-                               (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
-                               : "전체선택"}
-                             <ChevronDown className="ml-2 h-4 w-4" />
-                           </Button>
-                         </DropdownMenuTrigger>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-32 justify-between"
+                          >
+                            {filterValue ? 
+                              (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
+                              : "전체선택"}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
                           {/* 검색 입력 필드 */}
                           <div className="p-2 border-b">
@@ -259,18 +266,18 @@ export function DataTable<T extends Record<string, any>>({
                   );
                 }
                 
-                if (filter.type === 'input') {
-                  return (
-                    <div key={filter.key} className="flex items-center space-x-2">
-                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                        {filter.label}
-                      </label>
+                                 if (filter.type === 'input') {
+                   return (
+                     <div key={filter.key} className="flex items-center space-x-2">
+                       <label className="text-base text-gray-700 whitespace-nowrap">
+                         {filter.label}
+                       </label>
                       <Input
                         type="text"
                         placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
                         value={filterValue}
                         onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                        className={`h-10 ${filter.width ? filter.width : 'w-32'}`}
+                        className="h-10 w-32"
                       />
                     </div>
                   );
@@ -278,7 +285,7 @@ export function DataTable<T extends Record<string, any>>({
                 
                 return null;
               })}
-            </>
+            </div>
           )}
         </div>
 
@@ -328,15 +335,24 @@ export function DataTable<T extends Record<string, any>>({
 
                     {/* 추가/삭제 버튼 그룹 */}
           <div className="flex items-center space-x-2">
-            {/* 추가 버튼 */}
-            {enableAddForm && onShowAddForm && (
+            {/* 추가 버튼 - 기존 또는 버전 2 */}
+            {enableAddFormV2 && onShowAddFormV2 ? (
+              // 추가 버전 2 사용
+              <button
+                onClick={onShowAddFormV2}
+                className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
+              >
+                추가
+              </button>
+            ) : enableAddForm && onShowAddForm ? (
+              // 기존 추가 폼 사용
               <button
                 onClick={onShowAddForm}
                 className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
               >
                 {showAddForm ? '취소' : '추가'}
               </button>
-            )}
+            ) : null}
 
             {/* 선택 삭제 버튼 */}
             {enableBulkDelete && selectedRows.size > 0 && (
@@ -348,7 +364,7 @@ export function DataTable<T extends Record<string, any>>({
                   // 부모 컴포넌트에도 알림
                   onSelectionReset?.();
                 }}
-                className="text-brand-500 px-2 py-1 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-brand-200/30"
+                className="text-brand-500 px-4 py-1 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-brand-200/30"
               >
                 <span>삭제 ({selectedRows.size})</span>
               </button>
@@ -391,8 +407,12 @@ export function DataTable<T extends Record<string, any>>({
                </TableRow>
              ) : filteredData.length === 0 ? (
                <TableRow>
-                 <TableCell colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)} className="h-16 text-center text-gray-500">
-                   데이터가 없습니다.
+                 <TableCell colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)} className="h-32 text-center text-gray-500">
+                   <div className="flex flex-col items-center justify-center space-y-2">
+                     <div className="text-gray-400 text-4xl">📋</div>
+                     <p className="text-gray-600 text-lg font-medium">표시할 데이터가 없습니다</p>
+                     <p className="text-gray-500 text-sm">검색 조건을 변경해보세요</p>
+                   </div>
                  </TableCell>
                </TableRow>
                          ) : (
@@ -495,6 +515,9 @@ export function DataTable<T extends Record<string, any>>({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* 추가 버전 2 모달 */}
+      {enableAddFormV2 && addFormV2Modal}
     </div>
   )
 }

@@ -7,6 +7,8 @@ export interface OrganizationData {
   deptNameLv2: string;       // 소관부서/본부명
   teamCodeLv3: string;       // 소관팀코드 Lv3
   teamNameLv3: string;       // 소관팀명
+  effectiveStartDate: string; // 적용시작일자
+  effectiveEndDate: string;   // 적용종료일자
   registrationDate: string;  // 등록일자
 }
 
@@ -20,6 +22,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "ETF투자부",
     teamCodeLv3: "ET011",
     teamNameLv3: "ETF운용팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -30,6 +34,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "LDI/리서치본부",
     teamCodeLv3: "ET021",
     teamNameLv3: "체계운용팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -40,6 +46,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "자산운용부",
     teamCodeLv3: "AU011",
     teamNameLv3: "자산운용팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -50,6 +58,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "자산관리부",
     teamCodeLv3: "AM011",
     teamNameLv3: "자산관리팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -60,6 +70,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "글로벌투자부",
     teamCodeLv3: "GI011",
     teamNameLv3: "글로벌투자팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -70,6 +82,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "금융소비자보호실",
     teamCodeLv3: "CP011",
     teamNameLv3: "소비자보호팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -80,6 +94,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "IT개발부",
     teamCodeLv3: "IT011",
     teamNameLv3: "시스템개발팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -90,6 +106,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "IT인프라부",
     teamCodeLv3: "IT021",
     teamNameLv3: "인프라관리팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -100,6 +118,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "인사부",
     teamCodeLv3: "HR011",
     teamNameLv3: "인사관리팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -110,6 +130,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "재무부",
     teamCodeLv3: "FI011",
     teamNameLv3: "재무관리팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   },
   {
@@ -120,6 +142,8 @@ export const organizationSampleData: OrganizationData[] = [
     deptNameLv2: "법무부",
     teamCodeLv3: "LE011",
     teamNameLv3: "법무관리팀",
+    effectiveStartDate: "2025-01-01",
+    effectiveEndDate: "2025-12-31",
     registrationDate: "2025-01-01"
   }
 ];

@@ -29,7 +29,7 @@ export default function DescriptionPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`max-w-7xl mx-auto space-y-6 pt-14 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
         <H1 title="Description" />
         

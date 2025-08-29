@@ -9,32 +9,32 @@ import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
-import { DutyData, sampleData } from '@/data/department-data';
+import { ManagementActionData, managementActionData } from '@/data/management-action-data';
 
 // 컬럼 정의
 const columns: any[] = [
   {
-    key: "category" as keyof DutyData,
-    header: "책무구분",
+    key: "division" as keyof ManagementActionData,
+    header: "부문구분",
     visible: true
   },
   {
-    key: "code" as keyof DutyData,
+    key: "responsibilityCode" as keyof ManagementActionData,
     header: "책무코드",
     visible: true
   },
   {
-    key: "name" as keyof DutyData,
+    key: "responsibility" as keyof ManagementActionData,
     header: "책무",
     visible: true
   },
   {
-    key: "detailCode" as keyof DutyData,
+    key: "detailCode" as keyof ManagementActionData,
     header: "책무 세부코드",
     visible: true
   },
   {
-    key: "detailContent" as keyof DutyData,
+    key: "detailContent" as keyof ManagementActionData,
     header: "책무 세부내용",
     visible: true
   },
@@ -66,7 +66,7 @@ export default function DepartmentPage() {
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    category: ''
+    division: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -76,8 +76,8 @@ export default function DepartmentPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "category",
-      label: "책무구분",
+      key: "division",
+      label: "부문구분",
       type: "dropdown" as const,
       width: "w-32"
     }
@@ -85,30 +85,19 @@ export default function DepartmentPage() {
 
   // 필터 옵션들
   const filterOptions = {
-    category: [
-      { value: "경영관리", label: "경영관리" },
-      { value: "인사관리", label: "인사관리" },
-      { value: "재무관리", label: "재무관리" },
-      { value: "정보관리", label: "정보관리" },
-      { value: "법무관리", label: "법무관리" },
-      { value: "보안관리", label: "보안관리" },
-      { value: "품질관리", label: "품질관리" },
-      { value: "환경관리", label: "환경관리" },
-      { value: "시설관리", label: "시설관리" },
-      { value: "구매관리", label: "구매관리" },
-      { value: "물류관리", label: "물류관리" },
-      { value: "고객관리", label: "고객관리" },
-      { value: "마케팅관리", label: "마케팅관리" },
-      { value: "연구개발관리", label: "연구개발관리" },
-      { value: "지식관리", label: "지식관리" }
+    division: [
+      { value: "ETF투자부문", label: "ETF투자부문" },
+      { value: "감사실", label: "감사실" },
+      { value: "경영관리부문", label: "경영관리부문" },
+      { value: "공통", label: "공통" }
     ]
   };
 
   // 폼 필드 정의
   const formFields = [
-    { key: "category", label: "책무구분", type: "text" as const, required: true },
-    { key: "code", label: "책무코드", type: "text" as const, required: true },
-    { key: "name", label: "책무", type: "text" as const, required: true },
+    { key: "division", label: "부문구분", type: "text" as const, required: true },
+    { key: "responsibilityCode", label: "책무코드", type: "text" as const, required: true },
+    { key: "responsibility", label: "책무", type: "text" as const, required: true },
     { key: "detailCode", label: "책무 세부코드", type: "text" as const, required: true },
     { key: "detailContent", label: "책무 세부내용", type: "text" as const, required: true }
   ];
@@ -159,23 +148,23 @@ export default function DepartmentPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
               </svg>
-              <span>업로드</span>
+              <span>책무 데이터 업로드</span>
             </button>
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>다운로드</span>
+              <span>책무 데이터 다운로드</span>
             </button>
           </div>
         }
       />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="Department Management Action" />
+        <H1 title="부문별 책무 관리" />
         
         <DataTable
-          data={sampleData}
+          data={managementActionData}
           columns={tableColumns}
           onColumnsChange={setTableColumns}
           className="w-full"

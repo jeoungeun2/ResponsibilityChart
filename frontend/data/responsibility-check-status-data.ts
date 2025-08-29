@@ -1,0 +1,357 @@
+// 책무 점검 현황 데이터 타입 정의
+export interface ResponsibilityCheckStatusData {
+  id: string;
+  managementActionCode: string;  // 관리조치코드
+  managementAction: string;      // 관리조치
+  controlActivityCode: string;   // 통제활동코드
+  controlActivity: string;       // 통제활동
+  controlActivityDetails: string; // 통제활동내용
+  responsibleDepartment: string; // 소관부서
+  assignee: string;              // 담당자
+  performanceStatus: '진행중' | '점검승인대기' | '점검승인완료'; // 수행현황
+  // 모달용 추가 필드들
+  responsibilityType: string;
+  responsibilityDetailCode: string;
+  responsibility: string;
+  responsibilityDetailContent: string;
+  managementDuty: string;
+  managementActionType: string;
+  controlActivityName: string;
+  controlActivityCycle: string;
+  responsibleTeam: string;
+  evidence: string;
+}
+
+// 샘플 데이터 (15개) - 책무 점검 현황용
+export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
+  {
+    id: "1",
+    managementActionCode: "BD-경영관리-C1",
+    managementAction: "이사회 관련 업무",
+    controlActivityCode: "경영관리-C1A-00",
+    controlActivity: "이사회 소집 절차 준수 점검",
+    controlActivityDetails: "이사회의 소집 및 통지 절차 준수 여부 점검 등 이사회 소집 관련 내부통제 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "김민수",
+    performanceStatus: "진행중",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-A1-A",
+    responsibility: "책무구조도의 마련·관리 업무와 관련된 책무",
+    responsibilityDetailContent: "내부통제등의 최종 책임자로서 총괄적인 관리조치 운영책임",
+    managementDuty: "내부통제등 정책·기본방침 및 전략의 집행·운영",
+    managementActionType: "기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검",
+    controlActivityName: "이사회 소집 절차 준수 점검",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "이사회 소집 관련 내부통제 점검 자료"
+  },
+  {
+    id: "2",
+    managementActionCode: "BD-경영관리-C1",
+    managementAction: "이사회 관련 업무",
+    controlActivityCode: "경영관리-C1B-00",
+    controlActivity: "위원회 구성 및 운영",
+    controlActivityDetails: "내부통제위원회 구성 및 운영의 적정성 검토, 안전성 및 건전성 확보",
+    responsibleDepartment: "이사회의장",
+    assignee: "박지영",
+    performanceStatus: "진행중",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-A1-B",
+    responsibility: "책무구조도의 마련·관리 업무와 관련된 책무",
+    responsibilityDetailContent: "내부통제등의 최종 책임자로서 총괄적인 관리조치 운영책임",
+    managementDuty: "내부통제등 정책·기본방침 및 전략의 집행·운영",
+    managementActionType: "기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검",
+    controlActivityName: "위원회 구성 및 운영",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "내부통제위원회 구성 및 운영 자료"
+  },
+  {
+    id: "3",
+    managementActionCode: "BD-경영관리-C1",
+    managementAction: "이사회 관련 업무",
+    controlActivityCode: "경영관리-C1C-00",
+    controlActivity: "보고서류 작성 여부 점검",
+    controlActivityDetails: "이사회 의결사항에 대한 보고서류 작성 및 제출 여부 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "최현호",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-A1-C",
+    responsibility: "책무구조도의 마련·관리 업무와 관련된 책무",
+    responsibilityDetailContent: "내부통제등의 최종 책임자로서 총괄적인 관리조치 운영책임",
+    managementDuty: "내부통제등 정책·기본방침 및 전략의 집행·운영",
+    managementActionType: "기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검",
+    controlActivityName: "보고서류 작성 여부 점검",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "이사회 의결사항 보고서류"
+  },
+  {
+    id: "4",
+    managementActionCode: "BD-경영관리-C1",
+    managementAction: "감사 및 이사회 업무 처리",
+    controlActivityCode: "경영관리-C1D-00",
+    controlActivity: "내부통제 정책 마련",
+    controlActivityDetails: "내부통제 정책 및 절차 마련 및 운영에 대한 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "이승민",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-A1-D",
+    responsibility: "책무구조도의 마련·관리 업무와 관련된 책무",
+    responsibilityDetailContent: "내부통제등의 최종 책임자로서 총괄적인 관리조치 운영책임",
+    managementDuty: "내부통제등 정책·기본방침 및 전략의 집행·운영",
+    managementActionType: "기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검",
+    controlActivityName: "내부통제 정책 마련",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "내부통제 정책 및 절차 자료"
+  },
+  {
+    id: "5",
+    managementActionCode: "BD-경영관리-C1",
+    managementAction: "감사 및 이사회 업무 처리",
+    controlActivityCode: "경영관리-C1E-00",
+    controlActivity: "규정 심의",
+    controlActivityDetails: "중요 규정의 제정 및 개정에 대한 심의 및 의결",
+    responsibleDepartment: "이사회의장",
+    assignee: "정수연",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-A1-E",
+    responsibility: "책무구조도의 마련·관리 업무와 관련된 책무",
+    responsibilityDetailContent: "내부통제등의 최종 책임자로서 총괄적인 관리조치 운영책임",
+    managementDuty: "내부통제등 정책·기본방침 및 전략의 집행·운영",
+    managementActionType: "기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검",
+    controlActivityName: "규정 심의",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "규정 제정 및 개정 심의 자료"
+  },
+  {
+    id: "6",
+    managementActionCode: "EQ-금융업무-B1",
+    managementAction: "금융 관련 업무 처리",
+    controlActivityCode: "금융업무-B1A-00",
+    controlActivity: "대출 거래 심의",
+    controlActivityDetails: "대출 거래의 적정성 및 위험성에 대한 심의 및 의결",
+    responsibleDepartment: "주식운용본부",
+    assignee: "강태우",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-B1-A",
+    responsibility: "금융업무와 관련된 책무",
+    responsibilityDetailContent: "금융업무의 적정성 및 위험성 관리에 대한 책임",
+    managementDuty: "금융업무 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "업무 적정성 점검, 위험성 관리 점검",
+    controlActivityName: "대출 거래 심의",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "주식운용본부",
+    evidence: "대출 거래 심의 자료"
+  },
+  {
+    id: "7",
+    managementActionCode: "EQ-금융업무-B1",
+    managementAction: "금융 관련 업무 처리",
+    controlActivityCode: "금융업무-B1B-00",
+    controlActivity: "금융 업무 처리 시 내부통제",
+    controlActivityDetails: "담당자는 금융업무 관련 업무 처리 시 내부통제에 영향을 주는 사항을 사전에 검토",
+    responsibleDepartment: "주식운용본부",
+    assignee: "윤하늘",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-B1-B",
+    responsibility: "금융업무와 관련된 책무",
+    responsibilityDetailContent: "금융업무의 적정성 및 위험성 관리에 대한 책임",
+    managementDuty: "금융업무 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "업무 적정성 점검, 위험성 관리 점검",
+    controlActivityName: "금융 업무 처리 시 내부통제",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "주식운용본부",
+    evidence: "금융업무 내부통제 점검 자료"
+  },
+  {
+    id: "8",
+    managementActionCode: "EQ-금융업무-B1",
+    managementAction: "금융 관련 업무 처리",
+    controlActivityCode: "금융업무-B1C-00",
+    controlActivity: "투자자 상담 업무 처리",
+    controlActivityDetails: "투자자 상담 업무 처리 시 내부통제 기준 준수 여부 점검",
+    responsibleDepartment: "주식운용본부",
+    assignee: "송민아",
+    performanceStatus: "점검승인완료",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-B1-C",
+    responsibility: "금융업무와 관련된 책무",
+    responsibilityDetailContent: "금융업무의 적정성 및 위험성 관리에 대한 책임",
+    managementDuty: "금융업무 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "업무 적정성 점검, 위험성 관리 점검",
+    controlActivityName: "투자자 상담 업무 처리",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "주식운용본부",
+    evidence: "투자자 상담 내부통제 점검 자료"
+  },
+  {
+    id: "9",
+    managementActionCode: "EQ-금융업무-B1",
+    managementAction: "금융 관련 업무 처리",
+    controlActivityCode: "금융업무-B1D-00",
+    controlActivity: "금융 상품 판매 관리",
+    controlActivityDetails: "금융 상품 판매 시 투자자 보호 및 내부통제 기준 준수",
+    responsibleDepartment: "주식운용본부",
+    assignee: "홍성진",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-B1-D",
+    responsibility: "금융업무와 관련된 책무",
+    responsibilityDetailContent: "금융업무의 적정성 및 위험성 관리에 대한 책임",
+    managementDuty: "금융업무 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "업무 적정성 점검, 위험성 관리 점검",
+    controlActivityName: "금융 상품 판매 관리",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "주식운용본부",
+    evidence: "금융 상품 판매 내부통제 점검 자료"
+  },
+  {
+    id: "10",
+    managementActionCode: "EQ-금융업무-B1",
+    managementAction: "금융 관련 업무 처리",
+    controlActivityCode: "금융업무-B1E-00",
+    controlActivity: "리스크 관리 체계 운영",
+    controlActivityDetails: "금융업무 관련 리스크 관리 체계 구축 및 운영 점검",
+    responsibleDepartment: "주식운용본부",
+    assignee: "김도현",
+    performanceStatus: "점검승인완료",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-B1-E",
+    responsibility: "금융업무와 관련된 책무",
+    responsibilityDetailContent: "금융업무의 적정성 및 위험성 관리에 대한 책임",
+    managementDuty: "금융업무 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "업무 적정성 점검, 위험성 관리 점검",
+    controlActivityName: "리스크 관리 체계 운영",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "주식운용본부",
+    evidence: "리스크 관리 체계 운영 점검 자료"
+  },
+  {
+    id: "11",
+    managementActionCode: "BD-경영관리-C2",
+    managementAction: "경영 전략 수립 및 실행",
+    controlActivityCode: "경영관리-C2A-00",
+    controlActivity: "경영 전략 수립",
+    controlActivityDetails: "연간 경영 전략 및 계획 수립 과정에서의 내부통제 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "김민수",
+    performanceStatus: "진행중",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-C2-A",
+    responsibility: "경영 전략과 관련된 책무",
+    responsibilityDetailContent: "경영 전략 수립 및 실행에 대한 책임",
+    managementDuty: "경영 전략 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "전략 수립 적정성 점검, 실행 과정 점검",
+    controlActivityName: "경영 전략 수립",
+    controlActivityCycle: "연간",
+    responsibleTeam: "이사회의장",
+    evidence: "경영 전략 수립 내부통제 점검 자료"
+  },
+  {
+    id: "12",
+    managementActionCode: "BD-경영관리-C2",
+    managementAction: "경영 전략 수립 및 실행",
+    controlActivityCode: "경영관리-C2B-00",
+    controlActivity: "경영 성과 평가",
+    controlActivityDetails: "경영 전략 실행 결과에 대한 성과 평가 및 개선 방안 수립",
+    responsibleDepartment: "이사회의장",
+    assignee: "박지영",
+    performanceStatus: "진행중",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-C2-B",
+    responsibility: "경영 전략과 관련된 책무",
+    responsibilityDetailContent: "경영 전략 수립 및 실행에 대한 책임",
+    managementDuty: "경영 전략 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "전략 수립 적정성 점검, 실행 과정 점검",
+    controlActivityName: "경영 성과 평가",
+    controlActivityCycle: "연간",
+    responsibleTeam: "이사회의장",
+    evidence: "경영 성과 평가 내부통제 점검 자료"
+  },
+  {
+    id: "13",
+    managementActionCode: "BD-경영관리-C3",
+    managementAction: "인사 정책 수립 및 운영",
+    controlActivityCode: "경영관리-C3A-00",
+    controlActivity: "인사 정책 수립",
+    controlActivityDetails: "인사 정책 수립 및 운영 과정에서의 내부통제 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "최현호",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-C3-A",
+    responsibility: "인사 정책과 관련된 책무",
+    responsibilityDetailContent: "인사 정책 수립 및 운영에 대한 책임",
+    managementDuty: "인사 정책 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "정책 수립 적정성 점검, 운영 과정 점검",
+    controlActivityName: "인사 정책 수립",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "인사 정책 수립 내부통제 점검 자료"
+  },
+  {
+    id: "14",
+    managementActionCode: "BD-경영관리-C3",
+    managementAction: "인사 정책 수립 및 운영",
+    controlActivityCode: "경영관리-C3B-00",
+    controlActivity: "인사 제도 운영",
+    controlActivityDetails: "채용, 퇴직, 보상 등 인사 제도 운영의 적정성 점검",
+    responsibleDepartment: "이사회의장",
+    assignee: "이승민",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-C3-B",
+    responsibility: "인사 정책과 관련된 책무",
+    responsibilityDetailContent: "인사 정책 수립 및 운영에 대한 책임",
+    managementDuty: "인사 정책 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "정책 수립 적정성 점검, 운영 과정 점검",
+    controlActivityName: "인사 제도 운영",
+    controlActivityCycle: "발생시",
+    responsibleTeam: "이사회의장",
+    evidence: "인사 제도 운영 내부통제 점검 자료"
+  },
+  {
+    id: "15",
+    managementActionCode: "BD-경영관리-C4",
+    managementAction: "재무 관리 및 회계감사",
+    controlActivityCode: "경영관리-C4A-00",
+    controlActivity: "재무제표 작성",
+    controlActivityDetails: "재무제표 작성 과정에서의 내부통제 점검 및 감사 결과 보고",
+    responsibleDepartment: "이사회의장",
+    assignee: "정수연",
+    performanceStatus: "점검승인대기",
+    // 모달용 추가 데이터
+    responsibilityType: "지정책임자",
+    responsibilityDetailCode: "CE-지정책임-C4-A",
+    responsibility: "재무 관리와 관련된 책무",
+    responsibilityDetailContent: "재무 관리 및 회계감사에 대한 책임",
+    managementDuty: "재무 관리 관련 내부통제 정책의 집행 및 운영",
+    managementActionType: "재무 관리 적정성 점검, 회계감사 과정 점검",
+    controlActivityName: "재무제표 작성",
+    controlActivityCycle: "분기별",
+    responsibleTeam: "이사회의장",
+    evidence: "재무제표 작성 내부통제 점검 자료"
+  }
+];

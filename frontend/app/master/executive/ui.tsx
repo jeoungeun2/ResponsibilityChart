@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
+import ExecutiveDetailModal from '@/components/ExecutiveDetailModal';
 
 
 import { useRouter } from 'next/navigation';
@@ -41,6 +42,8 @@ export default function Ui() {
     termStartDate: new Date().toISOString().split('T')[0], // 오늘 날짜를 기본값으로
     termEndDate: ''
   });
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedExecutive, setSelectedExecutive] = useState<any>(null);
 
   // 검색 필터 상태
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
@@ -114,7 +117,16 @@ export default function Ui() {
     {
       key: "name" as keyof any,
       header: "이름",
-      visible: true
+      visible: true,
+      render: (value: any, row: any) => (
+        <button 
+          onClick={() => handleViewDetail(row)}
+          className="text-blue-600 hover:text-blue-800 text-base transition-colors underline cursor-pointer"
+          title="상세보기"
+        >
+          {value}
+        </button>
+      )
     },
     {
       key: "employeeNo" as keyof any,
@@ -188,8 +200,8 @@ export default function Ui() {
 
   // 상세보기 핸들러
   const handleViewDetail = (executive: any) => {
-    // 실제 ID를 URL 경로에, 이름과 사번을 쿼리 파라미터로 전달
-    router.push(`/master/executive/detail/${executive.id}?name=${encodeURIComponent(executive.name)}&employeeNo=${encodeURIComponent(executive.employeeNo || '')}`);
+    setSelectedExecutive(executive);
+    setShowDetailModal(true);
   };
 
   // 상세보기 열 추가
@@ -652,6 +664,12 @@ export default function Ui() {
     setEditingExecutive(null);
   };
 
+  // 상세 모달 닫기 핸들러
+  const handleCloseDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedExecutive(null);
+  };
+
   const handleAdd = () => {
     if (!newExecutive.name || !newExecutive.name.trim()) {
       alert('이름은 필수 입력 항목입니다.');
@@ -732,21 +750,10 @@ export default function Ui() {
     );
   }
 
-  // 데이터가 없을 때 표시 (로딩이 완료된 후에만)
-  if (!isLoading && !isError && (!searchResult || !Array.isArray(executives) || executives.length === 0)) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">📋</div>
-          <p className="text-red-600 text-lg mb-2">표시할 데이터가 없습니다</p>
-          <p className="text-gray-500 text-sm">검색 조건을 변경해보세요</p>
-        </div>
-      </div>
-    );
-  }
+  // 데이터가 없을 때는 DataTable 컴포넌트 내에서 처리하도록 함
 
   return (
-    <div className="space-y-6 pt-4 pb-6">
+    <div className="space-y-6">
 
 
 
@@ -875,7 +882,7 @@ export default function Ui() {
       
       {/* DataTable 사용 */}
       <DataTable
-        data={isLoading ? [] : tableData}
+        data={tableData}
         columns={tableColumns}
         className="w-full"
         onColumnsChange={handleColumnsChange}
@@ -905,6 +912,13 @@ export default function Ui() {
         currentPage={pagination.page}
         totalPages={pagination.pageCount}
         onPageChange={handlePageChange}
+      />
+
+      {/* 임원 상세 정보 모달 */}
+      <ExecutiveDetailModal
+        executive={selectedExecutive}
+        isOpen={showDetailModal}
+        onClose={handleCloseDetailModal}
       />
     </div>
   );

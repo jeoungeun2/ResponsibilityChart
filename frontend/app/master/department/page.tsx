@@ -10,6 +10,8 @@ import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
 import { DutyData, sampleData } from '@/data/department-data';
+import AddDutyForm from './_components/AddDutyForm';
+
 
 // 컬럼 정의
 const columns: any[] = [
@@ -36,6 +38,16 @@ const columns: any[] = [
   {
     key: "detailContent" as keyof DutyData,
     header: "책무 세부내용",
+    visible: true
+  },
+  {
+    key: "position" as keyof DutyData,
+    header: "직책",
+    visible: true
+  },
+  {
+    key: "executive" as keyof DutyData,
+    header: "임원",
     visible: true
   },
   {
@@ -66,7 +78,11 @@ export default function DepartmentPage() {
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    category: ''
+    category: '',
+    department: '',
+    responsibilityName: '',
+    position: '',
+    executive: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -76,42 +92,66 @@ export default function DepartmentPage() {
   // 필터 설정 정의
   const filters = [
     {
+      key: "department",
+      label: "부문",
+      type: "dropdown" as const,
+      width: "w-40"
+    },
+    {
       key: "category",
       label: "책무구분",
       type: "dropdown" as const,
-      width: "w-32"
+      width: "w-40"
+    },
+    {
+      key: "responsibilityName",
+      label: "책무명",
+      type: "dropdown" as const,
+      width: "w-48"
     }
   ];
 
   // 필터 옵션들
   const filterOptions = {
     category: [
+      { value: "지정책임자", label: "지정책임자" },
       { value: "경영관리", label: "경영관리" },
-      { value: "인사관리", label: "인사관리" },
-      { value: "재무관리", label: "재무관리" },
-      { value: "정보관리", label: "정보관리" },
-      { value: "법무관리", label: "법무관리" },
-      { value: "보안관리", label: "보안관리" },
-      { value: "품질관리", label: "품질관리" },
-      { value: "환경관리", label: "환경관리" },
-      { value: "시설관리", label: "시설관리" },
-      { value: "구매관리", label: "구매관리" },
-      { value: "물류관리", label: "물류관리" },
-      { value: "고객관리", label: "고객관리" },
-      { value: "마케팅관리", label: "마케팅관리" },
-      { value: "연구개발관리", label: "연구개발관리" },
-      { value: "지식관리", label: "지식관리" }
+      { value: "금융", label: "금융" }
+    ],
+    department: [
+      { value: "전체", label: "전체" },
+      { value: "ETF투자부문", label: "ETF투자부문" },
+      { value: "자산운용부문", label: "자산운용부문" },
+      { value: "자산관리부문", label: "자산관리부문" },
+      { value: "글로벌투자부문", label: "글로벌투자부문" },
+      { value: "준법감시실", label: "준법감시실" },
+      { value: "IT부문", label: "IT부문" },
+      { value: "인사부문", label: "인사부문" },
+      { value: "재무부문", label: "재무부문" },
+      { value: "법무부문", label: "법무부문" }
+    ],
+
+    responsibilityName: [
+      { value: "전체", label: "전체" },
+      { value: "경영지원업무와 관련된 책무", label: "경영지원업무와 관련된 책무" },
+      { value: "인사관리업무와 관련된 책무", label: "인사관리업무와 관련된 책무" },
+      { value: "재무관리업무와 관련된 책무", label: "재무관리업무와 관련된 책무" },
+      { value: "정보관리업무와 관련된 책무", label: "정보관리업무와 관련된 책무" },
+      { value: "법무관리업무와 관련된 책무", label: "법무관리업무와 관련된 책무" },
+      { value: "보안관리업무와 관련된 책무", label: "보안관리업무와 관련된 책무" },
+      { value: "품질관리업무와 관련된 책무", label: "품질관리업무와 관련된 책무" },
+      { value: "환경관리업무와 관련된 책무", label: "환경관리업무와 관련된 책무" },
+      { value: "시설관리업무와 관련된 책무", label: "시설관리업무와 관련된 책무" },
+      { value: "구매관리업무와 관련된 책무", label: "구매관리업무와 관련된 책무" },
+      { value: "물류관리업무와 관련된 책무", label: "물류관리업무와 관련된 책무" },
+      { value: "고객관리업무와 관련된 책무", label: "고객관리업무와 관련된 책무" },
+      { value: "마케팅관리업무와 관련된 책무", label: "마케팅관리업무와 관련된 책무" },
+      { value: "연구개발관리업무와 관련된 책무", label: "연구개발관리업무와 관련된 책무" },
+      { value: "지식관리업무와 관련된 책무", label: "지식관리업무와 관련된 책무" }
     ]
   };
 
-  // 폼 필드 정의
-  const formFields = [
-    { key: "category", label: "책무구분", type: "text" as const, required: true },
-    { key: "code", label: "책무코드", type: "text" as const, required: true },
-    { key: "name", label: "책무", type: "text" as const, required: true },
-    { key: "detailCode", label: "책무 세부코드", type: "text" as const, required: true },
-    { key: "detailContent", label: "책무 세부내용", type: "text" as const, required: true }
-  ];
+
 
   // 폼 데이터 변경 핸들러
   const handleFormDataChange = (field: string, value: string) => {
@@ -184,14 +224,28 @@ export default function DepartmentPage() {
           onFilterChange={handleFilterChange}
           filterOptions={filterOptions}
           filters={filters}
-          // 추가 버튼 관련 props
-          enableAddForm={true}
-          showAddForm={showAddForm}
-          onShowAddForm={handleShowAddForm}
-          formData={formData}
-          formFields={formFields}
-          onFormDataChange={handleFormDataChange}
-          onAdd={handleAdd}
+          // 추가 버전 2 사용
+          enableAddFormV2={true}
+          addFormV2Modal={
+            <AddDutyForm
+              open={showAddForm}
+              onOpenChange={setShowAddForm}
+              formData={formData}
+              onFormDataChange={handleFormDataChange}
+              onAdd={handleAdd}
+              isLoading={false}
+              disabled={false}
+            />
+          }
+          onShowAddFormV2={() => setShowAddForm(true)}
+          // 기존 추가 폼 비활성화
+          enableAddForm={false}
+          showAddForm={false}
+          onShowAddForm={() => {}}
+          formData={{}}
+          formFields={[]}
+          onFormDataChange={() => {}}
+          onAdd={() => {}}
           isAddLoading={false}
           isNameValid={true}
           // 액션 컬럼 비활성화 (별도 actions 컬럼 사용)
@@ -204,6 +258,17 @@ export default function DepartmentPage() {
           totalPages={totalPages}
           onPageChange={handlePageChange}
           className="mt-6 mb-8"
+        />
+        
+        {/* 책무 추가 모달 */}
+        <AddDutyForm
+          open={showAddForm}
+          onOpenChange={setShowAddForm}
+          formData={formData}
+          onFormDataChange={handleFormDataChange}
+          onAdd={handleAdd}
+          isLoading={false}
+          disabled={false}
         />
       </div>
     </div>

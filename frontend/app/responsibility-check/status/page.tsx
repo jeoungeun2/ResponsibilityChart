@@ -1,138 +1,197 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
 import CommonBreadcrumb from '../_components/Breadcrumb';
+import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
-import EditIcon from '@/components/ui/edit-icon';
-import DeleteIcon from '@/components/ui/delete-icon';
-import { DutyData, sampleData } from '@/data/department-data';
+import { ResponsibilityCheckStatusData, responsibilityCheckStatusData } from '@/data/responsibility-check-status-data';
+import ControlActivityModal from '@/components/ControlActivityModal';
 
-// 컬럼 정의
-const columns: any[] = [
-  {
-    key: "category" as keyof DutyData,
-    header: "책무구분",
-    visible: true
-  },
-  {
-    key: "code" as keyof DutyData,
-    header: "책무코드",
-    visible: true
-  },
-  {
-    key: "name" as keyof DutyData,
-    header: "책무",
-    visible: true
-  },
-  {
-    key: "detailCode" as keyof DutyData,
-    header: "책무 세부코드",
-    visible: true
-  },
-  {
-    key: "detailContent" as keyof DutyData,
-    header: "책무 세부내용",
-    visible: true
-  },
-  {
-    key: "actions",
-    header: "액션",
-    visible: true,
-    render: (value: any, row: any) => (
-      <div className="flex items-center space-x-2">
-        <EditIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('수정:', row.id)}
-        />
-        <DeleteIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('삭제:', row.id)}
-        />
-      </div>
-    )
-  }
-];
+// 수행현황 상태별 색상 컴포넌트
+const PerformanceStatusBadge = ({ status }: { status: string }) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case '진행중':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case '점검승인대기':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case '점검승인완료':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
-export default function StatusPage() {
+  return (
+    <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(status)}`}>
+      {status}
+    </span>
+  );
+};
+
+export default function ResponsibilityCheckStatusPage() {
   const { isSidebarCollapsed } = useSidebar();
-  const [tableColumns, setTableColumns] = useState(columns);
-  // 추가 폼 관련 상태 관리
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState<Record<string, string>>({});
-   
-  // 필터 관련 상태 관리
+  const [tableColumns, setTableColumns] = useState<any[]>([]);
+  
+  // 모달 관련 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedControlActivity, setSelectedControlActivity] = useState<any>(null);
+  
+  // 검색/필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    category: ''
+    group: '',
+    responsibleDepartment: '',
+    assignee: '',
+    managementActionCode: '',
+    targetYear: '',
+    processingStatus: '',
+    responsibleTeam: ''
   });
-
+   
   // 페이지네이션 관련 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5; // 5개 페이지가 있다고 가정
 
-  // 필터 설정 정의
-  const filters = [
-    {
-      key: "category",
-      label: "책무구분",
-      type: "dropdown" as const,
-      width: "w-32"
-    }
-  ];
+  // 통제활동코드 클릭 핸들러
+  const handleControlActivityClick = (row: ResponsibilityCheckStatusData) => {
+    setSelectedControlActivity({
+      responsibilityType: row.responsibilityType,
+      responsibilityDetailCode: row.responsibilityDetailCode,
+      responsibility: row.responsibility,
+      responsibilityDetailContent: row.responsibilityDetailContent,
+      managementDuty: row.managementDuty,
+      managementActionCode: row.managementActionCode,
+      managementAction: row.managementAction,
+      managementActionType: row.managementActionType,
+      controlActivityCode: row.controlActivityCode,
+      controlActivityName: row.controlActivityName,
+      controlActivity: row.controlActivity,
+      controlActivityCycle: row.controlActivityCycle,
+      responsibleDepartment: row.responsibleDepartment,
+      responsibleTeam: row.responsibleTeam,
+      responsiblePerson: row.assignee,
+      evidence: row.evidence
+    });
+    setIsModalOpen(true);
+  };
+
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedControlActivity(null);
+  };
 
   // 필터 옵션들
   const filterOptions = {
-    category: [
-      { value: "경영관리", label: "경영관리" },
-      { value: "인사관리", label: "인사관리" },
-      { value: "재무관리", label: "재무관리" },
-      { value: "정보관리", label: "정보관리" },
-      { value: "법무관리", label: "법무관리" },
-      { value: "보안관리", label: "보안관리" },
-      { value: "품질관리", label: "품질관리" },
-      { value: "환경관리", label: "환경관리" },
-      { value: "시설관리", label: "시설관리" },
-      { value: "구매관리", label: "구매관리" },
-      { value: "물류관리", label: "물류관리" },
-      { value: "고객관리", label: "고객관리" },
-      { value: "마케팅관리", label: "마케팅관리" },
-      { value: "연구개발관리", label: "연구개발관리" },
-      { value: "지식관리", label: "지식관리" }
+    group: [
+      { value: "전체", label: "전체" },
+      { value: "경영관리그룹", label: "경영관리그룹" },
+      { value: "투자운용그룹", label: "투자운용그룹" },
+      { value: "IT그룹", label: "IT그룹" },
+      { value: "인사그룹", label: "인사그룹" },
+      { value: "재무그룹", label: "재무그룹" }
+    ],
+    responsibleDepartment: [
+      { value: "전체", label: "전체" },
+      { value: "준법감시실", label: "준법감시실" },
+      { value: "리스크관리부", label: "리스크관리부" },
+      { value: "영업기획그룹", label: "영업기획그룹" },
+      { value: "개인그룹", label: "개인그룹" },
+      { value: "CIB그룹", label: "CIB그룹" }
+    ],
+    assignee: [
+      { value: "전체", label: "전체" },
+      { value: "김철수", label: "김철수" },
+      { value: "김민수", label: "김민수" },
+      { value: "이영희", label: "이영희" },
+      { value: "박민수", label: "박민수" },
+      { value: "정수진", label: "정수진" }
+    ],
+    managementActionCode: [
+      { value: "전체", label: "전체" },
+      { value: "BD-경영관리-C1", label: "BD-경영관리-C1" },
+      { value: "BD-경영관리-C2", label: "BD-경영관리-C2" },
+      { value: "BD-경영관리-C3", label: "BD-경영관리-C3" },
+      { value: "EQ-금융업무-B1", label: "EQ-금융업무-B1" }
+    ],
+    targetYear: [
+      { value: "전체", label: "전체" },
+      { value: "2024", label: "2024년" },
+      { value: "2023", label: "2023년" },
+      { value: "2022", label: "2022년" },
+      { value: "2021", label: "2021년" }
+    ],
+    processingStatus: [
+      { value: "전체", label: "전체" },
+      { value: "진행중", label: "진행중" },
+      { value: "완료", label: "완료" },
+      { value: "보류", label: "보류" },
+      { value: "취소", label: "취소" }
     ]
   };
 
-  // 폼 필드 정의
-  const formFields = [
-    { key: "category", label: "책무구분", type: "text" as const, required: true },
-    { key: "code", label: "책무코드", type: "text" as const, required: true },
-    { key: "name", label: "책무", type: "text" as const, required: true },
-    { key: "detailCode", label: "책무 세부코드", type: "text" as const, required: true },
-    { key: "detailContent", label: "책무 세부내용", type: "text" as const, required: true }
+  // 컬럼 정의
+  const columns: any[] = [
+    {
+      key: "managementActionCode" as keyof ResponsibilityCheckStatusData,
+      header: "관리조치코드",
+      visible: true
+    },
+    {
+      key: "managementAction" as keyof ResponsibilityCheckStatusData,
+      header: "관리조치",
+      visible: true
+    },
+    {
+      key: "controlActivityCode" as keyof ResponsibilityCheckStatusData,
+      header: "통제활동코드",
+      visible: true,
+      render: (value: any, row: any) => (
+        <button
+          className="text-blue-600 hover:text-blue-800 underline cursor-pointer text-left"
+          onClick={() => handleControlActivityClick(row)}
+        >
+          {value}
+        </button>
+      )
+    },
+    {
+      key: "controlActivity" as keyof ResponsibilityCheckStatusData,
+      header: "통제활동",
+      visible: true
+    },
+    {
+      key: "controlActivityDetails" as keyof ResponsibilityCheckStatusData,
+      header: "통제활동내용",
+      visible: true
+    },
+    {
+      key: "responsibleDepartment" as keyof ResponsibilityCheckStatusData,
+      header: "소관부서",
+      visible: true
+    },
+    {
+      key: "assignee" as keyof ResponsibilityCheckStatusData,
+      header: "담당자",
+      visible: true
+    },
+    {
+      key: "performanceStatus" as keyof ResponsibilityCheckStatusData,
+      header: "수행현황",
+      visible: true,
+      render: (value: any, row: any) => (
+        <PerformanceStatusBadge status={row.performanceStatus} />
+      )
+    }
   ];
 
-  // 폼 데이터 변경 핸들러
-  const handleFormDataChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // 추가 버튼 클릭 핸들러
-  const handleShowAddForm = () => {
-    setShowAddForm(!showAddForm);
-    if (!showAddForm) {
-      setFormData({}); // 폼 초기화
-    }
-  };
-
-  // 추가 처리 핸들러 (기능 없음)
-  const handleAdd = () => {
-    console.log('추가 기능은 구현되지 않았습니다.', formData);
-    // 여기에 실제 추가 로직을 구현할 수 있습니다
-  };
+  // 컴포넌트 마운트 시 컬럼 설정
+  useEffect(() => {
+    setTableColumns(columns);
+  }, []);
 
   // 필터 변경 핸들러
   const handleFilterChange = (key: string, value: string) => {
@@ -153,10 +212,11 @@ export default function StatusPage() {
     <div className="relative">
       <div className={`max-w-7xl mx-auto space-y-6 pt-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="Responsibility Check Status" />
+        <H1 title="책무 점검 현황" />
         
+
         <DataTable
-          data={sampleData}
+          data={responsibilityCheckStatusData}
           columns={tableColumns}
           onColumnsChange={setTableColumns}
           className="w-full"
@@ -164,18 +224,48 @@ export default function StatusPage() {
           searchFilters={searchFilters}
           onFilterChange={handleFilterChange}
           filterOptions={filterOptions}
-          filters={filters}
-          // 추가 버튼 관련 props
-          enableAddForm={true}
-          showAddForm={showAddForm}
-          onShowAddForm={handleShowAddForm}
-          formData={formData}
-          formFields={formFields}
-          onFormDataChange={handleFormDataChange}
-          onAdd={handleAdd}
-          isAddLoading={false}
-          isNameValid={true}
-          // 액션 컬럼 비활성화 (별도 actions 컬럼 사용)
+          filters={[
+            {
+              key: "group",
+              label: "그룹",
+              type: "dropdown" as const,
+              width: "w-32"
+            },
+            {
+              key: "responsibleDepartment",
+              label: "담당부서",
+              type: "dropdown" as const,
+              width: "w-40"
+            },
+            {
+              key: "assignee",
+              label: "담당자",
+              type: "dropdown" as const,
+              width: "w-32"
+            },
+            {
+              key: "managementActionCode",
+              label: "관리조치코드",
+              type: "dropdown" as const,
+              width: "w-48"
+            },
+            {
+              key: "targetYear",
+              label: "대상연월",
+              type: "dropdown" as const,
+              width: "w-32"
+            },
+            {
+              key: "processingStatus",
+              label: "처리상태",
+              type: "dropdown" as const,
+              width: "w-32"
+            }
+          ]}
+          // 추가 버튼 및 체크박스 비활성화
+          enableAddForm={false}
+          enableRowSelection={false}
+          // 액션 컬럼 비활성화
           showActionColumn={false}
         />
 
@@ -185,6 +275,13 @@ export default function StatusPage() {
           totalPages={totalPages}
           onPageChange={handlePageChange}
           className="mt-6 mb-8"
+        />
+
+        {/* 통제활동 모달 */}
+        <ControlActivityModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          data={selectedControlActivity}
         />
       </div>
     </div>

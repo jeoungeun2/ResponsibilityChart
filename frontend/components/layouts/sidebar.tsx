@@ -30,8 +30,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       label: '책무구조 Master',
       subItems: [
         { href: '/master/department', label: '책무 Master' },
-        { href: '/master/executive', label: '임원 Master' },
-        
+        { href: '/master/executive_front', label: '임원 Master' },        
         { href: '/master/organization', label: '조직 Master' },
       ],
       imageSrc: '/images/data-analysis (1).png',
@@ -59,8 +58,8 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       label: '책무 이행 점검',
       href: '/responsibility-check',
       subItems: [
-        { label: '이행점검 현황 조회', href: '/responsibility-check/status' },
-        { label: '책무 이행점검 관리', href: '/responsibility-check/management' },
+        { label: '관리조치활동 수행', href: '/responsibility-check/status' },
+        { label: '관리조치 이행 점검', href: '/responsibility-check/management' },
       ],
       imageSrc: '/images/check (2).png',
     },

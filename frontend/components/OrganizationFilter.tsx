@@ -1,0 +1,48 @@
+"use client";
+
+import { useState } from 'react';
+
+interface OrganizationFilterProps {
+  searchFilters: Record<string, string>;
+  onFilterChange: (key: string, value: string) => void;
+  filterOptions: {
+    orgCodeLv1: Array<{ value: string; label: string }>;
+    deptCodeLv2: Array<{ value: string; label: string }>;
+    teamCodeLv3: Array<{ value: string; label: string }>;
+  };
+}
+
+export default function OrganizationFilter({
+  searchFilters,
+  onFilterChange,
+  filterOptions
+}: OrganizationFilterProps) {
+  return (
+    <div className="flex items-center space-x-4">
+      {/* 기준일자 필터 */}
+      <div className="flex items-center space-x-2">
+        <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          기준일자
+        </label>
+        <input
+          type="date"
+          value={searchFilters.baselineDate || ''}
+          onChange={(e) => onFilterChange('baselineDate', e.target.value)}
+          className="h-9 px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+
+
+      {/* 필터 초기화 버튼 */}
+      <button
+        onClick={() => {
+          onFilterChange('baselineDate', '');
+        }}
+        className="h-9 px-4 py-1 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
+      >
+        초기화
+      </button>
+    </div>
+  );
+}

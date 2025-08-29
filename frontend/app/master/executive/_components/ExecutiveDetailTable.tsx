@@ -42,7 +42,7 @@ export default function ExecutiveDetailTable({
 
   // 평가 상태 배지 렌더링
   const renderEvaluationStatus = (status?: string) => (
-    <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+    <div className="inline-flex items-center rounded-full text-sm font-medium bg-blue-100 text-blue-800">
       {getStatusText(status)}
     </div>
   );
