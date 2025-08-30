@@ -223,7 +223,7 @@ export function ComplexDataTable<T extends Record<string, any>>({
         <div className="flex-1">
           {/* 검색 및 필터들 */}
           {searchFilters && onFilterChange && (
-            <div className="grid grid-cols-3 gap-4 max-w-3xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 max-w-3xl">
               {/* 동적 필터들 */}
               {filters?.map((filter) => {
                 const filterValue = searchFilters[filter.key] || '';
@@ -231,8 +231,8 @@ export function ComplexDataTable<T extends Record<string, any>>({
                 if (filter.type === 'dropdown') {
                   const options = filterOptions?.[filter.key] || [];
                   return (
-                    <div key={filter.key} className="flex items-center space-x-2">
-                      <label className="text-base text-gray-700 whitespace-nowrap">
+                    <div key={filter.key} className="flex items-center space-x-3">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                         {filter.label}
                       </label>
                       <DropdownMenu>
@@ -283,8 +283,8 @@ export function ComplexDataTable<T extends Record<string, any>>({
                 
                 if (filter.type === 'input') {
                   return (
-                    <div key={filter.key} className="flex items-center space-x-2">
-                      <label className="text-base text-gray-700 whitespace-nowrap">
+                    <div key={filter.key} className="flex items-center space-x-3">
+                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
                         {filter.label}
                       </label>
                       <Input

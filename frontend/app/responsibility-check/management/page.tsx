@@ -9,20 +9,7 @@ import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
 import { ResponsibilityCheckManagementData, responsibilityCheckManagementData } from '@/data/responsibility-check-management-data';
 import ResponsibilityCheckModal from '@/components/ResponsibilityCheckModal';
-
-// 상태 카드 컴포넌트
-const StatusCard = ({ title, value, valueColor }: { 
-  title: string; 
-  value: string; 
-  valueColor: string; 
-}) => (
-  <div className="bg-white border border-gray-200 p-6">
-    <div className="text-left">
-      <h3 className="text-base font-semibold text-gray-600 mb-2">{title}</h3>
-      <p className="text-2xl font-bold bg-gradient-to-r from-brand-200 to-brand-500 bg-clip-text text-transparent">{value}</p>
-    </div>
-  </div>
-);
+import StatusCard from '@/components/StatusCard';
 
 export default function ManagementPage() {
   const { isSidebarCollapsed } = useSidebar();
@@ -336,22 +323,18 @@ export default function ManagementPage() {
           <StatusCard 
             title="책무활동이행완료" 
             value="364/489건" 
-            valueColor="text-black" 
           />
           <StatusCard 
             title="이행점검완료" 
             value="172/489건" 
-            valueColor="text-green-600" 
           />
           <StatusCard 
             title="이행점검결과-적정" 
             value="170/172건" 
-            valueColor="text-orange-600" 
           />
           <StatusCard 
             title="이행점검결과-보완필요" 
             value="2/172건" 
-            valueColor="text-red-600" 
           />
         </div>
         
@@ -368,6 +351,8 @@ export default function ManagementPage() {
           // 추가 버튼 및 체크박스 비활성화
           enableAddForm={false}
           enableRowSelection={false}
+          // 삭제 기능 비활성화
+          enableBulkDelete={false}
           // 액션 컬럼 비활성화
           showActionColumn={false}
         />

@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { useState, useMemo } from "react"
-import { MoreHorizontal, ChevronDown, Filter } from "lucide-react"
+import { useState, useMemo, useCallback } from "react"
+import { MoreHorizontal, ChevronDown, Search } from "lucide-react"
+
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
@@ -15,16 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { StartDateFilter, EndDateFilter } from "@/components/ui/DateFilter"
 import { cn } from "@/lib/utils"
 
-// 컬럼 정의 인터페이스
-interface Column<T> {
+/* ----------------------------- Types & Helpers ---------------------------- */
+
+export interface Column<T> {
   key: keyof T
   header: string
   visible: boolean
@@ -32,64 +30,79 @@ interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode
 }
 
-// 데이터 테이블 프롭스 인터페이스
-interface DataTableProps<T> {
+type FilterType = "dropdown" | "input" | "date"
+
+export interface FilterConfig {
+  key: string
+  label: string
+  type: FilterType
+  placeholder?: string
+  width?: string
+  dateRange?: boolean // 날짜 범위 여부
+}
+
+export interface DataTableProps<T extends Record<string, any>> {
   data: T[]
   columns: Column<T>[]
   onColumnsChange: (columns: Column<T>[]) => void
   className?: string
   isLoading?: boolean
-  // 필터 관련 props 추가
-  searchFilters?: Record<string, string>; // 동적 필터 데이터
-  onFilterChange?: (key: string, value: string) => void;
-  // 필터 옵션들
-  filterOptions?: Record<string, Array<{ value: string; label: string }>>;
-  // 필터 설정
-  filters?: Array<{
-    key: string;
-    label: string;
-    type: 'dropdown' | 'input' | 'date';
-    placeholder?: string;
-    width?: string;
-  }>;
-  // 선택 삭제 관련 props
-  onBulkDelete?: (selectedIds: string[]) => void;
-  onSelectionReset?: () => void; // 선택 상태 초기화 콜백
-  enableBulkDelete?: boolean; // 선택 삭제 기능 활성화 여부
-  enableRowSelection?: boolean; // 행 선택 체크박스 활성화 여부
-  // 추가 폼 관련 props
-  enableAddForm?: boolean; // 추가 폼 활성화 여부
-  showAddForm?: boolean;
-  onShowAddForm?: () => void;
-  formData?: Record<string, string>; // 동적 폼 데이터
-  formFields?: Array<{ // 폼 필드 정의
-    key: string;
-    label: string;
-    type: 'text' | 'email' | 'tel' | 'date' | 'number';
-    placeholder?: string;
-    required?: boolean;
-  }>;
-  onFormDataChange?: (field: string, value: string) => void;
-  onAdd?: () => void;
-  isAddLoading?: boolean;
-  isNameValid?: boolean;
-  // 추가 버전 2 관련 props
-  enableAddFormV2?: boolean; // 추가 버전 2 활성화 여부
-  addFormV2Modal?: React.ReactNode; // 추가 버전 2 모달 컴포넌트
-  onShowAddFormV2?: () => void; // 추가 버전 2 모달 열기 핸들러
-  // 액션 열 표시 여부
-  showActionColumn?: boolean;
+
+  // Filters
+  searchFilters?: Record<string, string>
+  onFilterChange?: (key: string, value: string) => void
+  filterOptions?: Record<string, Array<{ value: string; label: string }>>
+  filters?: Array<FilterConfig>
+
+  // Bulk delete / selection
+  onBulkDelete?: (selectedIds: string[]) => void
+  onSelectionReset?: () => void
+  enableBulkDelete?: boolean
+  enableRowSelection?: boolean
+
+  // Add form (v1)
+  enableAddForm?: boolean
+  showAddForm?: boolean
+  onShowAddForm?: () => void
+  formData?: Record<string, string>
+  formFields?: Array<{
+    key: string
+    label: string
+    type: "text" | "email" | "tel" | "date" | "number"
+    placeholder?: string
+    required?: boolean
+  }>
+  onFormDataChange?: (field: string, value: string) => void
+  onAdd?: () => void
+  isAddLoading?: boolean
+  isNameValid?: boolean
+
+  // Add form (v2)
+  enableAddFormV2?: boolean
+  addFormV2Modal?: React.ReactNode
+  onShowAddFormV2?: () => void
+
+  // Actions column
+  showActionColumn?: boolean
 }
 
-// 액션 드롭다운 프롭스 인터페이스
 interface ActionDropdownProps {
   onCopyId: () => void
   onViewCustomer: () => void
   onViewDetails: () => void
 }
 
-// 액션 드롭다운 컴포넌트
-function ActionDropdown({ onCopyId, onViewCustomer, onViewDetails }: ActionDropdownProps) {
+/** Resolve row unique id from common fields (id | code | name) */
+const getRowId = (row: Record<string, any>): string =>
+  String(row.id ?? row.code ?? row.name ?? "")
+
+/* ------------------------------ UI Subparts ------------------------------- */
+
+const ActionDropdown = React.memo(function ActionDropdown({
+  onCopyId,
+  onViewCustomer,
+  onViewDetails,
+}: ActionDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -111,23 +124,30 @@ function ActionDropdown({ onCopyId, onViewCustomer, onViewDetails }: ActionDropd
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+})
 
-// 데이터 테이블 컴포넌트
+/* --------------------------------- Main ---------------------------------- */
+
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
   onColumnsChange,
   className,
   isLoading,
+
+  // Filters
   searchFilters,
   onFilterChange,
   filterOptions,
   filters,
+
+  // Bulk delete / selection
   onBulkDelete,
   onSelectionReset,
   enableBulkDelete = true,
   enableRowSelection = true,
+
+  // Add form (v1)
   enableAddForm,
   showAddForm,
   onShowAddForm,
@@ -137,339 +157,459 @@ export function DataTable<T extends Record<string, any>>({
   onAdd,
   isAddLoading,
   isNameValid,
+
+  // Add form (v2)
   enableAddFormV2,
   addFormV2Modal,
   onShowAddFormV2,
-  showActionColumn = true
+
+  // Actions
+  showActionColumn = true,
 }: DataTableProps<T>) {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
-  // 드롭다운 검색 상태 관리
   const [dropdownSearches, setDropdownSearches] = useState<Record<string, string>>({})
 
-  // 검색 기능 제거로 인해 데이터를 그대로 사용
+  // Keep behavior: no client-side filtering
   const filteredData = data
 
-  // 드롭다운 검색 상태 업데이트
-  const updateDropdownSearch = (filterKey: string, searchTerm: string) => {
-    setDropdownSearches(prev => ({
-      ...prev,
-      [filterKey]: searchTerm
-    }))
-  }
+  const visibleColumns = useMemo(
+    () => columns.filter((c) => c.visible),
+    [columns]
+  )
 
-  // 필터링된 옵션 가져오기
-  const getFilteredOptions = (filterKey: string) => {
-    const searchTerm = dropdownSearches[filterKey] || ''
-    const options = filterOptions?.[filterKey] || []
-    
-    if (!searchTerm) return options
-    
-    return options.filter(opt => 
-      opt.label.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }
+  const allRowIds = useMemo(
+    () => filteredData.map((row) => getRowId(row)),
+    [filteredData]
+  )
 
-  // 모든 행 선택/해제
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRows(new Set(filteredData.map(item => String(item.id || item.code || item.name))))
-    } else {
-      setSelectedRows(new Set())
-    }
-  }
+  const updateDropdownSearch = useCallback((filterKey: string, searchTerm: string) => {
+    setDropdownSearches((prev) => ({ ...prev, [filterKey]: searchTerm }))
+  }, [])
 
-  // 개별 행 선택/해제
-  const handleRowSelect = (id: string, checked: boolean) => {
-    const newSelected = new Set(selectedRows)
-    if (checked) {
-      newSelected.add(id)
-    } else {
-      newSelected.delete(id)
-    }
-    setSelectedRows(newSelected)
-  }
+  const getFilteredOptions = useCallback(
+    (filterKey: string) => {
+      const searchTerm = (dropdownSearches[filterKey] || "").toLowerCase()
+      const options = filterOptions?.[filterKey] ?? []
+      if (!searchTerm) return options
+      return options.filter((opt) => opt.label.toLowerCase().includes(searchTerm))
+    },
+    [dropdownSearches, filterOptions]
+  )
 
-  // 컬럼 표시/숨김 토글
-  const toggleColumnVisibility = (columnKey: keyof T) => {
-    const updatedColumns = columns.map(col => 
-      col.key === columnKey ? { ...col, visible: !col.visible } : col
-    )
-    onColumnsChange(updatedColumns)
-  }
+  const handleSelectAll = useCallback(
+    (checked: boolean | "indeterminate") => {
+      if (checked === true) {
+        setSelectedRows(new Set(allRowIds))
+      } else {
+        setSelectedRows(new Set())
+      }
+    },
+    [allRowIds]
+  )
 
-  // 표시 가능한 컬럼들
-  const visibleColumns = columns.filter(col => col.visible)
+  const handleRowSelect = useCallback((rowId: string, checked: boolean) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev)
+      if (checked) next.add(rowId)
+      else next.delete(rowId)
+      return next
+    })
+  }, [])
+
+  const toggleColumnVisibility = useCallback(
+    (columnKey: keyof T) => {
+      const updated = columns.map((col) =>
+        col.key === columnKey ? { ...col, visible: !col.visible } : col
+      )
+      onColumnsChange(updated)
+    },
+    [columns, onColumnsChange]
+  )
+
+  const handleBulkDeleteClick = useCallback(() => {
+    if (!onBulkDelete) return
+    const ids = Array.from(selectedRows)
+    if (ids.length === 0) return
+    onBulkDelete(ids)
+    setSelectedRows(new Set())
+    onSelectionReset?.()
+  }, [onBulkDelete, selectedRows, onSelectionReset])
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* 통합된 필터 및 컬럼 영역 */}
-      <div className="flex items-center justify-between p-3 bg-brand-grey-100 border border-brand-grey-200">
-        {/* 왼쪽: 검색 및 필터 */}
-        <div className="flex-1">
-          {/* 검색 및 필터들 */}
-          {searchFilters && onFilterChange && (
-            <div className="grid grid-cols-3 gap-4 max-w-3xl">
-              {/* 동적 필터들 */}
-              {filters?.map((filter) => {
-                const filterValue = searchFilters[filter.key] || '';
-                
-                                 if (filter.type === 'dropdown') {
-                   const options = filterOptions?.[filter.key] || [];
-                   return (
-                     <div key={filter.key} className="flex items-center space-x-2">
-                       <label className="text-base text-gray-700 whitespace-nowrap">
-                         {filter.label}
-                       </label>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-32 justify-between"
-                          >
-                            {filterValue ? 
-                              (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
-                              : "전체선택"}
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
-                          {/* 검색 입력 필드 */}
-                          <div className="p-2 border-b">
-                            <Input
-                              type="text"
-                              placeholder={`${filter.label} 검색...`}
-                              className="h-8 text-sm"
-                              value={dropdownSearches[filter.key] || ''}
-                              onChange={(e) => updateDropdownSearch(filter.key, e.target.value)}
-                            />
-                          </div>
-                          
-                          <DropdownMenuItem 
-                            onClick={() => onFilterChange(filter.key, '')}
-                            className="cursor-pointer"
-                          >
-                            전체선택
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {getFilteredOptions(filter.key).map((option) => (
-                            <DropdownMenuItem 
-                              key={option.value}
-                              onClick={() => onFilterChange(filter.key, option.value)}
-                              className="cursor-pointer"
-                            >
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  );
-                }
-                
-                                 if (filter.type === 'input') {
-                   return (
-                     <div key={filter.key} className="flex items-center space-x-2">
-                       <label className="text-base text-gray-700 whitespace-nowrap">
-                         {filter.label}
-                       </label>
-                      <Input
-                        type="text"
-                        placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
-                        value={filterValue}
-                        onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                        className="h-10 w-32"
-                      />
-                    </div>
-                  );
-                }
-                
-                return null;
-              })}
-            </div>
-          )}
-        </div>
+      {/* Filters & Columns Toolbar */}
+      <div className="p-3 bg-brand-grey-100 border border-brand-grey-200">
+        <div className="grid gap-3">
+          {/* Group 1: Search & Filters */}
+          <div className="space-y-4 border-b border-gray-300 pb-3">
+            {searchFilters && onFilterChange && (
+              <div className="grid grid-cols-4 gap-6">
+                {filters?.map((filter) => {
+                  const filterValue = searchFilters[filter.key] || ""
 
-                {/* 오른쪽: 컬럼 필터, 추가 버튼, 선택 삭제 */}
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <label className="font-medium text-gray-700 whitespace-nowrap">
-              컬럼
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
-                   {visibleColumns.length === columns.length 
-                     ? "전체선택" 
-                     : visibleColumns.length === 1 
-                       ? visibleColumns[0].header 
-                       : `${visibleColumns.length}개 컬럼`}
-                   <ChevronDown className="ml-2 h-4 w-4" />
-                 </Button>
-               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuCheckboxItem
-                  checked={visibleColumns.length === columns.length}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      onColumnsChange(columns.map(col => ({ ...col, visible: true })))
-                    } else {
-                      onColumnsChange(columns.map(col => ({ ...col, visible: false })))
-                    }
-                  }}
-                >
-                  모든 컬럼
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuSeparator />
-                {columns.map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={String(column.key)}
-                    checked={column.visible}
-                    onCheckedChange={() => toggleColumnVisibility(column.key)}
+                  if (filter.type === "dropdown") {
+                    const options = filterOptions?.[filter.key] || []
+                    const selectedLabel =
+                      options.find((opt) => opt.value === filterValue)?.label || filterValue
+                    const isSelected = filterValue && filterValue !== ""
+
+                    return (
+                      <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <div className="col-span-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={`h-10 px-4 w-full justify-between ${
+                                  isSelected 
+                                    ? "border-brand-500/80 text-brand-500 hover:bg-brand-50" 
+                                    : "border-gray-200 hover:bg-gray-50"
+                                }`}
+                              >
+                                <span className="truncate flex-1 text-left">
+                                  {filterValue ? selectedLabel : "전체선택"}
+                                </span>
+                                <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
+                              {/* Search-in-dropdown */}
+                              <div className="p-2 border-b">
+                                <Input
+                                  type="text"
+                                  placeholder={`${filter.label} 검색...`}
+                                  className="h-8 text-sm"
+                                  value={dropdownSearches[filter.key] || ""}
+                                  onChange={(e) => updateDropdownSearch(filter.key, e.target.value)}
+                                />
+                              </div>
+
+                              <DropdownMenuItem
+                                onClick={() => onFilterChange(filter.key, "")}
+                                className="cursor-pointer"
+                              >
+                                <div className="w-full truncate">전체선택</div>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {getFilteredOptions(filter.key).map((option) => (
+                                <DropdownMenuItem
+                                  key={option.value}
+                                  onClick={() => onFilterChange(filter.key, option.value)}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="w-full truncate">{option.label}</div>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  if (filter.type === "input") {
+                    const isSelected = filterValue && filterValue !== ""
+                    
+                    return (
+                      <div key={filter.key} className="flex items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
+                          value={filterValue}
+                          onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                          className={`h-10 w-32 ${
+                            isSelected 
+                              ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    )
+                  }
+
+                  if (filter.type === "date") {
+                    const isSelected = filterValue && filterValue !== ""
+                    
+                    return (
+                      <div key={filter.key} className="flex items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <StartDateFilter
+                          startDate={filterValue}
+                          onStartDateChange={(date) => onFilterChange(filter.key, date)}
+                          placeholder={filter.placeholder || "연도-월-일"}
+                        />
+                      </div>
+                    )
+                  }
+
+                  // date 타입은 현재 UI 없음(기능 변화 없이 그대로 무시)
+                  return null
+                })}
+                
+                {/* 조회 버튼 - 그리드의 4번째 컬럼으로 배치 */}
+                <div className={`hover:bg-gray-200 flex items-center justify-center ${
+                  Object.values(searchFilters || {}).some(value => value && value !== "") 
+                    ? "bg-brand-500/20" 
+                    : "bg-gray-100"
+                }`}>
+                  <Button 
+                    onClick={() => console.log("조회 실행:", searchFilters)}
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer hover:bg-gray-200"
+                    title="조회"
                   >
-                    {column.header}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <div className="space-x-2 flex items-center">
+                      <div className=" text-brand-500 font-bold text-sm">조회</div>
+                      <Search className="h-4 w-4 text-brand-500 font-bold" />
+                    </div>
+                  </Button>
+                </div>
+
+                {/* 초기화 버튼 - 그리드의 5번째 컬럼으로 배치 */}
+                <div className="bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                  <Button 
+                    onClick={() => {
+                      // 모든 필터 초기화
+                      if (onFilterChange) {
+                        Object.keys(searchFilters || {}).forEach(key => {
+                          onFilterChange(key, "")
+                        })
+                      }
+                      // 드롭다운 검색어 초기화
+                      setDropdownSearches({})
+                      console.log("필터 초기화 완료")
+                    }}
+                    variant="ghost"
+                    size="icon"
+                    className=" cursor-pointer hover:bg-gray-200"
+                    title="초기화"
+                  >
+                    <div className="space-x-2 flex items-center">
+                      <div className=" text-black font-bold text-sm">초기화</div>
+                      <div className="h-4 w-4 text-black font-bold text-center">↺</div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
-                    {/* 추가/삭제 버튼 그룹 */}
-          <div className="flex items-center space-x-2">
-            {/* 추가 버튼 - 기존 또는 버전 2 */}
-            {enableAddFormV2 && onShowAddFormV2 ? (
-              // 추가 버전 2 사용
-              <button
-                onClick={onShowAddFormV2}
-                className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
-              >
-                추가
-              </button>
-            ) : enableAddForm && onShowAddForm ? (
-              // 기존 추가 폼 사용
-              <button
-                onClick={onShowAddForm}
-                className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
-              >
-                {showAddForm ? '취소' : '추가'}
-              </button>
-            ) : null}
+          {/* Group 2: Column toggles & Actions */}
+          <div className="space-y-4">
+                         <div className="grid grid-cols-4 gap-4">
+               {/* Column visibility */}
+               <div className="grid grid-cols-3 items-center space-x-3">
+                 <label className="text-sm font-medium text-gray-700 whitespace-nowrap col-span-1">표시할 열</label>
+                 <div className="col-span-2">
+                   <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                       <Button
+                         variant="outline"
+                         className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-full justify-between"
+                       >
+                         {visibleColumns.length === columns.length
+                           ? "전체선택"
+                           : visibleColumns.length === 1
+                           ? visibleColumns[0].header
+                           : `${visibleColumns.length}개 컬럼`}
+                         <ChevronDown className="ml-2 h-4 w-4" />
+                       </Button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent align="start" className="w-48">
+                       <DropdownMenuCheckboxItem
+                         checked={visibleColumns.length === columns.length}
+                         onCheckedChange={(checked) => {
+                           const v = checked === true
+                           onColumnsChange(columns.map((col) => ({ ...col, visible: v })))
+                         }}
+                       >
+                         전체선택
+                       </DropdownMenuCheckboxItem>
+                       <DropdownMenuSeparator />
+                       {columns.map((column) => (
+                         <DropdownMenuCheckboxItem
+                           key={String(column.key)}
+                           checked={column.visible}
+                           onCheckedChange={() => toggleColumnVisibility(column.key)}
+                         >
+                           {column.header}
+                         </DropdownMenuCheckboxItem>
+                       ))}
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                 </div>
+               </div>
 
-            {/* 선택 삭제 버튼 */}
-            {enableBulkDelete && selectedRows.size > 0 && (
-              <button
-                onClick={() => {
-                  onBulkDelete?.(Array.from(selectedRows));
-                  // 선택 상태 초기화
-                  setSelectedRows(new Set());
-                  // 부모 컴포넌트에도 알림
-                  onSelectionReset?.();
-                }}
-                className="text-brand-500 px-4 py-1 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-brand-200/30"
-              >
-                <span>삭제 ({selectedRows.size})</span>
-              </button>
-            )}
+               {/* Empty space */}
+               <div></div>
+
+               {/* Action buttons */}
+               <div className="col-span-2 grid grid-cols-2 gap-2">
+                {/* Add buttons (v2 first, else v1) */}
+                {enableAddFormV2 && onShowAddFormV2 ? (
+                  <button
+                    onClick={onShowAddFormV2}
+                    className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
+                  >
+                    추가
+                  </button>
+                ) : enableAddForm && onShowAddForm ? (
+                  <button
+                    onClick={onShowAddForm}
+                    className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
+                  >
+                    {showAddForm ? "취소" : "추가"}
+                  </button>
+                ) : null}
+
+                {/* Bulk delete */}
+                {enableBulkDelete && (
+                  <button
+                    onClick={handleBulkDeleteClick}
+                    disabled={selectedRows.size === 0 || !onBulkDelete}
+                    className={cn(
+                      "px-4 py-2 transition-colors flex items-center justify-center space-x-2 border",
+                      selectedRows.size > 0 && onBulkDelete
+                        ? "text-[#FD5108] border-[#FD5108]/70 hover:bg-[#FD5108]/10 bg-[#FD5108]/20 cursor-pointer"
+                        : "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
+                    )}
+                  >
+                    <span>삭제 ({selectedRows.size})</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/* bg-[#fff5ed] */}
-      {/* 테이블 */}
+
+      {/* Table */}
       <div className="border-t border-b bg-white">
         <Table>
-                     <TableHeader>
-             <TableRow className="bg-gray-50 hover:bg-gray-50">
-               {enableRowSelection && (
-                 <TableHead className="w-12 p-2">
-                   <Checkbox
-                     checked={selectedRows.size === filteredData.length && filteredData.length > 0}
-                     onCheckedChange={handleSelectAll}
-                     aria-label="모든 행 선택"
-                   />
-                 </TableHead>
-               )}
-               {visibleColumns.map((column) => (
-                 <TableHead key={String(column.key)} className="p-2 font-semibold text-gray-900">
-                   {column.header}
-                 </TableHead>
-               ))}
-               {showActionColumn && <TableHead className="w-12 p-2">액션</TableHead>}
-             </TableRow>
-           </TableHeader>
+          <TableHeader>
+            <TableRow className="bg-gray-50 hover:bg-gray-50">
+              {enableRowSelection && (
+                <TableHead className="w-12 p-2">
+                  <Checkbox
+                    checked={selectedRows.size === filteredData.length && filteredData.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="모든 행 선택"
+                    className="cursor-pointer"
+                  />
+                </TableHead>
+              )}
+              {visibleColumns.map((column) => (
+                <TableHead key={String(column.key)} className="p-2 font-semibold text-gray-900">
+                  {column.header}
+                </TableHead>
+              ))}
+              {showActionColumn && <TableHead className="w-12 p-2">액션</TableHead>}
+            </TableRow>
+          </TableHeader>
+
           <TableBody>
-                         {isLoading ? (
-               <TableRow>
-                 <TableCell colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)} className="h-16 text-center text-gray-500">
-                   <div className="flex items-center justify-center space-x-2">
-                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-                     <span>데이터를 불러오는 중입니다...</span>
-                   </div>
-                 </TableCell>
-               </TableRow>
-             ) : filteredData.length === 0 ? (
-               <TableRow>
-                 <TableCell colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)} className="h-32 text-center text-gray-500">
-                   <div className="flex flex-col items-center justify-center space-y-2">
-                     <div className="text-gray-400 text-4xl">📋</div>
-                     <p className="text-gray-600 text-lg font-medium">표시할 데이터가 없습니다</p>
-                     <p className="text-gray-500 text-sm">검색 조건을 변경해보세요</p>
-                   </div>
-                 </TableCell>
-               </TableRow>
-                         ) : (
-               filteredData.map((item, index) => (
-                 <TableRow 
-                   key={index} 
-                   data-state={enableRowSelection && selectedRows.has(String(item.id || item.code || item.name)) ? "selected" : undefined}
-                   className={cn(
-                     "hover:bg-gray-50 transition-colors",
-                     enableRowSelection && selectedRows.has(String(item.id || item.code || item.name)) && "bg-blue-50 hover:bg-blue-100"
-                   )}
-                 >
-                   {enableRowSelection && (
-                     <TableCell className="p-1.5">
-                       <Checkbox
-                         checked={selectedRows.has(String(item.id || item.code || item.name))}
-                         onCheckedChange={(checked) => handleRowSelect(String(item.id || item.code || item.name), checked as boolean)}
-                         aria-label={`${index + 1}번째 행 선택`}
-                       />
-                     </TableCell>
-                   )}
-                   {visibleColumns.map((column) => (
-                     <TableCell key={String(column.key)} className="p-2 text-gray-700 text-sm">
-                       {column.render ? column.render(item[column.key], item) : String(item[column.key] || '')}
-                     </TableCell>
-                   ))}
-                   {showActionColumn && (
-                     <TableCell className="p-1.5">
-                       {/* 사용자 정의 액션이 있으면 렌더링, 없으면 기본 액션 드롭다운 */}
-                       {item.actions ? (
-                         item.actions
-                       ) : (
-                         <ActionDropdown
-                           onCopyId={() => console.log('ID 복사:', item.id || item.code)}
-                           onViewCustomer={() => console.log('고객 보기:', item)}
-                           onViewDetails={() => console.log('상세 정보 보기:', item)}
-                         />
-                       )}
-                     </TableCell>
-                   )}
-                 </TableRow>
-               ))
-             )}
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)}
+                  className="h-16 text-center text-gray-500"
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                    <span>데이터를 불러오는 중입니다...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredData.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={visibleColumns.length + (enableRowSelection ? 2 : 1)}
+                  className="h-32 text-center text-gray-500"
+                >
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <div className="text-gray-400 text-4xl">📋</div>
+                    <p className="text-gray-600 text-lg font-medium">표시할 데이터가 없습니다</p>
+                    <p className="text-gray-500 text-sm">검색 조건을 변경해보세요</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredData.map((item, index) => {
+                const rowId = getRowId(item)
+                const isSelected = enableRowSelection && selectedRows.has(rowId)
+
+                return (
+                  <TableRow
+                    key={rowId || index}
+                    data-state={isSelected ? "selected" : undefined}
+                    className={cn(
+                      "hover:bg-gray-50 transition-colors",
+                      isSelected && "bg-blue-50 hover:bg-blue-100"
+                    )}
+                  >
+                    {enableRowSelection && (
+                      <TableCell className="p-1.5">
+                        <Checkbox
+                          checked={selectedRows.has(rowId)}
+                          onCheckedChange={(checked) => handleRowSelect(rowId, checked as boolean)}
+                          aria-label={`${index + 1}번째 행 선택`}
+                          className="cursor-pointer"
+                        />
+                      </TableCell>
+                    )}
+
+                    {visibleColumns.map((column) => (
+                      <TableCell key={String(column.key)} className="p-2 text-gray-700 text-sm">
+                        {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}
+                      </TableCell>
+                    ))}
+
+                    {showActionColumn && (
+                      <TableCell className="p-1.5">
+                        {"actions" in item && item.actions ? (
+                          item.actions
+                        ) : (
+                          <ActionDropdown
+                            onCopyId={() => console.log("ID 복사:", item.id || item.code)}
+                            onViewCustomer={() => console.log("고객 보기:", item)}
+                            onViewDetails={() => console.log("상세 정보 보기:", item)}
+                          />
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )
+              })
+            )}
           </TableBody>
         </Table>
       </div>
 
-      {/* 추가 폼 다이얼로그 */}
+      {/* Add Form (v1) */}
       {enableAddForm && showAddForm && formData && formFields && onFormDataChange && onAdd && (
         <Dialog open={showAddForm} onOpenChange={onShowAddForm}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>새 항목 추가</DialogTitle>
             </DialogHeader>
-            
+
             <div className="space-y-6">
-              {/* 폼 필드들 */}
+              {/* Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formFields.map((field) => (
                   <div key={field.key}>
@@ -479,7 +619,7 @@ export function DataTable<T extends Record<string, any>>({
                     <input
                       type={field.type}
                       placeholder={field.placeholder || `${field.label}을 입력하세요`}
-                      value={formData[field.key] || ''}
+                      value={formData[field.key] || ""}
                       onChange={(e) => onFormDataChange(field.key, e.target.value)}
                       className="w-full px-3 py-2 border border-input bg-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       required={field.required}
@@ -487,27 +627,20 @@ export function DataTable<T extends Record<string, any>>({
                   </div>
                 ))}
               </div>
-              
-              {/* 버튼들 */}
+
+              {/* Actions */}
               <div className="flex justify-end space-x-2 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={onShowAddForm}
-                  disabled={isAddLoading}
-                >
+                <Button variant="outline" onClick={onShowAddForm} disabled={isAddLoading}>
                   취소
                 </Button>
-                <Button
-                  onClick={onAdd}
-                  disabled={isAddLoading || !isNameValid}
-                >
+                <Button onClick={onAdd} disabled={!!isAddLoading || !isNameValid}>
                   {isAddLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
                       추가 중...
                     </>
                   ) : (
-                    '추가'
+                    "추가"
                   )}
                 </Button>
               </div>
@@ -516,7 +649,7 @@ export function DataTable<T extends Record<string, any>>({
         </Dialog>
       )}
 
-      {/* 추가 버전 2 모달 */}
+      {/* Add Form (v2) */}
       {enableAddFormV2 && addFormV2Modal}
     </div>
   )

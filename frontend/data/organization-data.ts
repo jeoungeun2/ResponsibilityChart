@@ -1,149 +1,258 @@
 // 조직도 데이터 타입 정의
 export interface OrganizationData {
   id: string;
-  orgCodeLv1: string;        // 관리대상조직코드 Lv1
-  orgNameLv1: string;        // 관리대상조직명
-  deptCodeLv2: string;       // 소관부서/본부코드 Lv2
-  deptNameLv2: string;       // 소관부서/본부명
-  teamCodeLv3: string;       // 소관팀코드 Lv3
-  teamNameLv3: string;       // 소관팀명
+  jobCode: string;           // 직책코드
+  jobTitle: string;          // 직책
+  orgDivision: string;       // 조직구분
+  managedOrg: string;        // 관리대상조직
+  responsibleDept: string;   // 소관부서
+  responsibleTeam: string;   // 소관팀
+  registrationDate: string;  // 등록일자
   effectiveStartDate: string; // 적용시작일자
   effectiveEndDate: string;   // 적용종료일자
-  registrationDate: string;  // 등록일자
 }
 
-// 조직도 샘플 데이터
+// 조직도 샘플 데이터 - 이미지의 테이블과 일치하도록 업데이트
 export const organizationSampleData: OrganizationData[] = [
   {
     id: "1",
-    orgCodeLv1: "ET",
-    orgNameLv1: "ETF투자부문",
-    deptCodeLv2: "ET01",
-    deptNameLv2: "ETF투자부",
-    teamCodeLv3: "ET011",
-    teamNameLv3: "ETF운용팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "CE",
+    jobTitle: "대표이사",
+    orgDivision: "대표이사",
+    managedOrg: "대표이사",
+    responsibleDept: "전사",
+    responsibleTeam: "전사",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "2",
-    orgCodeLv1: "ET",
-    orgNameLv1: "ETF투자부문",
-    deptCodeLv2: "ET02",
-    deptNameLv2: "LDI/리서치본부",
-    teamCodeLv3: "ET021",
-    teamNameLv3: "체계운용팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "BD",
+    jobTitle: "이사회 의장",
+    orgDivision: "이사회 의장",
+    managedOrg: "이사회 의장",
+    responsibleDept: "전사",
+    responsibleTeam: "전사",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "3",
-    orgCodeLv1: "AU",
-    orgNameLv1: "자산운용부문",
-    deptCodeLv2: "AU01",
-    deptNameLv2: "자산운용부",
-    teamCodeLv3: "AU011",
-    teamNameLv3: "자산운용팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "CO",
+    jobTitle: "준법감시인",
+    orgDivision: "경영지원",
+    managedOrg: "준법감시인",
+    responsibleDept: "준법감시실",
+    responsibleTeam: "법무팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "4",
-    orgCodeLv1: "AM",
-    orgNameLv1: "자산관리부문",
-    deptCodeLv2: "AM01",
-    deptNameLv2: "자산관리부",
-    teamCodeLv3: "AM011",
-    teamNameLv3: "자산관리팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "AU",
+    jobTitle: "감사실장",
+    orgDivision: "감사실",
+    managedOrg: "감사실",
+    responsibleDept: "감사실",
+    responsibleTeam: "감사팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "5",
-    orgCodeLv1: "GI",
-    orgNameLv1: "글로벌투자부문",
-    deptCodeLv2: "GI01",
-    deptNameLv2: "글로벌투자부",
-    teamCodeLv3: "GI011",
-    teamNameLv3: "글로벌투자팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "기관마케팅본부",
+    responsibleTeam: "법인마케팅팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "6",
-    orgCodeLv1: "CP",
-    orgNameLv1: "금융소비자보호실",
-    deptCodeLv2: "CP01",
-    deptNameLv2: "금융소비자보호실",
-    teamCodeLv3: "CP011",
-    teamNameLv3: "소비자보호팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "기관마케팅본부",
+    responsibleTeam: "기관마케팅팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "7",
-    orgCodeLv1: "IT",
-    orgNameLv1: "IT부문",
-    deptCodeLv2: "IT01",
-    deptNameLv2: "IT개발부",
-    teamCodeLv3: "IT011",
-    teamNameLv3: "시스템개발팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "기관마케팅본부",
+    responsibleTeam: "WM연금마케팅팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "8",
-    orgCodeLv1: "IT",
-    orgNameLv1: "IT부문",
-    deptCodeLv2: "IT02",
-    deptNameLv2: "IT인프라부",
-    teamCodeLv3: "IT021",
-    teamNameLv3: "인프라관리팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "기관마케팅본부",
+    responsibleTeam: "WM연금사업팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "9",
-    orgCodeLv1: "HR",
-    orgNameLv1: "인사부문",
-    deptCodeLv2: "HR01",
-    deptNameLv2: "인사부",
-    teamCodeLv3: "HR011",
-    teamNameLv3: "인사관리팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "기관마케팅본부",
+    responsibleTeam: "WM연금마케팅팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
   {
     id: "10",
-    orgCodeLv1: "FI",
-    orgNameLv1: "재무부문",
-    deptCodeLv2: "FI01",
-    deptNameLv2: "재무부",
-    teamCodeLv3: "FI011",
-    teamNameLv3: "재무관리팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "MK",
+    jobTitle: "마케팅총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "마케팅총괄부문",
+    responsibleDept: "디지털마케팅실",
+    responsibleTeam: "카톡마케팅팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   },
+  // 추가 조직 데이터
   {
     id: "11",
-    orgCodeLv1: "LE",
-    orgNameLv1: "법무부문",
-    deptCodeLv2: "LE01",
-    deptNameLv2: "법무부",
-    teamCodeLv3: "LE011",
-    teamNameLv3: "법무관리팀",
-    effectiveStartDate: "2025-01-01",
-    effectiveEndDate: "2025-12-31",
-    registrationDate: "2025-01-01"
+    jobCode: "FI",
+    jobTitle: "재무총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "재무총괄부문",
+    responsibleDept: "재무본부",
+    responsibleTeam: "재무팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "12",
+    jobCode: "FI",
+    jobTitle: "재무총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "재무총괄부문",
+    responsibleDept: "재무본부",
+    responsibleTeam: "회계팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "13",
+    jobCode: "IT",
+    jobTitle: "IT총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "IT총괄부문",
+    responsibleDept: "IT본부",
+    responsibleTeam: "시스템개발팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "14",
+    jobCode: "IT",
+    jobTitle: "IT총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "IT총괄부문",
+    responsibleDept: "IT본부",
+    responsibleTeam: "인프라팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "15",
+    jobCode: "HR",
+    jobTitle: "인사총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "인사총괄부문",
+    responsibleDept: "인사본부",
+    responsibleTeam: "인사팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "16",
+    jobCode: "HR",
+    jobTitle: "인사총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "인사총괄부문",
+    responsibleDept: "인사본부",
+    responsibleTeam: "교육팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "17",
+    jobCode: "SA",
+    jobTitle: "영업총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "영업총괄부문",
+    responsibleDept: "영업본부",
+    responsibleTeam: "기관영업팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "18",
+    jobCode: "SA",
+    jobTitle: "영업총괄부사장",
+    orgDivision: "금융영업",
+    managedOrg: "영업총괄부문",
+    responsibleDept: "영업본부",
+    responsibleTeam: "개인영업팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "19",
+    jobCode: "RS",
+    jobTitle: "리스크총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "리스크총괄부문",
+    responsibleDept: "리스크본부",
+    responsibleTeam: "리스크관리팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
+  },
+  {
+    id: "20",
+    jobCode: "RS",
+    jobTitle: "리스크총괄부사장",
+    orgDivision: "경영지원",
+    managedOrg: "리스크총괄부문",
+    responsibleDept: "리스크본부",
+    responsibleTeam: "규정준수팀",
+    registrationDate: "2020-01-01",
+    effectiveStartDate: "2020-01-01",
+    effectiveEndDate: "2025-12-31"
   }
 ];

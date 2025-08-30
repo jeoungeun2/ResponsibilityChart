@@ -1,19 +1,10 @@
 "use client"
 
 import { useState, useEffect } from 'react';
+import { ExecutiveEvaluationData, getEvaluationStatusDisplay } from '@/data/executive-evaluation-data';
 
 interface ExecutiveDetailModalProps {
-  executive: {
-    id: string;
-    name: string;
-    position: string;
-    jobTitle: string;
-    employeeId: string;
-    phoneNumber: string;
-    email: string;
-    managedOrganization: string;
-    term: string;
-  } | null;
+  executive: ExecutiveEvaluationData | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -31,13 +22,11 @@ export default function ExecutiveDetailModal({
     if (executive) {
       setEditData({
         name: executive.name || '',
-        employeeId: executive.employeeId || '',
-        position: executive.position || '',
         jobTitle: executive.jobTitle || '',
-        phoneNumber: executive.phoneNumber || '',
-        email: executive.email || '',
+        position: executive.position || '',
         managedOrganization: executive.managedOrganization || '',
-        term: executive.term || ''
+        evaluationStatus: executive.evaluationStatus || '',
+        evaluationCompletionDate: executive.evaluationCompletionDate || ''
       });
     }
   }, [executive]);
@@ -59,13 +48,11 @@ export default function ExecutiveDetailModal({
     if (executive) {
       setEditData({
         name: executive.name || '',
-        employeeId: executive.employeeId || '',
-        position: executive.position || '',
         jobTitle: executive.jobTitle || '',
-        phoneNumber: executive.phoneNumber || '',
-        email: executive.email || '',
+        position: executive.position || '',
         managedOrganization: executive.managedOrganization || '',
-        term: executive.term || ''
+        evaluationStatus: executive.evaluationStatus || '',
+        evaluationCompletionDate: executive.evaluationCompletionDate || ''
       });
     }
   };
@@ -81,12 +68,21 @@ export default function ExecutiveDetailModal({
     setEditData(prev => ({ ...prev, [field]: value }));
   };
 
+  const getStatusDisplay = (status: string) => {
+    const statusDisplay = getEvaluationStatusDisplay(status as any);
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.color}`}>
+        {statusDisplay.label}
+      </span>
+    );
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">임원정보 상세</h2>
+          <h2 className="text-xl font-semibold text-gray-900">임원 평가 정보 상세</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors text-2xl font-bold"
@@ -97,9 +93,9 @@ export default function ExecutiveDetailModal({
 
         {/* 내용 */}
         <div className="p-6 space-y-6">
-          {/* 임원등록 섹션 */}
+          {/* 임원 정보 섹션 */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">임원등록</h3>
+            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">임원 정보</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">성명</label>
@@ -119,19 +115,6 @@ export default function ExecutiveDetailModal({
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editData.position}
-                    onChange={(e) => handleInputChange('position', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.position || '-'}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">직위</label>
-                {isEditing ? (
-                  <input
-                    type="text"
                     value={editData.jobTitle}
                     onChange={(e) => handleInputChange('jobTitle', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -141,46 +124,20 @@ export default function ExecutiveDetailModal({
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">사번</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">직위</label>
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editData.employeeId}
-                    onChange={(e) => handleInputChange('employeeId', e.target.value)}
+                    value={editData.position}
+                    onChange={(e) => handleInputChange('position', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.employeeId || '-'}</div>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.position || '-'}</div>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={editData.phoneNumber}
-                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.phoneNumber || '-'}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={editData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.email || '-'}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">관리대상조직</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">관리대상 조직</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -192,21 +149,61 @@ export default function ExecutiveDetailModal({
                   <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.managedOrganization || '-'}</div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* 평가 정보 섹션 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 border-b pb-2">평가 정보</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">임기</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">평가 상태</label>
+                {isEditing ? (
+                  <select
+                    value={editData.evaluationStatus}
+                    onChange={(e) => handleInputChange('evaluationStatus', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="completed">완료</option>
+                    <option value="in-progress">진행중</option>
+                    <option value="not-evaluated">미평가</option>
+                  </select>
+                ) : (
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                    {getStatusDisplay(executive.evaluationStatus)}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">평가 완료일자</label>
                 {isEditing ? (
                   <input
-                    type="text"
-                    value={editData.term}
-                    onChange={(e) => handleInputChange('term', e.target.value)}
+                    type="date"
+                    value={editData.evaluationCompletionDate || ''}
+                    onChange={(e) => handleInputChange('evaluationCompletionDate', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 ) : (
-                  <div className="px-3 py-2 bg-gray-50 rounded-lg">{executive.term || '-'}</div>
+                  <div className="px-3 py-2 bg-gray-50 rounded-lg">
+                    {executive.evaluationCompletionDate || '-'}
+                  </div>
                 )}
               </div>
             </div>
           </div>
+
+          {/* 알림 정보 (있는 경우) */}
+          {executive.notificationCount && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900 border-b pb-2">알림 정보</h3>
+              <div className="flex items-center space-x-2">
+                <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {executive.notificationCount}
+                </span>
+                <span className="text-sm text-gray-600">개의 새로운 알림이 있습니다</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 액션 버튼 */}

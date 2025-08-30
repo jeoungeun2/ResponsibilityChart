@@ -82,7 +82,8 @@ export default function DepartmentPage() {
     department: '',
     responsibilityName: '',
     position: '',
-    executive: ''
+    executive: '',
+    departmentGroup: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -108,6 +109,12 @@ export default function DepartmentPage() {
       label: "책무명",
       type: "dropdown" as const,
       width: "w-48"
+    },
+    {
+      key: "departmentGroup",
+      label: "부서/본부",
+      type: "dropdown" as const,
+      width: "w-40"
     }
   ];
 
@@ -130,7 +137,6 @@ export default function DepartmentPage() {
       { value: "재무부문", label: "재무부문" },
       { value: "법무부문", label: "법무부문" }
     ],
-
     responsibilityName: [
       { value: "전체", label: "전체" },
       { value: "경영지원업무와 관련된 책무", label: "경영지원업무와 관련된 책무" },
@@ -148,6 +154,14 @@ export default function DepartmentPage() {
       { value: "마케팅관리업무와 관련된 책무", label: "마케팅관리업무와 관련된 책무" },
       { value: "연구개발관리업무와 관련된 책무", label: "연구개발관리업무와 관련된 책무" },
       { value: "지식관리업무와 관련된 책무", label: "지식관리업무와 관련된 책무" }
+    ],
+    departmentGroup: [
+      { value: "전체", label: "전체" },
+      { value: "투자본부", label: "투자본부" },
+      { value: "운용본부", label: "운용본부" },
+      { value: "관리본부", label: "관리본부" },
+      { value: "지원본부", label: "지원본부" },
+      { value: "감시본부", label: "감시본부" }
     ]
   };
 

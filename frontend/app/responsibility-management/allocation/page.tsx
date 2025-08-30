@@ -318,6 +318,8 @@ export default function ResponsibilityAllocationPage() {
           // 추가 버튼 및 체크박스 비활성화
           enableAddForm={false}
           enableRowSelection={false}
+          // 삭제 기능 비활성화
+          enableBulkDelete={false}
           // 액션 컬럼 비활성화
           showActionColumn={false}
         />

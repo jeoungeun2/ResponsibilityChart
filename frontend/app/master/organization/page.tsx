@@ -5,7 +5,7 @@ import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
 import CommonBreadcrumb from '../executive/_components/Breadcrumb';
-import Header from './_components/Header';
+import Header from '../executive/_components/Header';
 import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
@@ -16,33 +16,38 @@ import AddOrganizationForm from './_components/AddOrganizationForm';
 // 컬럼 정의
 const columns: any[] = [
   {
-    key: "orgCodeLv1" as keyof OrganizationData,
-    header: "관리대상조직코드 Lv1",
+    key: "jobCode" as keyof OrganizationData,
+    header: "직책코드",
     visible: true
   },
   {
-    key: "orgNameLv1" as keyof OrganizationData,
-    header: "관리대상조직명",
+    key: "jobTitle" as keyof OrganizationData,
+    header: "직책",
     visible: true
   },
   {
-    key: "deptCodeLv2" as keyof OrganizationData,
-    header: "소관부서/본부코드 Lv2",
+    key: "orgDivision" as keyof OrganizationData,
+    header: "조직구분",
     visible: true
   },
   {
-    key: "deptNameLv2" as keyof OrganizationData,
-    header: "소관부서/본부명",
+    key: "managedOrg" as keyof OrganizationData,
+    header: "관리대상조직",
     visible: true
   },
   {
-    key: "teamCodeLv3" as keyof OrganizationData,
-    header: "소관팀코드 Lv3",
+    key: "responsibleDept" as keyof OrganizationData,
+    header: "소관부서",
     visible: true
   },
   {
-    key: "teamNameLv3" as keyof OrganizationData,
-    header: "소관팀명",
+    key: "responsibleTeam" as keyof OrganizationData,
+    header: "소관팀",
+    visible: true
+  },
+  {
+    key: "registrationDate" as keyof OrganizationData,
+    header: "등록일자",
     visible: true
   },
   {
@@ -53,11 +58,6 @@ const columns: any[] = [
   {
     key: "effectiveEndDate" as keyof OrganizationData,
     header: "적용종료일자",
-    visible: true
-  },
-  {
-    key: "registrationDate" as keyof OrganizationData,
-    header: "등록일자",
     visible: true
   },
   {
@@ -90,16 +90,11 @@ export default function OrganizationPage() {
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    orgCodeLv1: '',
-    deptCodeLv2: '',
-    teamCodeLv3: '',
+    jobTitle: '',
+    orgDivision: '',
+    managedOrg: '',
     startDate: '',
-    endDate: '',
-    orgStatus: '',
-    orgType: '',
-    organizationLv1: '',
-    organizationLv2: '',
-    organizationLv3: ''
+    endDate: ''
   });
 
   // H1 필터용 추가 상태 관리
@@ -116,20 +111,32 @@ export default function OrganizationPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "organizationLv1",
-      label: "조직Lv1명",
+      key: "jobTitle",
+      label: "직책",
       type: "dropdown" as const,
       width: "w-40"
     },
     {
-      key: "organizationLv2",
-      label: "조직Lv2명",
+      key: "orgDivision",
+      label: "조직구분",
       type: "dropdown" as const,
       width: "w-40"
     },
     {
-      key: "organizationLv3",
-      label: "조직Lv3명",
+      key: "startDate",
+      label: "조회대상기간",
+      type: "date" as const,
+      width: "w-auto"
+    },
+    {
+      key: "endDate",
+      label: "~",
+      type: "date" as const,
+      width: "w-auto"
+    },
+    {
+      key: "managedOrg",
+      label: "관리대상조직",
       type: "dropdown" as const,
       width: "w-40"
     }
@@ -137,99 +144,26 @@ export default function OrganizationPage() {
 
   // 필터 옵션들
   const filterOptions = {
-    orgCodeLv1: [
-      { value: "ET", label: "ET - ETF투자부문" },
-      { value: "AU", label: "AU - 자산운용부문" },
-      { value: "AM", label: "AM - 자산관리부문" },
-      { value: "GI", label: "GI - 글로벌투자부문" },
-      { value: "CP", label: "CP - 금융소비자보호실" },
-      { value: "IT", label: "IT - IT부문" },
-      { value: "HR", label: "HR - 인사부문" },
-      { value: "FI", label: "FI - 재무부문" },
-      { value: "LE", label: "LE - 법무부문" }
+    jobTitle: [
+      { value: "대표이사", label: "대표이사" },
+      { value: "이사회 의장", label: "이사회 의장" },
+      { value: "경영지원", label: "경영지원" },
+      { value: "감사실장", label: "감사실장" },
+      { value: "마케팅총괄부사장", label: "마케팅총괄부사장" }
     ],
-    deptCodeLv2: [
-      { value: "ET01", label: "ET01 - ETF운용팀" },
-      { value: "ET02", label: "ET02 - ETF전략팀" },
-      { value: "AU01", label: "AU01 - 자산운용팀" },
-      { value: "AU02", label: "AU02 - 리스크관리팀" },
-      { value: "AM01", label: "AM01 - 자산관리팀" },
-      { value: "GI01", label: "GI01 - 글로벌투자팀" },
-      { value: "CP01", label: "CP01 - 소비자보호팀" },
-      { value: "IT01", label: "IT01 - 시스템개발팀" },
-      { value: "IT02", label: "IT02 - 인프라팀" },
-      { value: "HR01", label: "HR01 - 인사팀" },
-      { value: "FI01", label: "FI01 - 재무팀" },
-      { value: "LE01", label: "LE01 - 법무팀" }
+    orgDivision: [
+      { value: "대표이사", label: "대표이사" },
+      { value: "이사회 의장", label: "이사회 의장" },
+      { value: "경영지원", label: "경영지원" },
+      { value: "감사실", label: "감사실" },
+      { value: "금융영업", label: "금융영업" }
     ],
-    teamCodeLv3: [
-      { value: "ET0101", label: "ET0101 - ETF운용1팀" },
-      { value: "ET0102", label: "ET0102 - ETF운용2팀" },
-      { value: "ET0201", label: "ET0201 - ETF전략1팀" },
-      { value: "AU0101", label: "AU0101 - 자산운용1팀" },
-      { value: "AU0201", label: "AU0201 - 리스크관리1팀" },
-      { value: "AM0101", label: "AM0101 - 자산관리1팀" },
-      { value: "GI0101", label: "GI0101 - 글로벌투자1팀" },
-      { value: "CP0101", label: "CP0101 - 소비자보호1팀" },
-      { value: "IT0101", label: "IT0101 - 시스템개발1팀" },
-      { value: "IT0201", label: "IT0201 - 인프라1팀" },
-      { value: "HR0101", label: "HR0101 - 인사1팀" },
-      { value: "FI0101", label: "FI0101 - 재무1팀" },
-      { value: "LE0101", label: "LE0101 - 법무1팀" }
-    ],
-    orgStatus: [
-      { value: "ACTIVE", label: "활성" },
-      { value: "INACTIVE", label: "비활성" },
-      { value: "PENDING", label: "대기" }
-    ],
-    orgType: [
-      { value: "HEADQUARTERS", label: "본사" },
-      { value: "BRANCH", label: "지점" },
-      { value: "DEPARTMENT", label: "부서" },
-      { value: "TEAM", label: "팀" }
-    ],
-    organizationLv1: [
-      { value: "전체", label: "전체" },
-      { value: "ET", label: "ET - ETF투자부문" },
-      { value: "AU", label: "AU - 자산운용부문" },
-      { value: "AM", label: "AM - 자산관리부문" },
-      { value: "GI", label: "GI - 글로벌투자부문" },
-      { value: "CP", label: "CP - 금융소비자보호실" },
-      { value: "IT", label: "IT - IT부문" },
-      { value: "HR", label: "HR - 인사부문" },
-      { value: "FI", label: "FI - 재무부문" },
-      { value: "LE", label: "LE - 법무부문" }
-    ],
-    organizationLv2: [
-      { value: "전체", label: "전체" },
-      { value: "ET01", label: "ET01 - ETF운용팀" },
-      { value: "ET02", label: "ET02 - ETF전략팀" },
-      { value: "AU01", label: "AU01 - 자산운용팀" },
-      { value: "AU02", label: "AU02 - 리스크관리팀" },
-      { value: "AM01", label: "AM01 - 자산관리팀" },
-      { value: "GI01", label: "GI01 - 글로벌투자팀" },
-      { value: "CP01", label: "CP01 - 소비자보호팀" },
-      { value: "IT01", label: "IT01 - 시스템개발팀" },
-      { value: "IT02", label: "IT02 - 인프라팀" },
-      { value: "HR01", label: "HR01 - 인사팀" },
-      { value: "FI01", label: "FI01 - 재무팀" },
-      { value: "LE01", label: "LE01 - 법무팀" }
-    ],
-    organizationLv3: [
-      { value: "전체", label: "전체" },
-      { value: "ET0101", label: "ET0101 - ETF운용1팀" },
-      { value: "ET0102", label: "ET0102 - ETF운용2팀" },
-      { value: "ET0201", label: "ET0201 - ETF전략1팀" },
-      { value: "AU0101", label: "AU0101 - 자산운용1팀" },
-      { value: "AU0201", label: "AU0201 - 리스크관리1팀" },
-      { value: "AM0101", label: "AM0101 - 자산관리1팀" },
-      { value: "GI0101", label: "GI0101 - 글로벌투자1팀" },
-      { value: "CP0101", label: "CP0101 - 소비자보호1팀" },
-      { value: "IT0101", label: "IT0101 - 시스템개발1팀" },
-      { value: "IT0201", label: "IT0201 - 인프라1팀" },
-      { value: "HR0101", label: "HR0101 - 인사1팀" },
-      { value: "FI0101", label: "FI0101 - 재무1팀" },
-      { value: "LE0101", label: "LE0101 - 법무1팀" }
+    managedOrg: [
+      { value: "대표이사", label: "대표이사" },
+      { value: "이사회 의장", label: "이사회 의장" },
+      { value: "경영지원", label: "경영지원" },
+      { value: "감사실", label: "감사실" },
+      { value: "마케팅총괄부문", label: "마케팅총괄부문" }
     ]
   };
 
@@ -247,12 +181,12 @@ export default function OrganizationPage() {
     setIsEditMode(true);
     // 기존 데이터를 폼에 설정
     setFormData({
-      orgNameLv1: row.orgNameLv1 || '',
-      orgNameLv2: row.deptNameLv2 || '',
-      orgNameLv3: row.teamNameLv3 || '',
-      orgCodeLv1: row.orgCodeLv1 || '',
-      deptCodeLv2: row.deptCodeLv2 || '',
-      teamCodeLv3: row.teamCodeLv3 || ''
+      jobCode: row.jobCode || '',
+      jobTitle: row.jobTitle || '',
+      orgDivision: row.orgDivision || '',
+      managedOrg: row.managedOrg || '',
+      responsibleDept: row.responsibleDept || '',
+      responsibleTeam: row.responsibleTeam || ''
     });
     setShowAddForm(true);
   };
@@ -304,7 +238,24 @@ export default function OrganizationPage() {
 
   return (
     <div className="relative">
-
+      <Header 
+        rightContent={
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
+              </svg>
+              <span>업로드</span>
+            </button>
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>다운로드</span>
+            </button>
+          </div>
+        }
+      />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
         <H1 

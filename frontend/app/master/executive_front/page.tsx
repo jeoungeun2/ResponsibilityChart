@@ -5,7 +5,7 @@ import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
 import CommonBreadcrumb from '../executive/_components/Breadcrumb';
-import Header from './_components/Header';
+import Header from '../executive/_components/Header';
 import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
@@ -233,8 +233,9 @@ export default function ExecutiveFrontPage() {
 
   return (
     <div className="relative">
-      <div className={`max-w-7xl mx-auto space-y-6 pt-8 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`max-w-7xl mx-auto space-y-6 pt-4 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
+       
         <H1 
           title="책무대상임원등록" 
         />

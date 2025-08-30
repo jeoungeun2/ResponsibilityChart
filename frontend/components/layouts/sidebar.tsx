@@ -73,7 +73,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
   return (
     <aside
       className={[
-        'fixed left-0 top-0 z-40 h-screen backdrop-blur-sm shadow-lg',
+        'fixed left-0 top-0 z-40 h-screen backdrop-blur-sm 0 shadow-lg',
         'flex flex-col transition-[width] duration-300 ease-in-out',
         isCollapsed ? 'w-16' : 'w-64',
       ].join(' ')}

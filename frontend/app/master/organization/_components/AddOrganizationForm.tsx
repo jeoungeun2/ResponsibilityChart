@@ -88,133 +88,169 @@ export default function AddOrganizationForm({
         {/* 컨텐츠 */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
-            {/* =============== 관리대상조직Lv1 수정 =============== */}
+            {/* =============== 직책 정보 =============== */}
             <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
-                관리대상조직Lv1 수정
+                직책 정보
               </h3>
 
               <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
-                    조직명 <span className="text-red-500">*</span>
+                    직책코드 <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={formData.orgNameLv1 ?? "경영관리부문"}
-                    onChange={(e) => onFormDataChange("orgNameLv1", e.target.value)}
+                    value={formData.jobCode ?? ""}
+                    onChange={(e) => onFormDataChange("jobCode", e.target.value)}
                     className={fieldCls}
                   >
-                    <option value="경영관리부문">경영관리부문</option>
-                    <option value="ETF투자부문">ETF투자부문</option>
-                    <option value="자산운용부문">자산운용부문</option>
-                    <option value="자산관리부문">자산관리부문</option>
-                    <option value="글로벌투자부문">글로벌투자부문</option>
-                    <option value="준법감시실">준법감시실</option>
-                    <option value="IT부문">IT부문</option>
-                    <option value="인사부문">인사부문</option>
-                    <option value="재무부문">재무부문</option>
-                    <option value="법무부문">법무부문</option>
+                    <option value="">선택하세요</option>
+                    <option value="CE">CE - 대표이사</option>
+                    <option value="BD">BD - 이사회 의장</option>
+                    <option value="CO">CO - 준법감시인</option>
+                    <option value="AU">AU - 감사실장</option>
+                    <option value="MK">MK - 마케팅총괄부사장</option>
+                    <option value="FI">FI - 재무총괄부사장</option>
+                    <option value="IT">IT - IT총괄부사장</option>
+                    <option value="HR">HR - 인사총괄부사장</option>
+                    <option value="SA">SA - 영업총괄부사장</option>
+                    <option value="RS">RS - 리스크총괄부사장</option>
                   </select>
                 </div>
 
                 <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>조직코드</label>
-                  <input 
-                    type="text" 
-                    placeholder="저장 클릭시 자동생성" 
-                    readOnly 
-                    className={roFieldCls} 
-                  />
+                  <label className={labelCls}>
+                    직책 <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.jobTitle ?? ""}
+                    onChange={(e) => onFormDataChange("jobTitle", e.target.value)}
+                    className={fieldCls}
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="대표이사">대표이사</option>
+                    <option value="이사회 의장">이사회 의장</option>
+                    <option value="준법감시인">준법감시인</option>
+                    <option value="감사실장">감사실장</option>
+                    <option value="마케팅총괄부사장">마케팅총괄부사장</option>
+                    <option value="재무총괄부사장">재무총괄부사장</option>
+                    <option value="IT총괄부사장">IT총괄부사장</option>
+                    <option value="인사총괄부사장">인사총괄부사장</option>
+                    <option value="영업총괄부사장">영업총괄부사장</option>
+                    <option value="리스크총괄부사장">리스크총괄부사장</option>
+                  </select>
                 </div>
               </div>
             </section>
 
-            {/* =============== 소관부서/본부Lv2 수정 =============== */}
+            {/* =============== 조직 정보 =============== */}
             <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
-                소관부서/본부Lv2 수정
+                조직 정보
               </h3>
 
               <div className="grid grid-cols-12 gap-6">
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
-                    조직명 <span className="text-red-500">*</span>
+                    조직구분 <span className="text-red-500">*</span>
                   </label>
                   <select
-                    value={formData.orgNameLv2 ?? "경영지원실"}
-                    onChange={(e) => onFormDataChange("orgNameLv2", e.target.value)}
+                    value={formData.orgDivision ?? ""}
+                    onChange={(e) => onFormDataChange("orgDivision", e.target.value)}
                     className={fieldCls}
                   >
-                    <option value="경영지원실">경영지원실</option>
-                    <option value="ETF운용팀">ETF운용팀</option>
-                    <option value="ETF전략팀">ETF전략팀</option>
-                    <option value="자산운용팀">자산운용팀</option>
-                    <option value="리스크관리팀">리스크관리팀</option>
-                    <option value="자산관리팀">자산관리팀</option>
-                    <option value="글로벌투자팀">글로벌투자팀</option>
-                    <option value="소비자보호팀">소비자보호팀</option>
+                    <option value="">선택하세요</option>
+                    <option value="대표이사">대표이사</option>
+                    <option value="이사회 의장">이사회 의장</option>
+                    <option value="경영지원">경영지원</option>
+                    <option value="감사실">감사실</option>
+                    <option value="금융영업">금융영업</option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>
+                    관리대상조직 <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.managedOrg ?? ""}
+                    onChange={(e) => onFormDataChange("managedOrg", e.target.value)}
+                    className={fieldCls}
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="대표이사">대표이사</option>
+                    <option value="이사회 의장">이사회 의장</option>
+                    <option value="준법감시인">준법감시인</option>
+                    <option value="감사실">감사실</option>
+                    <option value="마케팅총괄부문">마케팅총괄부문</option>
+                    <option value="재무총괄부문">재무총괄부문</option>
+                    <option value="IT총괄부문">IT총괄부문</option>
+                    <option value="인사총괄부문">인사총괄부문</option>
+                    <option value="영업총괄부문">영업총괄부문</option>
+                    <option value="리스크총괄부문">리스크총괄부문</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            {/* =============== 소관 정보 =============== */}
+            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
+                소관 정보
+              </h3>
+
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>소관부서</label>
+                  <select
+                    value={formData.responsibleDept ?? ""}
+                    onChange={(e) => onFormDataChange("responsibleDept", e.target.value)}
+                    className={fieldCls}
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="전사">전사</option>
+                    <option value="준법감시실">준법감시실</option>
+                    <option value="기관마케팅본부">기관마케팅본부</option>
+                    <option value="디지털마케팅실">디지털마케팅실</option>
+                    <option value="상품전략본부">상품전략본부</option>
+                    <option value="재무본부">재무본부</option>
+                    <option value="IT본부">IT본부</option>
+                    <option value="인사본부">인사본부</option>
+                    <option value="영업본부">영업본부</option>
+                    <option value="리스크본부">리스크본부</option>
+                  </select>
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>소관팀</label>
+                  <select
+                    value={formData.responsibleTeam ?? ""}
+                    onChange={(e) => onFormDataChange("responsibleTeam", e.target.value)}
+                    className={fieldCls}
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="전사">전사</option>
+                    <option value="법무팀">법무팀</option>
+                    <option value="법인마케팅팀">법인마케팅팀</option>
+                    <option value="기관마케팅팀">기관마케팅팀</option>
+                    <option value="WM연금마케팅팀">WM연금마케팅팀</option>
+                    <option value="WM연금사업팀">WM연금사업팀</option>
+                    <option value="카톡마케팅팀">카톡마케팅팀</option>
+                    <option value="마케팅솔루션팀">마케팅솔루션팀</option>
+                    <option value="ETF마케팅팀">ETF마케팅팀</option>
+                    <option value="상품팀">상품팀</option>
+                    <option value="영업지원팀">영업지원팀</option>
+                    <option value="재무팀">재무팀</option>
+                    <option value="회계팀">회계팀</option>
                     <option value="시스템개발팀">시스템개발팀</option>
                     <option value="인프라팀">인프라팀</option>
                     <option value="인사팀">인사팀</option>
-                    <option value="재무팀">재무팀</option>
-                    <option value="법무팀">법무팀</option>
+                    <option value="교육팀">교육팀</option>
+                    <option value="기관영업팀">기관영업팀</option>
+                    <option value="개인영업팀">개인영업팀</option>
+                    <option value="리스크관리팀">리스크관리팀</option>
+                    <option value="규정준수팀">규정준수팀</option>
                   </select>
-                </div>
-
-                <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>조직코드</label>
-                  <input 
-                    type="text" 
-                    placeholder="저장 클릭시 자동생성" 
-                    readOnly 
-                    className={roFieldCls} 
-                  />
-                </div>
-          </div>
-            </section>
-
-            {/* =============== 소관팀Lv3 수정 =============== */}
-            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
-                소관팀Lv3 수정
-              </h3>
-
-              <div className="grid grid-cols-12 gap-6">
-                <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>
-                    조직명 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={formData.orgNameLv3 ?? "경영지원1팀"}
-                    onChange={(e) => onFormDataChange("orgNameLv3", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="경영지원1팀">경영지원1팀</option>
-                    <option value="경영지원2팀">경영지원2팀</option>
-                    <option value="ETF운용1팀">ETF운용1팀</option>
-                    <option value="ETF운용2팀">ETF운용2팀</option>
-                    <option value="ETF전략1팀">ETF전략1팀</option>
-                    <option value="자산운용1팀">자산운용1팀</option>
-                    <option value="리스크관리1팀">리스크관리1팀</option>
-                    <option value="자산관리1팀">자산관리1팀</option>
-                    <option value="글로벌투자1팀">글로벌투자1팀</option>
-                    <option value="소비자보호1팀">소비자보호1팀</option>
-                    <option value="시스템개발1팀">시스템개발1팀</option>
-                    <option value="인프라1팀">인프라1팀</option>
-                    <option value="인사1팀">인사1팀</option>
-                    <option value="재무1팀">재무1팀</option>
-                    <option value="법무1팀">법무1팀</option>
-                  </select>
-                </div>
-
-                <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>조직코드</label>
-                  <input 
-                    type="text" 
-                    placeholder="저장 클릭시 자동생성" 
-                    readOnly 
-                    className={roFieldCls} 
-                  />
                 </div>
               </div>
             </section>
