@@ -306,10 +306,29 @@ export default function ExecutiveFrontEvaluationPage() {
         {/* 상태 카드 그리드 */}
         <StatusCard_2 
           cards={[
-            { title: "대상 임원", value: "23명" },
-            { title: "완료", value: "18명" },
-            { title: "진행중", value: "3명" },
-            { title: "미평가", value: "2명" }
+            { 
+              title: "대상 임원", 
+              value: "23명",
+              image: "/images/people.png",
+              titleColor: "text-brand-500",
+              valueColor: "text-brand-500"
+            },
+            { 
+              title: "완료", 
+              value: "18명",
+              image: "/images/check (3).png"
+            },
+            { 
+              title: "진행중", 
+              value: "3명",
+              image: "/images/loading.png",
+              status: "in-progress"
+            },
+            { 
+              title: "미평가", 
+              value: "2명",
+              image: "/images/alert-sign.png"
+            }
           ]}
         />
         
