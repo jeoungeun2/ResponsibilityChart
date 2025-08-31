@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table2';
 
 interface ExecutiveDetailTableProps {
   employeeNo?: string;

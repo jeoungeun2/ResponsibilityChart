@@ -26,27 +26,36 @@ export default function CommonBreadcrumb() {
       isActive: false
     })
     
-    // 마스터 관리
+    // 책무구조 Master
     if (segments.includes('master')) {
       breadcrumbs.push({
-        label: 'Master',
+        label: '책무구조 Master',
         href: '/master',
         isActive: false
       })
       
-      // executive (임원 마스터)
-      if (segments.includes('executive')) {
+      // executive_front (임원관리 Master)
+      if (segments.includes('executive_front')) {
         breadcrumbs.push({
-          label: '임원 Master',
-          href: '/master/executive',
+          label: '임원관리 Master',
+          href: '/master/executive_front',
           isActive: true
         })
       }
       
-      // department (조직 마스터)
+      // organization (조직 및 직책관리 Master)
+      if (segments.includes('organization')) {
+        breadcrumbs.push({
+          label: '조직 및 직책관리 Master',
+          href: '/master/organization',
+          isActive: true
+        })
+      }
+      
+      // department (책무관리 Master)
       if (segments.includes('department')) {
         breadcrumbs.push({
-          label: '조직 마스터',
+          label: '책무관리 Master',
           href: '/master/department',
           isActive: true
         })

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
@@ -10,84 +10,30 @@ import { useSidebar } from '@/config/providers';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
 import { OrganizationData, organizationSampleData } from '@/data/organization-data';
-import OrganizationFilter from '@/components/OrganizationFilter';
 import AddOrganizationForm from './_components/AddOrganizationForm';
-
-// 컬럼 정의
-const columns: any[] = [
-  {
-    key: "jobCode" as keyof OrganizationData,
-    header: "직책코드",
-    visible: true
-  },
-  {
-    key: "jobTitle" as keyof OrganizationData,
-    header: "직책",
-    visible: true
-  },
-  {
-    key: "orgDivision" as keyof OrganizationData,
-    header: "조직구분",
-    visible: true
-  },
-  {
-    key: "managedOrg" as keyof OrganizationData,
-    header: "관리대상조직",
-    visible: true
-  },
-  {
-    key: "responsibleDept" as keyof OrganizationData,
-    header: "소관부서",
-    visible: true
-  },
-  {
-    key: "responsibleTeam" as keyof OrganizationData,
-    header: "소관팀",
-    visible: true
-  },
-  {
-    key: "registrationDate" as keyof OrganizationData,
-    header: "등록일자",
-    visible: true
-  },
-  {
-    key: "effectiveStartDate" as keyof OrganizationData,
-    header: "적용시작일자",
-    visible: true
-  },
-  {
-    key: "effectiveEndDate" as keyof OrganizationData,
-    header: "적용종료일자",
-    visible: true
-  },
-  {
-    key: "actions",
-    header: "액션",
-    visible: true,
-    render: (value: any, row: any) => (
-      <div className="flex items-center space-x-2">
-        <EditIcon 
-          className="h-4 w-4" 
-          onClick={() => handleEdit(row)}
-        />
-        <DeleteIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('삭제:', row.id)}
-        />
-      </div>
-    )
-  }
-];
+import { StartDateFilter } from '@/components/ui/DateFilter';
 
 export default function OrganizationPage() {
   const { isSidebarCollapsed } = useSidebar();
-  const [tableColumns, setTableColumns] = useState(columns);
   // 추가 폼 관련 상태 관리
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingRow, setEditingRow] = useState<any>(null);
    
+  // 조회기준일자 상태 관리
+  const [referenceDate, setReferenceDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+  });
+
+  // 조회기준일자 변경 시 데이터 재조회
+  useEffect(() => {
+    console.log('조회기준일자 변경:', referenceDate);
+    // 여기에 실제 API 호출 로직을 구현할 수 있습니다
+    // 예: fetchOrganizationData(referenceDate);
+  }, [referenceDate]);
+
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
     jobTitle: '',
@@ -97,12 +43,7 @@ export default function OrganizationPage() {
     endDate: ''
   });
 
-  // H1 필터용 추가 상태 관리
-  const [h1Filters, setH1Filters] = useState<Record<string, string>>({
-    baselineDate: '',
-    orgStatus: '',
-    orgType: ''
-  });
+
 
   // 페이지네이션 관련 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
@@ -180,14 +121,17 @@ export default function OrganizationPage() {
     setEditingRow(row);
     setIsEditMode(true);
     // 기존 데이터를 폼에 설정
-    setFormData({
+    const newFormData = {
       jobCode: row.jobCode || '',
       jobTitle: row.jobTitle || '',
       orgDivision: row.orgDivision || '',
       managedOrg: row.managedOrg || '',
       responsibleDept: row.responsibleDept || '',
-      responsibleTeam: row.responsibleTeam || ''
-    });
+      responsibleTeam: row.responsibleTeam || '',
+      startDate: row.effectiveStartDate || '',
+      endDate: row.effectiveEndDate || ''
+    };
+    setFormData(newFormData);
     setShowAddForm(true);
   };
 
@@ -221,13 +165,7 @@ export default function OrganizationPage() {
     }));
   };
 
-  // H1 필터 변경 핸들러
-  const handleH1FilterChange = (key: string, value: string) => {
-    setH1Filters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
+
 
   // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
@@ -235,6 +173,74 @@ export default function OrganizationPage() {
     console.log(`페이지 ${page}로 이동`);
     // 여기에 실제 페이지 변경 로직을 구현할 수 있습니다
   };
+
+  // 컬럼 정의 - handleEdit 함수에 접근할 수 있도록 컴포넌트 내부에 정의
+  const columns: any[] = [
+    {
+      key: "jobCode" as keyof OrganizationData,
+      header: "직책코드",
+      visible: true
+    },
+    {
+      key: "jobTitle" as keyof OrganizationData,
+      header: "직책",
+      visible: true
+    },
+    {
+      key: "orgDivision" as keyof OrganizationData,
+      header: "조직구분",
+      visible: true
+    },
+    {
+      key: "managedOrg" as keyof OrganizationData,
+      header: "관리대상조직",
+      visible: true
+    },
+    {
+      key: "responsibleDept" as keyof OrganizationData,
+      header: "소관부서",
+      visible: true
+    },
+    {
+      key: "responsibleTeam" as keyof OrganizationData,
+      header: "소관팀",
+      visible: true
+    },
+    {
+      key: "registrationDate" as keyof OrganizationData,
+      header: "등록일자",
+      visible: true
+    },
+    {
+      key: "effectiveStartDate" as keyof OrganizationData,
+      header: "적용시작일자",
+      visible: true
+    },
+    {
+      key: "effectiveEndDate" as keyof OrganizationData,
+      header: "적용종료일자",
+      visible: true
+    },
+    {
+      key: "actions",
+      header: "액션",
+      visible: true,
+      render: (value: any, row: any) => (
+        <div className="flex items-center space-x-2">
+          <EditIcon 
+            className="h-4 w-4" 
+            onClick={() => handleEdit(row)}
+          />
+          <DeleteIcon 
+            className="h-4 w-4" 
+            onClick={() => console.log('삭제:', row.id)}
+          />
+        </div>
+      )
+    }
+  ];
+
+  const [tableColumns, setTableColumns] = useState(columns);
 
   return (
     <div className="relative">
@@ -259,13 +265,18 @@ export default function OrganizationPage() {
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
         <H1 
-          title="직책(조직) Master" 
+          title="조직 및 직책관리 Master" 
           rightContent={
-            <OrganizationFilter
-              searchFilters={h1Filters}
-              onFilterChange={handleH1FilterChange}
-              filterOptions={filterOptions}
-            />
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                조회기준일자
+              </label>
+              <StartDateFilter
+                startDate={referenceDate}
+                onStartDateChange={setReferenceDate}
+                placeholder="연도-월-일"
+              />
+            </div>
           }
         />
         
@@ -283,6 +294,7 @@ export default function OrganizationPage() {
           enableAddFormV2={true}
           addFormV2Modal={
             <AddOrganizationForm
+              key={`${isEditMode}-${editingRow?.id || 'new'}`}
               open={showAddForm}
               onOpenChange={handleCloseModal}
               formData={formData}
@@ -316,17 +328,6 @@ export default function OrganizationPage() {
           className="mt-6 mb-8"
         />
         
-        {/* 조직 추가/수정 모달 */}
-        <AddOrganizationForm
-          open={showAddForm}
-          onOpenChange={handleCloseModal}
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
-          onAdd={handleAdd}
-          isLoading={false}
-          disabled={false}
-          isEdit={isEditMode}
-        />
       </div>
     </div>
   );

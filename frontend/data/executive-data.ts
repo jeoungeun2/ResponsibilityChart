@@ -8,6 +8,8 @@ export interface ExecutiveData {
   email: string;
   managedOrganization: string;
   term: string;
+  hasConcurrentPosition: string;
+  concurrentPositionDetails?: string;
 }
 
 export const executiveSampleData: ExecutiveData[] = [
@@ -20,7 +22,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7001",
     email: "lee.dohyun@corp.com",
     managedOrganization: "대표이사",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "2",
@@ -31,7 +34,9 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7012",
     email: "hwang.junho@corp.com",
     managedOrganization: "ETF투자부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "있음",
+    concurrentPositionDetails: "ETF운용위원회 위원"
   },
   {
     id: "3",
@@ -42,7 +47,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7004",
     email: "yoon.taeseob@corp.com",
     managedOrganization: "감사실",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "4",
@@ -53,7 +59,9 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7015",
     email: "kim.minsu@corp.com",
     managedOrganization: "자산운용부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "있음",
+    concurrentPositionDetails: "투자심의위원회 위원"
   },
   {
     id: "5",
@@ -64,7 +72,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7018",
     email: "park.jiyoung@corp.com",
     managedOrganization: "자산관리부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "6",
@@ -75,7 +84,9 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7021",
     email: "choi.donghyun@corp.com",
     managedOrganization: "글로벌투자부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "있음",
+    concurrentPositionDetails: "해외투자심의위원회 위원"
   },
   {
     id: "7",
@@ -86,7 +97,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7024",
     email: "jung.sujin@corp.com",
     managedOrganization: "IT부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "8",
@@ -97,7 +109,9 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7027",
     email: "han.seungwoo@corp.com",
     managedOrganization: "인사부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "있음",
+    concurrentPositionDetails: "인사위원회 위원"
   },
   {
     id: "9",
@@ -108,7 +122,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7030",
     email: "song.mira@corp.com",
     managedOrganization: "재무부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "10",
@@ -119,7 +134,9 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7033",
     email: "kang.hyunwoo@corp.com",
     managedOrganization: "법무부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "있음",
+    concurrentPositionDetails: "법무위원회 위원"
   },
   {
     id: "11",
@@ -130,7 +147,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7036",
     email: "lim.seoyeon@corp.com",
     managedOrganization: "ETF투자부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "12",
@@ -141,7 +159,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7039",
     email: "oh.junho@corp.com",
     managedOrganization: "IT부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "13",
@@ -152,7 +171,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7042",
     email: "yoon.seoa@corp.com",
     managedOrganization: "IT부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "14",
@@ -163,7 +183,8 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7045",
     email: "bae.junseok@corp.com",
     managedOrganization: "인사부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   },
   {
     id: "15",
@@ -174,6 +195,7 @@ export const executiveSampleData: ExecutiveData[] = [
     phoneNumber: "02-3456-7048",
     email: "cho.eunyoung@corp.com",
     managedOrganization: "재무부문",
-    term: "2024.01.01 ~ 2026.12.31"
+    term: "2024.01.01 ~ 2026.12.31",
+    hasConcurrentPosition: "없음"
   }
 ];

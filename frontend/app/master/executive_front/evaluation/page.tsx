@@ -10,13 +10,13 @@ import { useSidebar } from '@/config/providers';
 import { ExecutiveEvaluationData, executiveEvaluationSampleData, getEvaluationStatusDisplay } from '@/data/executive-evaluation-data';
 import ExecutiveDetailModal from '@/components/ExecutiveDetailModal';
 import StatusCard_2 from '@/components/StatusCard_2';
+import StatusBadge from '@/components/ui/StatusBadge';
+import ActionButton from '@/components/ui/ActionButton';
+import EditIcon from '@/components/ui/edit-icon';
+import DeleteIcon from '@/components/ui/delete-icon';
 
 export default function ExecutiveFrontEvaluationPage() {
   const { isSidebarCollapsed } = useSidebar();
-  
-  // 추가 폼 관련 상태 관리
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState<Record<string, string>>({});
   
   // 모달 관련 상태 관리
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -50,7 +50,33 @@ export default function ExecutiveFrontEvaluationPage() {
   // 평가하기 핸들러
   const handleEvaluate = (executive: ExecutiveEvaluationData) => {
     console.log('평가하기:', executive.name);
-    // 여기에 평가 로직을 구현할 수 있습니다
+    setSelectedExecutive(executive);
+    setShowDetailModal(true);
+  };
+
+  // 수정 핸들러
+  const handleEdit = (executive: ExecutiveEvaluationData) => {
+    console.log('수정:', executive.name);
+    setSelectedExecutive(executive);
+    setShowDetailModal(true);
+  };
+
+  // 삭제 핸들러
+  const handleDelete = (executive: ExecutiveEvaluationData) => {
+    if (confirm(`${executive.name} 임원의 평가 정보를 삭제하시겠습니까?`)) {
+      console.log('삭제:', executive.name);
+      // TODO: API 호출로 데이터 삭제
+      alert('삭제되었습니다.');
+    }
+  };
+
+  // 일괄 삭제 핸들러
+  const handleBulkDelete = (selectedIds: string[]) => {
+    if (confirm(`선택된 ${selectedIds.length}명의 임원 평가 정보를 삭제하시겠습니까?`)) {
+      console.log('일괄 삭제:', selectedIds);
+      // TODO: API 호출로 데이터 삭제
+      alert(`${selectedIds.length}명의 임원 평가 정보가 삭제되었습니다.`);
+    }
   };
 
   // 모달 닫기 핸들러
@@ -95,28 +121,9 @@ export default function ExecutiveFrontEvaluationPage() {
       key: "evaluationStatus" as keyof ExecutiveEvaluationData,
       header: "평가상태",
       visible: true,
-      render: (value: any, row: any) => {
-        const statusDisplay = getEvaluationStatusDisplay(value);
-        let textColor = '';
-        
-        // 상태별로 동그라미 색상에 맞는 글씨색 설정
-        if (value === 'completed') {
-          textColor = 'text-blue-800';
-        } else if (value === 'in-progress') {
-          textColor = 'text-yellow-800';
-        } else {
-          textColor = 'text-gray-800';
-        }
-        
-        return (
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${statusDisplay.color}`}></div>
-            <span className={`text-sm ${textColor}`}>
-              {statusDisplay.label}
-            </span>
-          </div>
-        );
-      }
+      render: (value: any, row: any) => (
+        <StatusBadge status={value} />
+      )
     },
     {
       key: "evaluationCompletionDate" as keyof ExecutiveEvaluationData,
@@ -127,32 +134,38 @@ export default function ExecutiveFrontEvaluationPage() {
       )
     },
     {
-      key: "actions",
+      key: "management",
       header: "관리",
       visible: true,
+      width: "w-32",
       render: (value: any, row: any) => {
         const isCompleted = row.evaluationStatus === 'completed';
         
         return (
-          <div className="relative">
-            {isCompleted ? (
-              <button
-                onClick={() => handleViewDetail(row)}
-                className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 transition-colors underline"
-              >
-                상세보기
-              </button>
-            ) : (
-              <button
-                onClick={() => handleEvaluate(row)}
-                className="px-2 py-1 text-xs text-orange-600 hover:text-orange-800 transition-colors underline"
-              >
-                평가하기
-              </button>
-            )}
-          </div>
+          <ActionButton
+            actionType={isCompleted ? 'view' : 'evaluate'}
+            onClick={() => isCompleted ? handleViewDetail(row) : handleEvaluate(row)}
+          />
         );
       }
+    },
+    {
+      key: "actions",
+      header: "액션",
+      visible: true,
+      width: "w-32",
+      render: (value: any, row: any) => (
+        <div className="flex items-center space-x-2">
+          <EditIcon 
+            className="h-4 w-4" 
+            onClick={() => handleEdit(row)}
+          />
+          <DeleteIcon 
+            className="h-4 w-4" 
+            onClick={() => handleDelete(row)}
+          />
+        </div>
+      )
     }
   ];
 
@@ -221,36 +234,6 @@ export default function ExecutiveFrontEvaluationPage() {
       { value: "in-progress", label: "진행중" },
       { value: "not-evaluated", label: "미평가" }
     ]
-  };
-
-  // 폼 필드 정의
-  const formFields = [
-    { key: "name", label: "성명", type: "text" as const, required: true },
-    { key: "jobTitle", label: "직책", type: "text" as const, required: true },
-    { key: "position", label: "직위", type: "text" as const, required: true },
-    { key: "managedOrganization", label: "관리대상조직", type: "text" as const, required: true }
-  ];
-
-  // 폼 데이터 변경 핸들러
-  const handleFormDataChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  // 추가 버튼 클릭 핸들러
-  const handleShowAddForm = () => {
-    setShowAddForm(!showAddForm);
-    if (!showAddForm) {
-      setFormData({}); // 폼 초기화
-    }
-  };
-
-  // 추가 처리 핸들러 (기능 없음)
-  const handleAdd = () => {
-    console.log('추가 기능은 구현되지 않았습니다.', formData);
-    // 여기에 실제 추가 로직을 구현할 수 있습니다
   };
 
   // 필터 변경 핸들러
@@ -344,18 +327,14 @@ export default function ExecutiveFrontEvaluationPage() {
           onFilterChange={handleFilterChange}
           filterOptions={filterOptions}
           filters={filters}
-          // 추가 버튼 관련 props
-          enableAddForm={true}
-          showAddForm={showAddForm}
-          onShowAddForm={handleShowAddForm}
-          formData={formData}
-          formFields={formFields}
-          onFormDataChange={handleFormDataChange}
-          onAdd={handleAdd}
-          isAddLoading={false}
-          isNameValid={true}
+          // 추가 버튼 비활성화
+          enableAddForm={false}
           // 액션 컬럼 비활성화 (별도 actions 컬럼 사용)
           showActionColumn={false}
+          // 일괄 삭제 버튼 활성화
+          enableBulkDelete={true}
+          // 일괄 삭제 핸들러
+          onBulkDelete={handleBulkDelete}
         />
 
         {/* 페이지네이션 */}
@@ -371,6 +350,7 @@ export default function ExecutiveFrontEvaluationPage() {
           executive={selectedExecutive}
           isOpen={showDetailModal}
           onClose={handleCloseDetailModal}
+          initialEditMode={selectedExecutive?.evaluationStatus !== 'completed'}
         />
       </div>
     </div>

@@ -24,20 +24,25 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
   }, [isCollapsed]);
 
   const navigationItems = [
-    { href: '/', label: '대시보드', subItems: [], imageSrc: '/images/data-analytics.png' },
+    { href: '/', label: '대시보드', subItems: [{ href: '/', label: '대시보드' }], imageSrc: '/images/data-analytics.png' },
     {
       href: '/master',
       label: '책무구조 Master',
       subItems: [
-        { href: '/master/department', label: '책무 Master' },
-        { href: '/master/executive_front', label: '임원 Master' },        
-        { href: '/master/organization', label: '조직 Master' },
+        { href: '/master/executive_front', label: '임원관리 Master' },  
+
+
+         { href: '/master/organization', label: '조직 및 직책관리 Master' },
+
+          { href: '/master/department', label: '책무관리 Master' },
+             
+       
       ],
       imageSrc: '/images/data-analysis (1).png',
     },
     {
-      label: '관리조치Master',
-      href: '/management-action/executive',
+      label: '관리조치 Master',
+      href: '/management-action',
       subItems: [
         { label: '임원별 관리조치 Master', href: '/management-action/executive' },
         { label: '부서별 관리조치 Master', href: '/management-action/department' },
@@ -95,7 +100,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
         {/* #ec5a29 */}
         <button
           onClick={onToggle}
-          className=" rounded-lg hover:bg-gray-100 transition-colors "
+          className=" rounded-lg hover:scale-130 transition-transform cursor-pointer "
           aria-label={isCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
           aria-expanded={!isCollapsed}
         >

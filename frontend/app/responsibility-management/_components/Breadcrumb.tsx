@@ -26,10 +26,10 @@ export default function CommonBreadcrumb() {
       isActive: false
     })
     
-    // Responsibility Management
+    // 책무 관리
     if (segments.includes('responsibility-management')) {
       breadcrumbs.push({
-        label: 'Responsibility Management',
+        label: '책무 관리',
         href: '/responsibility-management',
         isActive: false
       })
@@ -37,7 +37,7 @@ export default function CommonBreadcrumb() {
       // system-diagram
       if (segments.includes('system-diagram')) {
         breadcrumbs.push({
-          label: 'System Diagram',
+          label: '책무체계도 작성',
           href: '/responsibility-management/system-diagram',
           isActive: true
         })
@@ -46,7 +46,7 @@ export default function CommonBreadcrumb() {
       // description
       if (segments.includes('description')) {
         breadcrumbs.push({
-          label: 'Description',
+          label: '책무기술서 작성',
           href: '/responsibility-management/description',
           isActive: true
         })
@@ -55,7 +55,7 @@ export default function CommonBreadcrumb() {
       // allocation
       if (segments.includes('allocation')) {
         breadcrumbs.push({
-          label: 'Allocation',
+          label: '책무 배분',
           href: '/responsibility-management/allocation',
           isActive: true
         })

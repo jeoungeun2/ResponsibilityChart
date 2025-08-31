@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Download, Maximize2, Minimize2, Upload } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import SaveButton from '@/app/master/department/_components/SaveButton';
+import ApprovalRequestButton from '@/app/master/department/_components/ApprovalRequestButton';
 
 interface ControlActivityModalProps {
   isOpen: boolean;
@@ -27,6 +30,7 @@ interface ControlActivityModalProps {
 }
 
 export default function ControlActivityModal({ isOpen, onClose, data }: ControlActivityModalProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
 
@@ -48,154 +52,212 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
     // 승인요청 로직 구현
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+      <div 
+        className={`border border-warm-grey-600/50 shadow-2xl transition-all duration-300 ease-in-out ${
+          isExpanded 
+            ? 'max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh]' 
+            : 'max-w-3xl max-h-[85vh] w-[80vw] h-[85vh]'
+        } flex flex-col`}
+      >
         {/* 헤더 */}
-        <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-          <h2 className="text-lg font-semibold">관리조치활동 수행</h2>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 transition-colors"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* 본문 */}
-        <div className="p-6 space-y-6">
-          {/* 책무 섹션 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">책무</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">책무구분:</label>
-                <span className="text-sm text-gray-900">{data.responsibilityType}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">책무세부코드:</label>
-                <span className="text-sm text-gray-900">{data.responsibilityDetailCode}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">책무:</label>
-                <span className="text-sm text-gray-900">{data.responsibility}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">책무세부내용:</label>
-                <span className="text-sm text-gray-900">{data.responsibilityDetailContent}</span>
-              </div>
+        <div className="flex justify-between items-center flex-shrink-0">
+          <div className="flex justify-between items-center w-full relative z-50 border-b border-white/20 py-1 px-2 relative bg-white/10 backdrop-blur-md">
+            <div className="flex items-center">
             </div>
-          </div>
-
-          {/* 관리조치 섹션 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">관리조치</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">관리의무:</label>
-                <span className="text-sm text-gray-900">{data.managementDuty}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">관리조치코드:</label>
-                <span className="text-sm text-gray-900">{data.managementActionCode}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">관리조치:</label>
-                <span className="text-sm text-gray-900">{data.managementAction}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">관리조치유형:</label>
-                <span className="text-sm text-gray-900">{data.managementActionType}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 통제활동 섹션 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">통제활동</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">통제활동코드:</label>
-                <span className="text-sm text-gray-900">{data.controlActivityCode}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">통제활동명:</label>
-                <span className="text-sm text-gray-900">{data.controlActivityName}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">통제활동:</label>
-                <span className="text-sm text-gray-900">{data.controlActivity}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">통제활동수행주기:</label>
-                <span className="text-sm text-gray-900">{data.controlActivityCycle}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">담당부서:</label>
-                <span className="text-sm text-gray-900">{data.responsibleDepartment}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">담당팀:</label>
-                <span className="text-sm text-gray-900">{data.responsibleTeam}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">담당자:</label>
-                <span className="text-sm text-gray-900">{data.responsiblePerson}</span>
-              </div>
-              <div className="flex">
-                <label className="w-32 text-sm font-medium text-gray-700">증빙:</label>
-                <span className="text-sm text-gray-900">{data.evidence}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 추가 입력 필드 */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                증빙업로드
-              </label>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                비고
-              </label>
-              <textarea
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                rows={3}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="추가 메모를 입력하세요..."
-              />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleExpand}
+                className="h-7 w-7 p-0 text-white bg-gray-700/30 cursor-pointer hover:bg-gray-700/40 flex items-center justify-center"
+              >
+                {isExpanded ? (
+                  <Minimize2 className="h-5 w-5 text-white font-semibold" />
+                ) : (
+                  <Maximize2 className="h-5 w-5 text-white font-semibold" />
+                )}
+              </button>
+              <button
+                onClick={onClose}
+                className="h-7 w-7 p-0 text-white bg-gray-700/30 cursor-pointer hover:bg-gray-700/40 flex items-center justify-center"
+              >
+                <X className="h-5 w-5 text-white font-semibold" />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* 푸터 버튼 */}
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end space-x-3">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-          >
-            저장
-          </button>
-          <button
-            onClick={handleRequestApproval}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            승인요청
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-          >
-            닫기
-          </button>
+        {/* 컨텐츠 */}
+        <div className="flex-1 overflow-y-auto bg-white">
+          {/* 제목 */}
+          <div className="py-4 bg-[#f7f7f8] border-b border-gray-200">
+            <div className="px-6 border-l-4 border-[#EC6437]">
+              <h2 className="text-xl font-bold text-[#EC6437]">
+                통제활동 상세정보
+              </h2>
+            </div>
+          </div>
+
+          <div className="space-y-2 bg-white px-2">
+            {/* 1. 책무구분 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">책무구분</h3>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">책무구분</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">지정책임자</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">책무세부코드</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">CE-지정책임-A1-A</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">책무</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">책무구조도의 마련·관리 업무와 관련된 책무</div>
+                </div>
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">책무세부내용</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제등의 최종 책임자로서 총괄적인 관리조치 운영 책임</div>
+                </div>
+              </div>
+            </section>
+
+            {/* 2. 관리의무 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">관리의무</h3>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리의무</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제등 정책·기본방침 및 전략의 집행·운영</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치코드</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">CE-지정책임-A1-A-001</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐 사항을 검토하고 경영관리팀을 통해 이사회에 보고</div>
+                </div>
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치유형</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검</div>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. 통제활동 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">통제활동</h3>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동코드</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">CE-지정책임-A1-A-001-1</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동명</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안) 마련</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">직무와 관련된 내부통제등의 효과적으로 전행할 수 있도록 소관부서 내부통제기준 마련</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">수행주기</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">발생시</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당부서</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">준법감시실</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당팀</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">준법감시실</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당자</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">김통제</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">증빙</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안), 내부통제기준 점토</div>
+                </div>
+              </div>
+            </section>
+
+            {/* 4. 증빙업로드 및 비고 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                통제활동 증빙 업로드
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-2">증빙업로드</label>
+                  <div className="relative">
+                    {evidenceFile ? (
+                      // 파일이 선택된 경우: 파일명과 제거 버튼 표시
+                      <div className="flex items-center justify-between p-3 border border-gray-300">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="h-4 w-4 text-black" />
+                          <span className="text-sm text-gray-700 truncate">{evidenceFile.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEvidenceFile(null)}
+                          className="h-6 w-6 p-0 text-gray-500 hover:text-red-500 flex items-center justify-center"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      // 파일이 선택되지 않은 경우: 클릭 가능한 파일 선택 안내 영역
+                      <div 
+                        className="flex items-center justify-center p-6 border border-dashed border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => document.getElementById('evidence-file-upload')?.click()}
+                      >
+                        <div className="text-center">
+                          <Upload className="mx-auto h-8 w-8 text-black mb-2" />
+                          <p className="text-sm font-semibold text-gray-600">
+                            파일을 <span className="text-[#EC6437]">선택하거나 여기로 드래그</span>하세요
+                          </p>
+                          <p className="text-sm font-medium text-gray-500 mt-1">
+                            (PDF, DOC, XLS, 이미지 파일 등)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {/* 숨겨진 파일 입력 필드 */}
+                    <input
+                      id="evidence-file-upload"
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif"
+                    />
+                  </div>
+                </div>
+                                 <div>
+                   <label className="block text-base font-medium text-gray-700 mb-2">비고</label>
+                                       <Textarea
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                      rows={3}
+                      className="block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                      placeholder="추가 메모를 입력하세요..."
+                    />
+                 </div>
+              </div>
+            </section>
+
+                         {/* 액션 버튼 */}
+             <div className="flex flex-wrap gap-3 justify-end pt-3 border-t border-gray-200 pr-4 pb-4 sticky bottom-0 bg-white/30 backdrop-blur-sm">
+               <SaveButton onClick={handleSave} />
+               <ApprovalRequestButton onClick={handleRequestApproval} />
+             </div>
+          </div>
         </div>
       </div>
     </div>

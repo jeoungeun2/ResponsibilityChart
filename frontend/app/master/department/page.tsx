@@ -13,68 +13,18 @@ import { DutyData, sampleData } from '@/data/department-data';
 import AddDutyForm from './_components/AddDutyForm';
 
 
-// 컬럼 정의
-const columns: any[] = [
-  {
-    key: "category" as keyof DutyData,
-    header: "책무구분",
-    visible: true
-  },
-  {
-    key: "code" as keyof DutyData,
-    header: "책무코드",
-    visible: true
-  },
-  {
-    key: "name" as keyof DutyData,
-    header: "책무",
-    visible: true
-  },
-  {
-    key: "detailCode" as keyof DutyData,
-    header: "책무 세부코드",
-    visible: true
-  },
-  {
-    key: "detailContent" as keyof DutyData,
-    header: "책무 세부내용",
-    visible: true
-  },
-  {
-    key: "position" as keyof DutyData,
-    header: "직책",
-    visible: true
-  },
-  {
-    key: "executive" as keyof DutyData,
-    header: "임원",
-    visible: true
-  },
-  {
-    key: "actions",
-    header: "액션",
-    visible: true,
-    render: (value: any, row: any) => (
-      <div className="flex items-center space-x-2">
-        <EditIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('수정:', row.id)}
-        />
-        <DeleteIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('삭제:', row.id)}
-        />
-      </div>
-    )
-  }
-];
+
 
 export default function DepartmentPage() {
   const { isSidebarCollapsed } = useSidebar();
-  const [tableColumns, setTableColumns] = useState(columns);
+  
   // 추가 폼 관련 상태 관리
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
+  
+  // 수정 폼 관련 상태 관리
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editFormData, setEditFormData] = useState<Record<string, any>>({});
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
@@ -89,6 +39,83 @@ export default function DepartmentPage() {
   // 페이지네이션 관련 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5; // 5개 페이지가 있다고 가정
+
+  // 수정 버튼 클릭 핸들러
+  const handleEdit = (row: any) => {
+    setEditFormData(row);
+    setShowEditForm(true);
+  };
+
+  // 추가 처리 핸들러 (기능 없음)
+  const handleAdd = () => {
+    console.log('추가 기능은 구현되지 않았습니다.', formData);
+    // 여기에 실제 추가 로직을 구현할 수 있습니다
+  };
+
+  // 수정 처리 핸들러 (기능 없음)
+  const handleEditSubmit = () => {
+    console.log('수정 기능은 구현되지 않았습니다.', editFormData);
+    // 여기에 실제 수정 로직을 구현할 수 있습니다
+    setShowEditForm(false);
+  };
+
+  // 컬럼 정의
+  const columns: any[] = [
+    {
+      key: "category" as keyof DutyData,
+      header: "책무구분",
+      visible: true
+    },
+    {
+      key: "code" as keyof DutyData,
+      header: "책무코드",
+      visible: true
+    },
+    {
+      key: "name" as keyof DutyData,
+      header: "책무",
+      visible: true
+    },
+    {
+      key: "detailCode" as keyof DutyData,
+      header: "책무 세부코드",
+      visible: true
+    },
+    {
+      key: "detailContent" as keyof DutyData,
+      header: "책무 세부내용",
+      visible: true
+    },
+    {
+      key: "position" as keyof DutyData,
+      header: "직책",
+      visible: true
+    },
+    {
+      key: "executive" as keyof DutyData,
+      header: "임원",
+      visible: true
+    },
+    {
+      key: "actions",
+      header: "액션",
+      visible: true,
+      render: (value: any, row: any) => (
+        <div className="flex items-center space-x-2">
+          <EditIcon 
+            className="h-4 w-4 cursor-pointer" 
+            onClick={() => handleEdit(row)}
+          />
+          <DeleteIcon 
+            className="h-4 w-4 cursor-pointer" 
+            onClick={() => console.log('삭제:', row.id)}
+          />
+        </div>
+      )
+    }
+  ];
+
+  const [tableColumns, setTableColumns] = useState(columns);
 
   // 필터 설정 정의
   const filters = [
@@ -184,10 +211,7 @@ export default function DepartmentPage() {
   };
 
   // 추가 처리 핸들러 (기능 없음)
-  const handleAdd = () => {
-    console.log('추가 기능은 구현되지 않았습니다.', formData);
-    // 여기에 실제 추가 로직을 구현할 수 있습니다
-  };
+
 
   // 필터 변경 핸들러
   const handleFilterChange = (key: string, value: string) => {
@@ -205,7 +229,12 @@ export default function DepartmentPage() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative liquidGlass-page">
+      {/* 리퀴드 글래스 배경 효과 */}
+      <div className="liquidGlass-bg-effect"></div>
+      <div className="liquidGlass-bg-tint"></div>
+      <div className="liquidGlass-bg-shine"></div>
+      
       <Header 
         rightContent={
           <div className="flex items-center space-x-3">
@@ -226,7 +255,7 @@ export default function DepartmentPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="책무 Master" />
+        <H1 title="책무관리 Master" />
         
         <DataTable
           data={sampleData}
@@ -249,6 +278,7 @@ export default function DepartmentPage() {
               onAdd={handleAdd}
               isLoading={false}
               disabled={false}
+              mode="add"
             />
           }
           onShowAddFormV2={() => setShowAddForm(true)}
@@ -283,6 +313,24 @@ export default function DepartmentPage() {
           onAdd={handleAdd}
           isLoading={false}
           disabled={false}
+          mode="add"
+        />
+
+        {/* 책무 수정 모달 */}
+        <AddDutyForm
+          open={showEditForm}
+          onOpenChange={setShowEditForm}
+          formData={editFormData}
+          onFormDataChange={(field: string, value: any) => {
+            setEditFormData(prev => ({
+              ...prev,
+              [field]: value
+            }));
+          }}
+          onAdd={handleEditSubmit}
+          isLoading={false}
+          disabled={false}
+          mode="edit"
         />
       </div>
     </div>

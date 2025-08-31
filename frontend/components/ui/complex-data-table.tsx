@@ -6,7 +6,7 @@ import { Search, ChevronDown } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table2"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -218,163 +218,285 @@ export function ComplexDataTable<T extends Record<string, any>>({
   return (
     <div className={cn("space-y-4", className)}>
       {/* 통합된 필터 및 컬럼 영역 */}
-      <div className="flex items-center justify-between p-3 bg-brand-grey-100 border border-brand-grey-200">
-        {/* 왼쪽: 검색 및 필터 */}
-        <div className="flex-1">
-          {/* 검색 및 필터들 */}
-          {searchFilters && onFilterChange && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 max-w-3xl">
-              {/* 동적 필터들 */}
-              {filters?.map((filter) => {
-                const filterValue = searchFilters[filter.key] || '';
-                
-                if (filter.type === 'dropdown') {
-                  const options = filterOptions?.[filter.key] || [];
-                  return (
-                    <div key={filter.key} className="flex items-center space-x-3">
-                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                        {filter.label}
-                      </label>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-32 justify-between"
-                          >
-                            {filterValue ? 
-                              (filterOptions?.[filter.key]?.find(opt => opt.value === filterValue)?.label || filterValue) 
-                              : "전체선택"}
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
-                          {/* 검색 입력 필드 */}
-                          <div className="p-2 border-b">
-                            <Input
-                              type="text"
-                              placeholder={`${filter.label} 검색...`}
-                              className="h-8 text-sm"
-                              value={dropdownSearches[filter.key] || ''}
-                              onChange={(e) => updateDropdownSearch(filter.key, e.target.value)}
-                            />
-                          </div>
-                          
-                          <DropdownMenuItem 
-                            onClick={() => onFilterChange(filter.key, '')}
-                            className="cursor-pointer"
-                          >
-                            전체선택
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {getFilteredOptions(filter.key).map((option) => (
-                            <DropdownMenuItem 
-                              key={option.value}
-                              onClick={() => onFilterChange(filter.key, option.value)}
-                              className="cursor-pointer"
-                            >
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  );
-                }
-                
-                if (filter.type === 'input') {
-                  return (
-                    <div key={filter.key} className="flex items-center space-x-3">
-                      <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                        {filter.label}
-                      </label>
-                      <Input
-                        type="text"
-                        placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
-                        value={filterValue}
-                        onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                        className="h-10 w-32"
-                      />
-                    </div>
-                  );
-                }
-                
-                return null;
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* 오른쪽: 컬럼 필터, 추가 버튼, 선택 삭제 */}
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <label className="font-medium text-gray-700 whitespace-nowrap">
-              컬럼
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 px-4 border-gray-200 hover:bg-gray-50">
-                   {visibleColumns.length === columns.length 
-                     ? "전체선택" 
-                     : visibleColumns.length === 1 
-                       ? visibleColumns[0].header 
-                       : `${visibleColumns.length}개 컬럼`}
-                   <ChevronDown className="ml-2 h-4 w-4" />
-                 </Button>
-               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuCheckboxItem
-                  checked={visibleColumns.length === columns.length}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      onColumnsChange(columns.map(col => ({ ...col, visible: true })))
-                    } else {
-                      onColumnsChange(columns.map(col => ({ ...col, visible: false })))
-                    }
-                  }}
+      <div className="p-3 bg-brand-grey-100 border border-brand-grey-200">
+        <div className="grid gap-3">
+          {/* Group 1: Search & Filters */}
+          <div className="space-y-4 border-b border-gray-300 pb-3">
+            {/* 필터 제목 추가 */}
+            <div className="grid grid-cols-7 gap-2 items-center">
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base font-semibold text-gray-900">필터</h3>
+              </div>
+              
+              {/* 빈 공간 */}
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              
+              {/* 조회 버튼 */}
+              <div className={`hover:bg-gray-200 flex items-center justify-center ${
+                Object.values(searchFilters || {}).some(value => value && value !== "") 
+                  ? "bg-brand-500/20" 
+                  : "bg-gray-100"
+              }`}>
+                <Button 
+                  onClick={() => console.log("조회 실행:", searchFilters)}
+                  variant="ghost"
+                  size="icon"
+                  className="cursor-pointer hover:bg-gray-200"
+                  title="조회"
                 >
-                  모든 컬럼
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuSeparator />
-                {columns.map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={String(column.key)}
-                    checked={column.visible}
-                    onCheckedChange={() => toggleColumnVisibility(column.key)}
-                  >
-                    {column.header}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <div className="space-x-2 flex items-center">
+                    <div className=" text-brand-500 font-bold text-sm">조회</div>
+                    <Search className="h-4 w-4 text-brand-500 font-bold" />
+                  </div>
+                </Button>
+              </div>
+
+              {/* 초기화 버튼 */}
+              <div className="bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                <Button 
+                  onClick={() => {
+                    // 모든 필터 초기화
+                    if (onFilterChange) {
+                      Object.keys(searchFilters || {}).forEach(key => {
+                        onFilterChange(key, "")
+                      })
+                    }
+                    // 드롭다운 검색어 초기화
+                    setDropdownSearches({})
+                    console.log("필터 초기화 완료")
+                  }}
+                  variant="ghost"
+                  size="icon"
+                  className=" cursor-pointer hover:bg-gray-200"
+                  title="초기화"
+                >
+                  <div className="space-x-2 flex items-center">
+                    <div className=" text-black font-bold text-sm">초기화</div>
+                    <div className="h-4 w-4 text-black font-bold text-center">↺</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+            
+            {searchFilters && onFilterChange && (
+              <div className="grid grid-cols-4 gap-4">
+                {filters?.map((filter) => {
+                  const filterValue = searchFilters[filter.key] || ""
+
+                  if (filter.type === "dropdown") {
+                    const options = filterOptions?.[filter.key] || []
+                    const selectedLabel =
+                      options.find((opt) => opt.value === filterValue)?.label || filterValue
+                    const isSelected = filterValue && filterValue !== ""
+
+                    return (
+                      <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <div className="col-span-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={`h-10 px-4 w-full justify-between ${
+                                  isSelected 
+                                    ? "border-brand-500/80 text-brand-500 hover:bg-brand-50" 
+                                    : "border-gray-200 hover:bg-gray-50"
+                                }`}
+                              >
+                                <span className="truncate flex-1 text-left">
+                                  {filterValue ? selectedLabel : "전체선택"}
+                                </span>
+                                <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-48 max-h-60 overflow-y-auto">
+                              {/* Search-in-dropdown */}
+                              <div className="p-2 border-b">
+                                <Input
+                                  type="text"
+                                  placeholder={`${filter.label} 검색...`}
+                                  className="h-8 text-sm"
+                                  value={dropdownSearches[filter.key] || ""}
+                                  onChange={(e) => updateDropdownSearch(filter.key, e.target.value)}
+                                />
+                              </div>
+
+                              <DropdownMenuItem
+                                onClick={() => onFilterChange(filter.key, "")}
+                                className="cursor-pointer"
+                              >
+                                <div className="w-full truncate">전체선택</div>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {getFilteredOptions(filter.key).map((option) => (
+                                <DropdownMenuItem
+                                  key={option.value}
+                                  onClick={() => onFilterChange(filter.key, option.value)}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="w-full truncate">{option.label}</div>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  if (filter.type === "input") {
+                    const isSelected = filterValue && filterValue !== ""
+                    
+                    return (
+                      <div key={filter.key} className="flex items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
+                          value={filterValue}
+                          onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                          className={`h-10 w-32 ${
+                            isSelected 
+                              ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    )
+                  }
+
+                  if (filter.type === "date") {
+                    const isSelected = filterValue && filterValue !== ""
+                    
+                    return (
+                      <div key={filter.key} className="flex items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap ${
+                          isSelected ? "text-brand-500" : "text-gray-700"
+                        }`}>
+                          {filter.label}
+                        </label>
+                        <Input
+                          type="date"
+                          value={filterValue}
+                          onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                          className={`h-10 w-32 ${
+                            isSelected 
+                              ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
+                              : ""
+                          }`}
+                        />
+                      </div>
+                    )
+                  }
+
+                  return null
+                })}
+              </div>
+            )}
           </div>
 
-                      {/* 추가/삭제 버튼 그룹 */}
-          <div className="flex items-center space-x-2">
-            {/* 추가 버튼 */}
-            {(enableAddFormV2 ? onShowAddFormV2 : enableAddForm && onShowAddForm) && (
-              <button
-                onClick={enableAddFormV2 ? onShowAddFormV2 : onShowAddForm}
-                className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-1 rounded-sm transition-colors cursor-pointer"
-              >
-                {showAddForm ? '취소' : '추가'}
-              </button>
-            )}
+          {/* Group 2: Column toggles & Actions */}
+          <div className="grid grid-cols-7 gap-4 items-center">
+            {/* Column visibility */}
+            <div className="flex items-center space-x-2">
+              <h3 className="text-base font-semibold text-gray-900">표시할 열</h3>
+            </div>
+            
+            <div className="col-span-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-full justify-between"
+                  >
+                    {visibleColumns.length === columns.length
+                      ? "전체선택"
+                      : visibleColumns.length === 1
+                      ? visibleColumns[0].header
+                      : `${visibleColumns.length}개 컬럼`}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuCheckboxItem
+                    checked={visibleColumns.length === columns.length}
+                    onCheckedChange={(checked) => {
+                      const v = checked === true
+                      onColumnsChange(columns.map((col) => ({ ...col, visible: v })))
+                    }}
+                  >
+                    전체선택
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuSeparator />
+                  {columns.map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={String(column.key)}
+                      checked={column.visible}
+                      onCheckedChange={() => toggleColumnVisibility(column.key)}
+                    >
+                      {column.header}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div></div>
+            <div></div>
+            
+            {/* Action buttons */}
+            <div className="flex items-center justify-center w-full">
+              {/* Add buttons (v2 first, else v1) */}
+              {enableAddFormV2 && onShowAddFormV2 ? (
+                <button
+                  onClick={onShowAddFormV2}
+                  className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-6 py-2 transition-colors cursor-pointer text-base font-medium w-full"
+                >
+                  추가
+                </button>
+              ) : enableAddForm && onShowAddForm ? (
+                <button
+                  onClick={onShowAddForm}
+                  className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-6 py-2 transition-colors cursor-pointer text-base font-medium w-full"
+                >
+                  {showAddForm ? "취소" : "추가"}
+                </button>
+              ) : null}
+            </div>
 
-            {/* 선택 삭제 버튼 */}
-            {enableBulkDelete && selectedRows.size > 0 && (
-              <button
-                onClick={() => {
-                  onBulkDelete?.(Array.from(selectedRows));
-                  // 선택 상태 초기화
-                  setSelectedRows(new Set());
-                  // 부모 컴포넌트에도 알림
-                  onSelectionReset?.();
-                }}
-                className="text-brand-500 px-2 py-1 rounded-sm transition-colors flex items-center space-x-2 border border-brand-500/70 cursor-pointer hover:bg-brand-500/10 bg-brand-200/30"
-              >
-                <span>삭제 ({selectedRows.size})</span>
-              </button>
-            )}
+            {/* Bulk delete */}
+            <div className="flex items-center justify-center w-full">
+              {enableBulkDelete && (
+                <button
+                  onClick={() => {
+                    onBulkDelete?.(Array.from(selectedRows));
+                    // 선택 상태 초기화
+                    setSelectedRows(new Set());
+                    // 부모 컴포넌트에도 알림
+                    onSelectionReset?.();
+                  }}
+                  disabled={selectedRows.size === 0 || !onBulkDelete}
+                  className={cn(
+                    "px-6 py-2 transition-colors flex items-center justify-center space-x-2 border text-base font-medium w-full",
+                    selectedRows.size > 0 && onBulkDelete
+                      ? "text-[#FD5108] border-[#FD5108]/70 hover:bg-[#FD5108]/10 bg-[#FD5108]/20 cursor-pointer"
+                      : "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
+                  )}
+                >
+                  <span>삭제 ({selectedRows.size})</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

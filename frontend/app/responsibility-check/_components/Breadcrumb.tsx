@@ -26,10 +26,10 @@ export default function CommonBreadcrumb() {
       isActive: false
     })
     
-    // Responsibility Check
+    // 책무 이행 점검
     if (segments.includes('responsibility-check')) {
       breadcrumbs.push({
-        label: 'Responsibility Check',
+        label: '책무 이행 점검',
         href: '/responsibility-check',
         isActive: false
       })
@@ -37,7 +37,7 @@ export default function CommonBreadcrumb() {
       // status
       if (segments.includes('status')) {
         breadcrumbs.push({
-          label: 'Status',
+          label: '관리조치활동 수행',
           href: '/responsibility-check/status',
           isActive: true
         })
@@ -46,7 +46,7 @@ export default function CommonBreadcrumb() {
       // management
       if (segments.includes('management')) {
         breadcrumbs.push({
-          label: 'Management',
+          label: '관리조치 이행 점검',
           href: '/responsibility-check/management',
           isActive: true
         })

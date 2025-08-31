@@ -63,21 +63,27 @@ export function StartDateFilter({
 
   const handleStartInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    const date = new Date(value)
-    if (isValidDate(date)) {
-      setStartDateObj(date)
-      setStartMonth(date)
-      onStartDateChange(value)
+    
+    // 모든 입력값을 그대로 전달 (삭제 포함)
+    onStartDateChange(value)
+    
+    // 완성된 날짜일 때만 날짜 객체 설정
+    if (value && value.length === 10) {
+      const date = new Date(value)
+      if (isValidDate(date)) {
+        setStartDateObj(date)
+        setStartMonth(date)
+      }
     }
   }
 
   return (
     <div className={`relative ${className}`}>
       <Input
-        type="date"
+        type="text"
         value={startDate || ""}
         placeholder={placeholder}
-        className="h-10 w-32 bg-background pr-10"
+        className="h-10 w-full bg-background pr-10"
         onChange={handleStartInputChange}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
@@ -87,15 +93,15 @@ export function StartDateFilter({
         }}
       />
       <Popover open={startOpen} onOpenChange={setStartOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            className="absolute top-1/2 right-2 size-6 -translate-y-1/2 p-0"
-          >
-            <CalendarIcon className="size-3.5" />
-            <span className="sr-only">시작일 선택</span>
-          </Button>
-        </PopoverTrigger>
+                 <PopoverTrigger asChild>
+           <Button
+             variant="ghost"
+             className="absolute top-1/2 right-2 size-6 -translate-y-1/2 p-0 cursor-pointer"
+           >
+             <CalendarIcon className="size-3.5" />
+             <span className="sr-only">시작일 선택</span>
+           </Button>
+         </PopoverTrigger>
         <PopoverContent
           className="w-auto overflow-hidden p-0"
           align="end"
@@ -140,21 +146,27 @@ export function EndDateFilter({
 
   const handleEndInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    const date = new Date(value)
-    if (isValidDate(date)) {
-      setEndDateObj(date)
-      setEndMonth(date)
-      onEndDateChange(value)
+    
+    // 모든 입력값을 그대로 전달 (삭제 포함)
+    onEndDateChange(value)
+    
+    // 완성된 날짜일 때만 날짜 객체 설정
+    if (value && value.length === 10) {
+      const date = new Date(value)
+      if (isValidDate(date)) {
+        setEndDateObj(date)
+        setEndMonth(date)
+      }
     }
   }
 
   return (
     <div className={`relative ${className}`}>
       <Input
-        type="date"
+        type="text"
         value={endDate || ""}
         placeholder={placeholder}
-        className="h-10 w-32 bg-background pr-10"
+        className="h-10 w-full bg-background pr-10"
         onChange={handleEndInputChange}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
@@ -164,15 +176,15 @@ export function EndDateFilter({
         }}
       />
       <Popover open={endOpen} onOpenChange={setEndOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            className="absolute top-1/2 right-2 size-6 -translate-y-1/2 p-0"
-          >
-            <CalendarIcon className="size-3.5" />
-            <span className="sr-only">종료일 선택</span>
-          </Button>
-        </PopoverTrigger>
+                 <PopoverTrigger asChild>
+           <Button
+             variant="ghost"
+             className="absolute top-1/2 right-2 size-6 -translate-y-1/2 p-0 cursor-pointer"
+           >
+             <CalendarIcon className="size-3.5" />
+             <span className="sr-only">종료일 선택</span>
+           </Button>
+         </PopoverTrigger>
         <PopoverContent
           className="w-auto overflow-hidden p-0"
           align="end"

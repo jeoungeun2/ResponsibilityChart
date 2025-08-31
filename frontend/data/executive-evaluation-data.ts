@@ -6,6 +6,9 @@ export interface ExecutiveEvaluationData {
   managedOrganization: string;
   evaluationStatus: 'completed' | 'in-progress' | 'not-evaluated';
   evaluationCompletionDate: string | null;
+  evaluationResult?: string;
+  judgmentReason?: string;
+  supportingDocuments?: string[];
   notificationCount?: number;
 }
 
@@ -17,7 +20,10 @@ export const executiveEvaluationSampleData: ExecutiveEvaluationData[] = [
     position: '대표이사',
     managedOrganization: '대표이사',
     evaluationStatus: 'completed',
-    evaluationCompletionDate: '2024-03-15'
+    evaluationCompletionDate: '2024-03-15',
+    evaluationResult: '적격',
+    judgmentReason: '경영진으로서의 리더십과 의사결정 능력이 우수하며, 회사의 지속가능한 성장을 위한 전략적 비전을 제시하고 있습니다.',
+    supportingDocuments: ['이도현_평가서.pdf', '이도현_증빙서류.zip']
   },
   {
     id: '2',
@@ -26,7 +32,10 @@ export const executiveEvaluationSampleData: ExecutiveEvaluationData[] = [
     position: '상무',
     managedOrganization: 'ETF투자부문',
     evaluationStatus: 'completed',
-    evaluationCompletionDate: '2024-03-12'
+    evaluationCompletionDate: '2024-03-12',
+    evaluationResult: '적격',
+    judgmentReason: 'ETF 투자 분야에서 전문성을 보유하고 있으며, 부문의 성과 향상에 기여하고 있습니다.',
+    supportingDocuments: ['황준호_평가서.pdf']
   },
   {
     id: '3',
@@ -36,6 +45,9 @@ export const executiveEvaluationSampleData: ExecutiveEvaluationData[] = [
     managedOrganization: '감사실',
     evaluationStatus: 'in-progress',
     evaluationCompletionDate: null,
+    evaluationResult: '평가 진행중',
+    judgmentReason: '감사 업무 수행 능력은 우수하나, 추가적인 검토가 필요한 사항이 있어 평가를 진행 중입니다.',
+    supportingDocuments: ['윤태섭_중간평가서.pdf'],
     notificationCount: 8
   },
   {

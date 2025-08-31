@@ -1,8 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from '@/components/ui/button';
-import { Plus, Maximize2, Minimize2, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Maximize2, Minimize2, X, Search, ChevronDown } from 'lucide-react';
+import { StartDateFilter, EndDateFilter } from '@/components/ui/DateFilter';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import AddButton from '@/components/ui/add-button';
+import DeleteButton from '@/components/ui/delete-button';
+import SaveButton from '../../department/_components/SaveButton';
+import CancelButton from './CancelButton';
 
 interface AddOrganizationFormProps {
   open: boolean;
@@ -27,12 +40,53 @@ export default function AddOrganizationForm({
 }: AddOrganizationFormProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
+  // 소관부서와 소관팀 배열 상태 - formData에서 초기값 설정
+  const [responsibleDepts, setResponsibleDepts] = useState<string[]>(
+    formData.responsibleDept ? [formData.responsibleDept] : [""]
+  );
+  const [responsibleTeams, setResponsibleTeams] = useState<string[]>(
+    formData.responsibleTeam ? [formData.responsibleTeam] : [""]
+  );
+  
+  // formData가 변경될 때 responsible 배열들 업데이트
+  useEffect(() => {
+    if (formData.responsibleDept) {
+      setResponsibleDepts([formData.responsibleDept]);
+    } else {
+      setResponsibleDepts([""]);
+    }
+    
+    if (formData.responsibleTeam) {
+      setResponsibleTeams([formData.responsibleTeam]);
+    } else {
+      setResponsibleTeams([""]);
+    }
+  }, [formData.responsibleDept, formData.responsibleTeam]);
+  
   // 유틸: 공통 인풋 클래스
-  const fieldCls =
-    "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800 text-base";
-  const roFieldCls =
-    "w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed text-base";
-  const labelCls = "block text-sm font-semibold text-gray-800 mb-2";
+  const labelCls = "block text-base font-medium text-gray-600 mb-1";
+
+  // 소관부서 관리 함수들
+  const addResponsibleDept = () => setResponsibleDepts(prev => [...prev, ""]);
+  const removeResponsibleDept = (index: number) => 
+    setResponsibleDepts(prev => prev.length > 1 ? prev.filter((_, i) => i !== index) : prev);
+  const updateResponsibleDept = (index: number, value: string) =>
+    setResponsibleDepts(prev => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+
+  // 소관팀 관리 함수들
+  const addResponsibleTeam = () => setResponsibleTeams(prev => [...prev, ""]);
+  const removeResponsibleTeam = (index: number) => 
+    setResponsibleTeams(prev => prev.length > 1 ? prev.filter((_, i) => i !== index) : prev);
+  const updateResponsibleTeam = (index: number, value: string) =>
+    setResponsibleTeams(prev => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
 
   const handleAdd = () => {
     onAdd();
@@ -47,238 +101,429 @@ export default function AddOrganizationForm({
 
   if (!open) return null;
 
+  // 직책코드에 따른 직책 라벨 반환 함수
+  const getJobTitleLabel = (jobCode: string) => {
+    const jobTitleMap: Record<string, string> = {
+      'CE': '대표이사',
+      'BD': '이사회 의장',
+      'CO': '준법감시인',
+      'AU': '감사실장',
+      'MK': '마케팅총괄부사장',
+      'FI': '재무총괄부사장',
+      'IT': 'IT총괄부사장',
+      'HR': '인사총괄부사장',
+      'SA': '영업총괄부사장',
+      'RS': '리스크총괄부사장'
+    };
+    return jobTitleMap[jobCode] || '';
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div 
-        className={`bg-white rounded-2xl shadow-2xl transition-all duration-300 ease-in-out ${
+        className={`border border-warm-grey-600/50 shadow-2xl transition-all duration-300 ease-in-out ${
           isExpanded 
             ? 'max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh]' 
-            : 'max-w-4xl max-h-[85vh] w-[90vw] h-[85vh]'
+            : 'max-w-3xl max-h-[85vh] w-[80vw] h-[85vh]'
         } flex flex-col`}
       >
         {/* 헤더 */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-blue-600 text-white">
-          <h2 className="text-xl font-bold">
-            {isEdit ? '조직 Master 수정' : '조직 Master 수정등록'}
-          </h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleExpand}
-              className="h-8 w-8 p-0 text-white hover:bg-blue-700"
-            >
-              {isExpanded ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0 text-white hover:bg-blue-700"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+        <div className="flex justify-between items-center flex-shrink-0">
+          {/* 헤더 내용 */}
+          <div className="flex justify-between items-center w-full relative z-50 border-b border-white/20 py-1 px-2 relative bg-white/10 backdrop-blur-md">
+            <div className="flex items-center">
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleExpand}
+                className="h-7 w-7 p-0 text-white bg-gray-700/30 cursor-pointer hover:bg-gray-700/40"
+              >
+                {isExpanded ? (
+                  <Minimize2 className="h-5 w-5 text-white font-semibold" />
+                ) : (
+                  <Maximize2 className="h-5 w-5 text-white font-semibold" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+                className="h-7 w-7 p-0 text-white bg-gray-700/30 cursor-pointer hover:bg-gray-700/40"
+              >
+                <X className="h-5 w-5 text-white font-semibold" />
+              </Button>
+            </div>
           </div>
         </div>
         
         {/* 컨텐츠 */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto bg-white">
+          {/* =============== 제목 =============== */}
+          <div className="py-4 bg-[#f7f7f8] border-b border-gray-200">
+            <div className="px-6 border-l-4 border-[#EC6437]">
+              <h2 className="text-xl font-bold text-[#EC6437]">
+                {isEdit ? '직책 및 조직 수정등록' : '직책 및 조직 신규등록'}
+              </h2>
+            </div>
+          </div>
+
+          <div className="space-y-2 bg-white px-2">
             {/* =============== 직책 정보 =============== */}
-            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 직책 정보
               </h3>
 
-              <div className="grid grid-cols-12 gap-6">
+              <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
                     직책코드 <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={formData.jobCode ?? ""}
-                    onChange={(e) => onFormDataChange("jobCode", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="CE">CE - 대표이사</option>
-                    <option value="BD">BD - 이사회 의장</option>
-                    <option value="CO">CO - 준법감시인</option>
-                    <option value="AU">AU - 감사실장</option>
-                    <option value="MK">MK - 마케팅총괄부사장</option>
-                    <option value="FI">FI - 재무총괄부사장</option>
-                    <option value="IT">IT - IT총괄부사장</option>
-                    <option value="HR">HR - 인사총괄부사장</option>
-                    <option value="SA">SA - 영업총괄부사장</option>
-                    <option value="RS">RS - 리스크총괄부사장</option>
-                  </select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full px-4 justify-between"
+                      >
+                        <span className="truncate flex-1 text-left">
+                          {formData.jobCode ? `${formData.jobCode} - ${getJobTitleLabel(formData.jobCode)}` : "선택하세요"}
+                        </span>
+                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-full">
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "")}
+                        className="cursor-pointer"
+                      >
+                        선택하세요
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "CE")}
+                        className="cursor-pointer"
+                      >
+                        CE - 대표이사
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "BD")}
+                        className="cursor-pointer"
+                      >
+                        BD - 이사회 의장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "CO")}
+                        className="cursor-pointer"
+                      >
+                        CO - 준법감시인
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "AU")}
+                        className="cursor-pointer"
+                      >
+                        AU - 감사실장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "MK")}
+                        className="cursor-pointer"
+                      >
+                        MK - 마케팅총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "FI")}
+                        className="cursor-pointer"
+                      >
+                        FI - 재무총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "IT")}
+                        className="cursor-pointer"
+                      >
+                        IT - IT총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "HR")}
+                        className="cursor-pointer"
+                      >
+                        HR - 인사총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "SA")}
+                        className="cursor-pointer"
+                      >
+                        SA - 영업총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobCode", "RS")}
+                        className="cursor-pointer"
+                      >
+                        RS - 리스크총괄부사장
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
                     직책 <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={formData.jobTitle ?? ""}
-                    onChange={(e) => onFormDataChange("jobTitle", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="대표이사">대표이사</option>
-                    <option value="이사회 의장">이사회 의장</option>
-                    <option value="준법감시인">준법감시인</option>
-                    <option value="감사실장">감사실장</option>
-                    <option value="마케팅총괄부사장">마케팅총괄부사장</option>
-                    <option value="재무총괄부사장">재무총괄부사장</option>
-                    <option value="IT총괄부사장">IT총괄부사장</option>
-                    <option value="인사총괄부사장">인사총괄부사장</option>
-                    <option value="영업총괄부사장">영업총괄부사장</option>
-                    <option value="리스크총괄부사장">리스크총괄부사장</option>
-                  </select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full px-4 justify-between"
+                      >
+                        <span className="truncate flex-1 text-left">
+                          {formData.jobTitle || "선택하세요"}
+                        </span>
+                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-full">
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "")}
+                        className="cursor-pointer"
+                      >
+                        선택하세요
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "대표이사")}
+                        className="cursor-pointer"
+                      >
+                        대표이사
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "이사회 의장")}
+                        className="cursor-pointer"
+                      >
+                        이사회 의장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "준법감시인")}
+                        className="cursor-pointer"
+                      >
+                        준법감시인
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "감사실장")}
+                        className="cursor-pointer"
+                      >
+                        감사실장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "마케팅총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        마케팅총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "재무총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        재무총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "IT총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        IT총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "인사총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        인사총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "영업총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        영업총괄부사장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("jobTitle", "리스크총괄부사장")}
+                        className="cursor-pointer"
+                      >
+                        리스크총괄부사장
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </section>
 
             {/* =============== 조직 정보 =============== */}
-            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 조직 정보
               </h3>
 
-              <div className="grid grid-cols-12 gap-6">
+              <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
                     조직구분 <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={formData.orgDivision ?? ""}
-                    onChange={(e) => onFormDataChange("orgDivision", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="대표이사">대표이사</option>
-                    <option value="이사회 의장">이사회 의장</option>
-                    <option value="경영지원">경영지원</option>
-                    <option value="감사실">감사실</option>
-                    <option value="금융영업">금융영업</option>
-                  </select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full px-4 justify-between"
+                      >
+                        <span className="truncate flex-1 text-left">
+                          {formData.orgDivision || "선택하세요"}
+                        </span>
+                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-full">
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "")}
+                        className="cursor-pointer"
+                      >
+                        선택하세요
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "대표이사")}
+                        className="cursor-pointer"
+                      >
+                        대표이사
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "이사회 의장")}
+                        className="cursor-pointer"
+                      >
+                        이사회 의장
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "경영지원")}
+                        className="cursor-pointer"
+                      >
+                        경영지원
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "감사실")}
+                        className="cursor-pointer"
+                      >
+                        감사실
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onFormDataChange("orgDivision", "금융영업")}
+                        className="cursor-pointer"
+                      >
+                        금융영업
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
                     관리대상조직 <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    value={formData.managedOrg ?? ""}
-                    onChange={(e) => onFormDataChange("managedOrg", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="대표이사">대표이사</option>
-                    <option value="이사회 의장">이사회 의장</option>
-                    <option value="준법감시인">준법감시인</option>
-                    <option value="감사실">감사실</option>
-                    <option value="마케팅총괄부문">마케팅총괄부문</option>
-                    <option value="재무총괄부문">재무총괄부문</option>
-                    <option value="IT총괄부문">IT총괄부문</option>
-                    <option value="인사총괄부문">인사총괄부문</option>
-                    <option value="영업총괄부문">영업총괄부문</option>
-                    <option value="리스크총괄부문">리스크총괄부문</option>
-                  </select>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="관리대상조직을 입력하세요"
+                      value={formData.managedOrg ?? ""}
+                      onChange={(e) => onFormDataChange("managedOrg", e.target.value)}
+                      className="pr-10"
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+
+                {/* 소관부서 */}
+                <div className="col-span-12 md:col-span-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={labelCls}>소관부서</label>
+                    <AddButton onClick={addResponsibleDept} />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {responsibleDepts.map((dept, idx) => (
+                      <div key={`org-dept-${idx}`} className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <Input
+                            type="text"
+                            placeholder="소관부서를 입력하세요"
+                            value={dept}
+                            onChange={(e) => updateResponsibleDept(idx, e.target.value)}
+                            className="pr-10"
+                          />
+                          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        <DeleteButton onClick={() => removeResponsibleDept(idx)} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 소관팀 */}
+                <div className="col-span-12 md:col-span-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={labelCls}>소관팀</label>
+                    <AddButton onClick={addResponsibleTeam} />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {responsibleTeams.map((team, idx) => (
+                      <div key={`org-team-${idx}`} className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <Input
+                            type="text"
+                            placeholder="소관팀을 입력하세요"
+                            value={team}
+                            onChange={(e) => updateResponsibleTeam(idx, e.target.value)}
+                            className="pr-10"
+                          />
+                          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        <DeleteButton onClick={() => removeResponsibleTeam(idx)} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* =============== 소관 정보 =============== */}
-            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
-                소관 정보
+            {/* =============== 책무 및 책무상세 =============== */}
+           
+            {/* =============== 대상기간 =============== */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                대상기간
               </h3>
 
-              <div className="grid grid-cols-12 gap-6">
+              <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>소관부서</label>
-                  <select
-                    value={formData.responsibleDept ?? ""}
-                    onChange={(e) => onFormDataChange("responsibleDept", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="전사">전사</option>
-                    <option value="준법감시실">준법감시실</option>
-                    <option value="기관마케팅본부">기관마케팅본부</option>
-                    <option value="디지털마케팅실">디지털마케팅실</option>
-                    <option value="상품전략본부">상품전략본부</option>
-                    <option value="재무본부">재무본부</option>
-                    <option value="IT본부">IT본부</option>
-                    <option value="인사본부">인사본부</option>
-                    <option value="영업본부">영업본부</option>
-                    <option value="리스크본부">리스크본부</option>
-                  </select>
+                  <label className={labelCls}>
+                    적용시작일자 <span className="text-red-500">*</span>
+                  </label>
+                  <StartDateFilter
+                    startDate={formData.startDate ?? ""}
+                    onStartDateChange={(date) => onFormDataChange("startDate", date)}
+                    placeholder="연도-월-일"
+                  />
                 </div>
 
                 <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>소관팀</label>
-                  <select
-                    value={formData.responsibleTeam ?? ""}
-                    onChange={(e) => onFormDataChange("responsibleTeam", e.target.value)}
-                    className={fieldCls}
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="전사">전사</option>
-                    <option value="법무팀">법무팀</option>
-                    <option value="법인마케팅팀">법인마케팅팀</option>
-                    <option value="기관마케팅팀">기관마케팅팀</option>
-                    <option value="WM연금마케팅팀">WM연금마케팅팀</option>
-                    <option value="WM연금사업팀">WM연금사업팀</option>
-                    <option value="카톡마케팅팀">카톡마케팅팀</option>
-                    <option value="마케팅솔루션팀">마케팅솔루션팀</option>
-                    <option value="ETF마케팅팀">ETF마케팅팀</option>
-                    <option value="상품팀">상품팀</option>
-                    <option value="영업지원팀">영업지원팀</option>
-                    <option value="재무팀">재무팀</option>
-                    <option value="회계팀">회계팀</option>
-                    <option value="시스템개발팀">시스템개발팀</option>
-                    <option value="인프라팀">인프라팀</option>
-                    <option value="인사팀">인사팀</option>
-                    <option value="교육팀">교육팀</option>
-                    <option value="기관영업팀">기관영업팀</option>
-                    <option value="개인영업팀">개인영업팀</option>
-                    <option value="리스크관리팀">리스크관리팀</option>
-                    <option value="규정준수팀">규정준수팀</option>
-                  </select>
+                  <label className={labelCls}>
+                    적용종료일자 <span className="text-red-500">*</span>
+                  </label>
+                  <EndDateFilter
+                    endDate={formData.endDate ?? ""}
+                    onEndDateChange={(date) => onFormDataChange("endDate", date)}
+                    placeholder="연도-월-일"
+                  />
                 </div>
               </div>
             </section>
 
             {/* =============== 액션 버튼 =============== */}
-            <div className="flex flex-wrap gap-3 justify-center pt-4 border-t border-gray-200">
-              <Button
-                onClick={handleAdd}
-                disabled={isLoading || disabled}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                    {isEdit ? '수정 중...' : '저장 중...'}
-                  </>
-                ) : (
-                  isEdit ? '수정' : '저장'
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isLoading}
-                className="px-8 py-3"
-              >
-                취소
-              </Button>
+            <div className="flex flex-wrap gap-3 justify-end pt-3 border-t border-gray-200 pr-4 pb-4 sticky bottom-0 bg-white/30 backdrop-blur-sm">
+              <SaveButton onClick={handleAdd} disabled={isLoading || disabled} />
+              <CancelButton onClick={() => onOpenChange(false)} disabled={isLoading} />
             </div>
           </div>
         </div>

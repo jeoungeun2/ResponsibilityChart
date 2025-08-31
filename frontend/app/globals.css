@@ -48,6 +48,10 @@
   --color-brand-300: var(--brand-300);
   --color-brand-400: var(--brand-400);
   --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
   
   /* 브랜드 그레이 색상 */
   --color-brand-grey-50: var(--brand-grey-50);
@@ -60,6 +64,30 @@
   --color-brand-grey-700: var(--brand-grey-700);
   --color-brand-grey-800: var(--brand-grey-800);
   --color-brand-grey-900: var(--brand-grey-900);
+  
+  /* Warm Grey 색상 */
+  --color-warm-grey-50: var(--warm-grey-50);
+  --color-warm-grey-100: var(--warm-grey-100);
+  --color-warm-grey-200: var(--warm-grey-200);
+  --color-warm-grey-300: var(--warm-grey-300);
+  --color-warm-grey-400: var(--warm-grey-400);
+  --color-warm-grey-500: var(--warm-grey-500);
+  --color-warm-grey-600: var(--warm-grey-600);
+  --color-warm-grey-700: var(--warm-grey-700);
+  --color-warm-grey-800: var(--warm-grey-800);
+  --color-warm-grey-900: var(--warm-grey-900);
+  
+  /* Wine 색상 */
+  --color-wine-50: var(--wine-50);
+  --color-wine-100: var(--wine-100);
+  --color-wine-200: var(--wine-200);
+  --color-wine-300: var(--wine-300);
+  --color-wine-400: var(--wine-400);
+  --color-wine-500: var(--wine-500);
+  --color-wine-600: var(--wine-600);
+  --color-wine-700: var(--wine-700);
+  --color-wine-800: var(--wine-800);
+  --color-wine-900: var(--wine-900);
   
   /* 추가 브랜드 색상 */
   --color-tangerine: var(--tangerine);
@@ -107,6 +135,10 @@
   --brand-300: #FFAA72;  /* 밝은 주황색 */
   --brand-400: #FE7C39;  /* 중간 주황색 */
   --brand-500: #FD5108;  /* 진한 주황색 (메인 브랜드) */
+  --brand-600: #E64700;  /* 더 진한 주황색 */
+  --brand-700: #C73D00;  /* 어두운 주황색 */
+  --brand-800: #A83300;  /* 더 어두운 주황색 */
+  --brand-900: #8A2900;  /* 매우 어두운 주황색 */
   
   /* 브랜드 그레이 색상 */
   --brand-grey-50: #F5F7F8;   /* 매우 연한 회색 */
@@ -119,6 +151,30 @@
   --brand-grey-700: #6F7785;  /* 어두운 회색 */
   --brand-grey-800: #5A616E;  /* 더 어두운 회색 */
   --brand-grey-900: #3F4551;  /* 매우 어두운 회색 */
+  
+  /* Warm Grey 색상 */
+  --warm-grey-50: #F5F6F4;    /* 매우 연한 웜 그레이 */
+  --warm-grey-100: #E8EBE6;   /* 연한 웜 그레이 */
+  --warm-grey-200: #DCDDDB;   /* 밝은 웜 그레이 */
+  --warm-grey-300: #CFD4CA;   /* 중간 밝은 웜 그레이 */
+  --warm-grey-400: #C4C4C3;   /* 중간 웜 그레이 */
+  --warm-grey-500: #ABACAA;   /* 진한 웜 그레이 */
+  --warm-grey-600: #939392;   /* 더 진한 웜 그레이 */
+  --warm-grey-700: #7A7B7A;   /* 어두운 웜 그레이 */
+  --warm-grey-800: #626261;   /* 더 어두운 웜 그레이 */
+  --warm-grey-900: #494949;   /* 매우 어두운 웜 그레이 */
+  
+  /* Wine 색상 */
+  --wine-50: #66545E;     /* 연한 와인 */
+  --wine-100: #5B4B54;    /* 밝은 와인 */
+  --wine-200: #51434B;    /* 중간 밝은 와인 */
+  --wine-300: #473A41;    /* 중간 와인 */
+  --wine-400: #3D3238;    /* 진한 와인 */
+  --wine-500: #332A2F;    /* 더 진한 와인 */
+  --wine-600: #282125;    /* 어두운 와인 */
+  --wine-700: #1E191C;    /* 더 어두운 와인 */
+  --wine-800: #141012;    /* 매우 어두운 와인 */
+  --wine-900: #0A0809;    /* 가장 어두운 와인 */
   
   /* 추가 브랜드 색상 */
   --tangerine: #FF9F00;  /* 탄저린 오렌지 */

@@ -26,10 +26,10 @@ export default function CommonBreadcrumb() {
       isActive: false
     })
     
-    // Management Action
+    // 관리조치 Master
     if (segments.includes('management-action')) {
       breadcrumbs.push({
-        label: 'Management Action',
+        label: '관리조치 Master',
         href: '/management-action',
         isActive: false
       })
@@ -37,7 +37,7 @@ export default function CommonBreadcrumb() {
       // executive
       if (segments.includes('executive')) {
         breadcrumbs.push({
-          label: 'Executive',
+          label: '임원별 관리조치 Master',
           href: '/management-action/executive',
           isActive: true
         })
@@ -46,7 +46,7 @@ export default function CommonBreadcrumb() {
       // department
       if (segments.includes('department')) {
         breadcrumbs.push({
-          label: 'Department',
+          label: '부서별 관리조치 Master',
           href: '/management-action/department',
           isActive: true
         })

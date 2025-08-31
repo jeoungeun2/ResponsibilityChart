@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import H1 from '@/components/layouts/h1';
 import { ComplexDataTable } from '@/components/ui/complex-data-table';
 import { Pagination } from '@/components/ui/pagination';
@@ -12,140 +12,18 @@ import DeleteIcon from '@/components/ui/delete-icon';
 import { ManagementActionData, sampleManagementActionData } from '@/data/executive-management-action-data';
 import AddManagementActionForm from './_components/AddManagementActionForm';
 
-// 컬럼 정의 (서브컬럼 포함)
-const columns: any[] = [
-  {
-    key: "name" as keyof ManagementActionData,
-    header: "성명",
-    visible: true,
-    width: "w-24"
-  },
-  {
-    key: "managedOrg" as keyof ManagementActionData,
-    header: "관리대상조직",
-    visible: true,
-    width: "w-32"
-  },
-  {
-    key: "dutyCode" as keyof ManagementActionData,
-    header: "책무코드",
-    visible: true,
-    width: "w-40"
-  },
-  {
-    key: "duty" as keyof ManagementActionData,
-    header: "책무",
-    visible: true,
-    width: "w-80"
-  },
-  {
-    key: "dutyDetail" as keyof ManagementActionData,
-    header: "책무 세부내용",
-    visible: true,
-    width: "w-80"
-  },
-  {
-    key: "actionCode" as keyof ManagementActionData,
-    header: "관리조치코드",
-    visible: true,
-    width: "w-48"
-  },
-  {
-    key: "action" as keyof ManagementActionData,
-    header: "관리조치",
-    visible: true,
-    width: "w-80"
-  },
-  {
-    key: "actionTypes" as keyof ManagementActionData,
-    header: "관리조치 유형",
-    visible: true,
-    subColumns: [
-      {
-        key: "standardCheck",
-        header: "기준마련 여부 점검",
-        width: "w-36"
-      },
-      {
-        key: "executionCheck",
-        header: "기준의 효과적 집행·운영 여부 점검",
-        width: "w-36"
-      },
-      {
-        key: "complianceCheck",
-        header: "임직원 준수 여부 점검",
-        width: "w-36"
-      },
-      {
-        key: "managementAction",
-        header: "관리사항 및 미흡사항 조치",
-        width: "w-36"
-      },
-      {
-        key: "implementationCheck",
-        header: "조치 이행 여부 점검",
-        width: "w-36"
-      },
-      {
-        key: "educationSupport",
-        header: "교육 및 훈련지원",
-        width: "w-36"
-      },
-      {
-        key: "investigationReport",
-        header: "조사 및 제재조치 결과보고",
-        width: "w-36"
-      }
-    ]
-  },
-  {
-    key: "detailedActions" as keyof ManagementActionData,
-    header: "관리조치 세부활동",
-    visible: true,
-    width: "w-80"
-  },
-  {
-    key: "checkCycle" as keyof ManagementActionData,
-    header: "점검주기",
-    visible: true,
-    width: "w-24"
-  },
-  {
-    key: "evidence" as keyof ManagementActionData,
-    header: "증빙",
-    visible: true,
-    width: "w-24"
-  },
-  {
-    key: "actions",
-    header: "액션",
-    visible: true,
-    width: "w-32",
-    render: (value: any, row: any) => (
-      <div className="flex items-center space-x-2">
-        <EditIcon 
-          className="h-4 w-4" 
-          onClick={() => handleEdit(row)}
-        />
-        <DeleteIcon 
-          className="h-4 w-4" 
-          onClick={() => console.log('삭제:', row.id)}
-        />
-      </div>
-    )
-  }
-];
+// 컬럼 정의는 컴포넌트 내부로 이동하여 handleEdit 함수에 접근할 수 있도록 함
 
 export default function ExecutivePage() {
   const { isSidebarCollapsed } = useSidebar();
-  const [tableColumns, setTableColumns] = useState(columns);
+  const [tableColumns, setTableColumns] = useState<any[]>([]);
   
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    name: '',
-    managedOrg: '',
-    dutyCode: '',
-    actionCode: ''
+    executive: '',
+    duty: '',
+    dutyDetail: '',
+    managementActionItem: ''
   });
 
   // 추가 폼 관련 상태 관리
@@ -156,33 +34,39 @@ export default function ExecutivePage() {
 
   // 필터 옵션 데이터
   const filterOptions = {
-    name: [
+    executive: [
+      { value: '전체', label: '전체' },
       { value: '김철수', label: '김철수' },
       { value: '이영희', label: '이영희' },
       { value: '박민수', label: '박민수' },
       { value: '정수진', label: '정수진' },
       { value: '한지훈', label: '한지훈' }
     ],
-    managedOrg: [
-      { value: '경영기획팀', label: '경영기획팀' },
-      { value: '인사팀', label: '인사팀' },
-      { value: '재무팀', label: '재무팀' },
-      { value: '영업팀', label: '영업팀' },
-      { value: '개발팀', label: '개발팀' }
+    duty: [
+      { value: '전체', label: '전체' },
+      { value: '경영전략', label: '경영전략' },
+      { value: '인사관리', label: '인사관리' },
+      { value: '재무관리', label: '재무관리' },
+      { value: '영업관리', label: '영업관리' },
+      { value: '개발관리', label: '개발관리' }
     ],
-    dutyCode: [
-      { value: 'D001', label: 'D001 - 경영전략' },
-      { value: 'D002', label: 'D002 - 인사관리' },
-      { value: 'D003', label: 'D003 - 재무관리' },
-      { value: 'D004', label: 'D004 - 영업관리' },
-      { value: 'D005', label: 'D005 - 개발관리' }
+    dutyDetail: [
+      { value: '전체', label: '전체' },
+      { value: '전략수립', label: '전략수립' },
+      { value: '인력관리', label: '인력관리' },
+      { value: '예산관리', label: '예산관리' },
+      { value: '고객관리', label: '고객관리' },
+      { value: '품질관리', label: '품질관리' }
     ],
-    actionCode: [
-      { value: 'A001', label: 'A001 - 점검' },
-      { value: 'A002', label: 'A002 - 조치' },
-      { value: 'A003', label: 'A003 - 교육' },
-      { value: 'A004', label: 'A004 - 보고' },
-      { value: 'A005', label: 'A005 - 평가' }
+    managementActionItem: [
+      { value: '전체', label: '전체' },
+      { value: '기준마련', label: '기준마련' },
+      { value: '집행운영', label: '집행운영' },
+      { value: '준수점검', label: '준수점검' },
+      { value: '조치사항', label: '조치사항' },
+      { value: '이행점검', label: '이행점검' },
+      { value: '교육지원', label: '교육지원' },
+      { value: '조사보고', label: '조사보고' }
     ]
   };
    
@@ -197,6 +81,19 @@ export default function ExecutivePage() {
   const handleEdit = (row: any) => {
     setEditingRow(row);
     setIsEditMode(true);
+    
+    // actionTypes 객체를 배열로 변환
+    const actionTypesArray = [];
+    if (row.actionTypes) {
+      if (row.actionTypes.standardCheck) actionTypesArray.push("기준마련 여부 점검");
+      if (row.actionTypes.executionCheck) actionTypesArray.push("기준의 효과적 집행·운영 여부 점검");
+      if (row.actionTypes.complianceCheck) actionTypesArray.push("임직원 준수 여부 점검");
+      if (row.actionTypes.managementAction) actionTypesArray.push("관리사항 및 미흡사항 조치");
+      if (row.actionTypes.implementationCheck) actionTypesArray.push("조치 이행 여부 점검");
+      if (row.actionTypes.educationSupport) actionTypesArray.push("교육 및 훈련지원");
+      if (row.actionTypes.investigationReport) actionTypesArray.push("조사 및 제재조치 결과보고");
+    }
+    
     // 기존 데이터를 폼에 설정
     setFormData({
       dutyName: row.duty || '',
@@ -205,13 +102,142 @@ export default function ExecutivePage() {
       responsibleDepartment: '전체',
       responsibleTeam: '전체',
       managementAction: row.action || '',
-      actionType: '전체',
+      actionTypes: actionTypesArray,
       detailedAction: row.detailedActions || '',
       checkCycle: row.checkCycle || '',
       evidence: row.evidence || ''
     });
     setShowAddForm(true);
   };
+
+  // 컬럼 정의 (서브컬럼 포함) - handleEdit 함수 이후에 정의하여 접근 가능
+  const columns: any[] = [
+    {
+      key: "name" as keyof ManagementActionData,
+      header: "성명",
+      visible: true,
+      width: "w-24"
+    },
+    {
+      key: "managedOrg" as keyof ManagementActionData,
+      header: "관리대상조직",
+      visible: true,
+      width: "w-32"
+    },
+    {
+      key: "dutyCode" as keyof ManagementActionData,
+      header: "책무코드",
+      visible: true,
+      width: "w-40"
+    },
+    {
+      key: "duty" as keyof ManagementActionData,
+      header: "책무",
+      visible: true,
+      width: "w-80"
+    },
+    {
+      key: "dutyDetail" as keyof ManagementActionData,
+      header: "책무 세부내용",
+      visible: true,
+      width: "w-80"
+    },
+    {
+      key: "actionCode" as keyof ManagementActionData,
+      header: "관리조치코드",
+      visible: true,
+      width: "w-48"
+    },
+    {
+      key: "action" as keyof ManagementActionData,
+      header: "관리조치",
+      visible: true,
+      width: "w-80"
+    },
+    {
+      key: "actionTypes" as keyof ManagementActionData,
+      header: "관리조치 유형",
+      visible: true,
+      subColumns: [
+        {
+          key: "standardCheck",
+          header: "기준마련 여부 점검",
+          width: "w-36"
+        },
+        {
+          key: "executionCheck",
+          header: "기준의 효과적 집행·운영 여부 점검",
+          width: "w-36"
+        },
+        {
+          key: "complianceCheck",
+          header: "임직원 준수 여부 점검",
+          width: "w-36"
+        },
+        {
+          key: "managementAction",
+          header: "관리사항 및 미흡사항 조치",
+          width: "w-36"
+        },
+        {
+          key: "implementationCheck",
+          header: "조치 이행 여부 점검",
+          width: "w-36"
+        },
+        {
+          key: "educationSupport",
+          header: "교육 및 훈련지원",
+          width: "w-36"
+        },
+        {
+          key: "investigationReport",
+          header: "조사 및 제재조치 결과보고",
+          width: "w-36"
+        }
+      ]
+    },
+    {
+      key: "detailedActions" as keyof ManagementActionData,
+      header: "관리조치 세부활동",
+      visible: true,
+      width: "w-80"
+    },
+    {
+      key: "checkCycle" as keyof ManagementActionData,
+      header: "점검주기",
+      visible: true,
+      width: "w-24"
+    },
+    {
+      key: "evidence" as keyof ManagementActionData,
+      header: "증빙",
+      visible: true,
+      width: "w-24"
+    },
+    {
+      key: "actions",
+      header: "액션",
+      visible: true,
+      width: "w-32",
+      render: (value: any, row: any) => (
+        <div className="flex items-center space-x-2">
+          <EditIcon 
+            className="h-4 w-4" 
+            onClick={() => handleEdit(row)}
+          />
+          <DeleteIcon 
+            className="h-4 w-4" 
+            onClick={() => console.log('삭제:', row.id)}
+          />
+        </div>
+      )
+    }
+  ];
+
+  // columns가 정의된 후 tableColumns 초기화
+  useEffect(() => {
+    setTableColumns(columns);
+  }, []);
 
   // 추가 버튼 클릭 핸들러
   const handleShowAddForm = () => {
@@ -238,7 +264,7 @@ export default function ExecutivePage() {
   };
 
   // 추가 폼 관련 핸들러들
-  const handleFormDataChange = (field: string, value: string) => {
+  const handleFormDataChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -296,26 +322,26 @@ export default function ExecutivePage() {
           filterOptions={filterOptions}
           filters={[
             {
-              key: "name",
-              label: "성명",
+              key: "executive",
+              label: "임원",
               type: "dropdown" as const,
               width: "w-32"
             },
             {
-              key: "managedOrg",
-              label: "관리대상조직",
+              key: "duty",
+              label: "책무",
               type: "dropdown" as const,
-              width: "w-40"
+              width: "w-32"
             },
             {
-              key: "dutyCode",
-              label: "책무코드",
+              key: "dutyDetail",
+              label: "책무상세",
               type: "dropdown" as const,
-              width: "w-40"
+              width: "w-32"
             },
             {
-              key: "actionCode",
-              label: "관리조치코드",
+              key: "managementActionItem",
+              label: "관리조치 항목",
               type: "dropdown" as const,
               width: "w-40"
             }

@@ -3,11 +3,68 @@
 import { useState } from 'react';
 import H1 from '@/components/layouts/h1';
 import CommonBreadcrumb from '../_components/Breadcrumb';
-import Header from '../_components/Header';
+import Header from './_components/Header';
 import { useSidebar } from '@/config/providers';
+import { SearchFilter, FilterConfig } from '@/components/ui/SearchFilter';
+import { DownloadButton } from '@/components/ui/DownloadButton';
+import { PrintButton } from '@/components/ui/PrintButton';
 
 export default function SystemDiagramPage() {
   const { isSidebarCollapsed } = useSidebar();
+  
+  // 필터 상태 관리
+  const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
+    managementOrg: '',
+    category: '',
+    executive: '',
+    dutyCode: '',
+    allocationDate: ''
+  });
+
+  // 필터 설정
+  const filters: FilterConfig[] = [
+    {
+      key: 'managementOrg',
+      label: '관리조직LV1',
+      type: 'input',
+      placeholder: '관리조직을 입력하세요'
+    },
+    {
+      key: 'category',
+      label: '구분',
+      type: 'input',
+      placeholder: '구분을 입력하세요'
+    },
+    {
+      key: 'executive',
+      label: '책무배분임원',
+      type: 'input',
+      placeholder: '임원명을 입력하세요'
+    },
+    {
+      key: 'dutyCode',
+      label: '책무코드',
+      type: 'input',
+      placeholder: '책무코드를 입력하세요'
+    },
+    {
+      key: 'allocationDate',
+      label: '책무배분일자',
+      type: 'input',
+      placeholder: '날짜를 입력하세요'
+    }
+  ];
+
+  // 필터 옵션 (input 타입이므로 빈 객체)
+  const filterOptions = {};
+
+  // 필터 변경 핸들러
+  const handleFilterChange = (key: string, value: string) => {
+    setSearchFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
 
   return (
     <div className="relative">
@@ -31,60 +88,45 @@ export default function SystemDiagramPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 pt-14 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="System Diagram" />
+        <H1 
+          title="책무체계도 작성" 
+          rightContent={
+            <div className="flex items-center space-x-3">
+              <DownloadButton 
+                fileType="pptx"
+                onDownload={() => {
+                  console.log("시스템 다이어그램 PPTX 다운로드")
+                  // 여기에 실제 다운로드 로직 구현
+                }}
+              />
+              <PrintButton 
+                onPrint={() => {
+                  console.log("시스템 다이어그램 인쇄")
+                  // 여기에 실제 인쇄 로직 구현
+                }}
+              />
+            </div>
+          }
+        />
+        
+        {/* SearchFilter 컴포넌트 추가 */}
+        <SearchFilter
+          searchFilters={searchFilters}
+          onFilterChange={handleFilterChange}
+          filterOptions={filterOptions}
+          filters={filters}
+        />
         
         {/* 시스템 다이어그램 컨테이너 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">책임 관리 시스템 구조도</h2>
-            <div className="flex items-center space-x-2">
-              <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                확대
-              </button>
-              <button className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">
-                축소
-              </button>
-            </div>
-          </div>
-          
-          {/* 다이어그램 영역 */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-            <div className="max-w-md mx-auto">
-              <svg className="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">시스템 다이어그램</h3>
-              <p className="text-gray-500 mb-4">
-                책임 관리 시스템의 전체 구조와 데이터 흐름을 시각적으로 표현합니다.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">입력 단계</div>
-                  <div className="text-gray-600">데이터 수집 및 검증</div>
-                </div>
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">처리 단계</div>
-                  <div className="text-gray-600">비즈니스 로직 처리</div>
-                </div>
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">출력 단계</div>
-                  <div className="text-gray-600">결과 생성 및 저장</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* 설명 텍스트 */}
-          <div className="mt-6 text-sm text-gray-600">
-            <p className="mb-2">
-              • 이 다이어그램은 책임 관리 시스템의 핵심 구성 요소와 데이터 흐름을 보여줍니다.
-            </p>
-            <p className="mb-2">
-              • 각 단계별로 입력, 처리, 출력 과정을 명확하게 구분하여 표시합니다.
-            </p>
-            <p>
-              • 시스템의 전체적인 구조를 파악하고 개선점을 식별하는 데 활용할 수 있습니다.
-            </p>
+        <div className="bg-white border border-gray-200 min-h-[400px] mb-12">
+          {/* 조직도 이미지 */}
+          <div className="w-full max-w-6xl overflow-auto">
+            <img 
+              src="/images/체계도.png" 
+              alt="조직 체계도" 
+              className="w-full h-auto object-contain"
+              style={{ minHeight: '600px' }}
+            />
           </div>
         </div>
       </div>

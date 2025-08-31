@@ -10,6 +10,8 @@ import { useSidebar } from '@/config/providers';
 import { ResponsibilityCheckManagementData, responsibilityCheckManagementData } from '@/data/responsibility-check-management-data';
 import ResponsibilityCheckModal from '@/components/ResponsibilityCheckModal';
 import StatusCard from '@/components/StatusCard';
+import StatusBadge from '@/components/ui/StatusBadge';
+import ActionButton from '@/components/ui/ActionButton';
 
 export default function ManagementPage() {
   const { isSidebarCollapsed } = useSidebar();
@@ -92,37 +94,21 @@ export default function ManagementPage() {
       key: "implementationStatus" as keyof ResponsibilityCheckManagementData,
       header: "이행상태",
       visible: true,
-      render: (value: any, row: any) => {
-        const status = row.implementationStatus;
-        let bgColor = '';
-        if (status === '승인요청') bgColor = 'bg-blue-100 text-blue-800';
-        else if (status === '미완료') bgColor = 'bg-red-100 text-red-800';
-        else if (status === '완료') bgColor = 'bg-green-100 text-green-800';
-        
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${bgColor}`}>
-            {status}
-          </span>
-        );
-      }
+      render: (value: any, row: any) => (
+        <div className="min-w-[80px]">
+          <StatusBadge status={row.implementationStatus} />
+        </div>
+      )
     },
     {
       key: "inspectionStatus" as keyof ResponsibilityCheckManagementData,
       header: "점검상태",
       visible: true,
-      render: (value: any, row: any) => {
-        const status = row.inspectionStatus;
-        let bgColor = '';
-        if (status === '완료') bgColor = 'bg-green-100 text-green-800';
-        else if (status === '진행중') bgColor = 'bg-orange-100 text-orange-800';
-        else if (status === '미점검') bgColor = 'bg-red-100 text-red-800';
-        
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${bgColor}`}>
-            {status}
-          </span>
-        );
-      }
+      render: (value: any, row: any) => (
+        <div className="min-w-[70px]">
+          <StatusBadge status={row.inspectionStatus} />
+        </div>
+      )
     },
     {
       key: "inspectionResult" as keyof ResponsibilityCheckManagementData,
@@ -133,11 +119,17 @@ export default function ManagementPage() {
         if (result === '-') return <span className="text-gray-500">-</span>;
         
         let bgColor = '';
-        if (result === '적정') bgColor = 'bg-blue-100 text-blue-800';
-        else if (result === '보완필요') bgColor = 'bg-yellow-100 text-yellow-800';
+        let borderColor = '';
+        if (result === '적정') {
+          bgColor = 'bg-blue-100 text-blue-800';
+          borderColor = 'border-blue-300';
+        } else if (result === '보완필요') {
+          bgColor = 'bg-red-100 text-red-800';
+          borderColor = 'border-red-300';
+        }
         
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${bgColor}`}>
+          <span className={`px-2 py-1 text-xs font-medium w-[60px] text-center inline-block border border-dashed ${bgColor} ${borderColor}`}>
             {result}
           </span>
         );
@@ -151,25 +143,16 @@ export default function ManagementPage() {
         const inspectionStatus = row.inspectionStatus;
         const implementationStatus = row.implementationStatus;
         
-        if (inspectionStatus === '완료' && implementationStatus === '승인요청') {
-          return (
-            <button 
-              className="px-3 py-1 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300"
-              onClick={() => handleActionClick(row, 'view')}
-            >
-              상세보기
-            </button>
-          );
-        } else {
-          return (
-            <button 
-              className="px-3 py-1 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300"
-              onClick={() => handleActionClick(row, 'inspect')}
-            >
-              점검하기
-            </button>
-            );
-        }
+        const actionType = (inspectionStatus === '완료' && implementationStatus === '승인요청') 
+          ? 'view' as const 
+          : 'inspect' as const;
+        
+        return (
+          <ActionButton
+            actionType={actionType}
+            onClick={() => handleActionClick(row, actionType)}
+          />
+        );
       }
     }
   ];
@@ -204,7 +187,7 @@ export default function ManagementPage() {
     },
     {
       key: "targetYear",
-      label: "대상연월",
+      label: "대상연도",
       type: "dropdown" as const,
       width: "w-32"
     },
@@ -316,25 +299,45 @@ export default function ManagementPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 pt-14 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="관리조치이행점검" />
+        <H1 title="관리조치 이행 점검" />
         
         {/* 상태 카드 그리드 */}
         <div className="grid grid-cols-4 gap-6">
           <StatusCard 
             title="책무활동이행완료" 
-            value="364/489건" 
+            value="364" 
+            subValue="/489건"
+            image="/images/complete2.png"
+            titleColor="text-brand-500"
+            valueColor="text-brand-500"
+            subValueColor="text-gray-500"
           />
           <StatusCard 
             title="이행점검완료" 
-            value="172/489건" 
+            value="172" 
+            subValue="/489건"
+            image="/images/search.png"
+            titleColor="text-brand-500/70"
+            valueColor="text-brand-500/70"
+            subValueColor="text-gray-500"
           />
           <StatusCard 
-            title="이행점검결과-적정" 
-            value="170/172건" 
+            title="점검결과 : 적정" 
+            value="170" 
+            subValue="/172건"
+            image="/images/check (3).png"
+            titleColor="text-black"
+            valueColor="text-black"
+            subValueColor="text-gray-500"
           />
           <StatusCard 
-            title="이행점검결과-보완필요" 
-            value="2/172건" 
+            title="점검결과 : 보완필요" 
+            value="2" 
+            subValue="/172건"
+            image="/images/alert-sign.png"
+            titleColor="text-black"
+            valueColor="text-black"
+            subValueColor="text-gray-500"
           />
         </div>
         

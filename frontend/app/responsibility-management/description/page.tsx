@@ -5,9 +5,101 @@ import H1 from '@/components/layouts/h1';
 import CommonBreadcrumb from '../_components/Breadcrumb';
 import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
+import { DownloadButton } from '@/components/ui/DownloadButton';
+import { PrintButton } from '@/components/ui/PrintButton';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table2';
+import { Checkbox } from '@/components/ui/checkbox';
+import { 
+  employeeTableData,
+  type EmployeeData 
+} from '@/data/employee-table-data';
+import { SearchFilter } from '@/components/ui/SearchFilter';
+import { Pagination } from '@/components/ui/pagination';
 
 export default function DescriptionPage() {
   const { isSidebarCollapsed } = useSidebar();
+  const [searchFilters, setSearchFilters] = useState<Record<string, string>>({});
+  const [selectedEmployees, setSelectedEmployees] = useState<Set<string>>(new Set());
+
+  const handleFilterChange = (key: string, value: string) => {
+    setSearchFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  // 체크박스 관련 핸들러
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = new Set(employeeTableData.map(emp => emp.id));
+      setSelectedEmployees(allIds);
+    } else {
+      setSelectedEmployees(new Set());
+    }
+  };
+
+  const handleSelectEmployee = (employeeId: string, checked: boolean) => {
+    const newSelected = new Set(selectedEmployees);
+    if (checked) {
+      newSelected.add(employeeId);
+    } else {
+      newSelected.delete(employeeId);
+    }
+    setSelectedEmployees(newSelected);
+  };
+
+  // SearchFilter 설정
+  const filters = [
+    {
+      key: "name",
+      label: "성명",
+      type: "input" as const,
+      placeholder: "성명을 입력하세요"
+    },
+    {
+      key: "position",
+      label: "직책",
+      type: "dropdown" as const,
+      placeholder: "직책을 선택하세요"
+    },
+    {
+      key: "rank",
+      label: "직위",
+      type: "dropdown" as const,
+      placeholder: "직위를 선택하세요"
+    }
+  ];
+
+  const filterOptions = {
+    position: [
+      { value: "금사본 부장", label: "금사본 부장" },
+      { value: "준법감시인", label: "준법감시인" },
+      { value: "그룹장", label: "그룹장" }
+    ],
+    rank: [
+      { value: "이사", label: "이사" },
+      { value: "준법감시인", label: "준법감시인" },
+      { value: "부행장", label: "부행장" }
+    ]
+  };
+
+  // 페이지네이션 관련 상태 관리
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 5; // 5개 페이지가 있다고 가정
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    console.log(`페이지 ${page}로 이동`);
+    // 여기에 실제 페이지 변경 로직을 구현할 수 있습니다
+  };
 
   return (
     <div className="relative">
@@ -16,9 +108,15 @@ export default function DescriptionPage() {
           <div className="flex items-center space-x-3">
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span>설명서 보기</span>
+              <span>새 책무기술서</span>
+            </button>
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span>업로드</span>
             </button>
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,65 +127,124 @@ export default function DescriptionPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 pt-14 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`max-w-7xl mx-auto space-y-6 pt-24 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="Description" />
-        
-        {/* 설명서 컨테이너 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">책임 관리 시스템 설명서</h2>
-            <div className="flex items-center space-x-2">
-              <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                인쇄
-              </button>
-              <button className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">
-                공유
-              </button>
+        <H1 
+          title="책무기술서 작성" 
+          rightContent={
+            <div className="flex items-center space-x-3">
+              <DownloadButton 
+                fileType="hwp"
+                onDownload={() => {
+                  console.log("책무기술서 HWP 다운로드")
+                  // 여기에 실제 다운로드 로직 구현
+                }}
+              />
+              <DownloadButton 
+                fileType="doc"
+                onDownload={() => {
+                  console.log("책무기술서 DOC 다운로드")
+                  // 여기에 실제 다운로드 로직 구현
+                }}
+              />
+              <PrintButton 
+                onPrint={() => {
+                  console.log("책무기술서 인쇄")
+                  // 여기에 실제 인쇄 로직 구현
+                }}
+              />
             </div>
-          </div>
-          
-          {/* 설명서 영역 */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
-            <div className="max-w-md mx-auto">
-              <svg className="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">시스템 설명서</h3>
-              <p className="text-gray-500 mb-4">
-                책임 관리 시스템의 사용법과 기능에 대한 상세한 설명서입니다.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">시스템 개요</div>
-                  <div className="text-gray-600">전체 시스템 구조 및 목적</div>
-                </div>
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">사용법 가이드</div>
-                  <div className="text-gray-600">단계별 사용 방법</div>
-                </div>
-                <div className="bg-white p-3 rounded border">
-                  <div className="font-medium text-gray-900">FAQ</div>
-                  <div className="text-gray-600">자주 묻는 질문</div>
+          }
+                 />
+         
+         {/* SearchFilter */}
+         <SearchFilter
+           searchFilters={searchFilters}
+           onFilterChange={handleFilterChange}
+           filters={filters}
+           filterOptions={filterOptions}
+         />
+         
+                                                           {/* 메인 컨테이너 - 좌측 테이블, 우측 폼 */}
+                       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-12">
+              {/* 좌측: 직원 정보 테이블 */}
+                                                                                                                       <div className="lg:col-span-2">
+                                 <div className="bg-white border border-gray-200 p-4 h-[720px]">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">책무대상 등록 임원별 기술서 조회</h3>
+                  </div>
+                   <div className="space-y-4">
+                     {/* 테이블 */}
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                                                     <TableHead className="w-12">
+                             <Checkbox 
+                               checked={selectedEmployees.size === employeeTableData.length && employeeTableData.length > 0}
+                               onCheckedChange={handleSelectAll}
+                               className="cursor-pointer"
+                             />
+                           </TableHead>
+                          <TableHead>사번</TableHead>
+                          <TableHead>성명</TableHead>
+                          <TableHead>직책</TableHead>
+                          <TableHead>직위</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {employeeTableData.map((employee) => (
+                          <TableRow key={employee.id}>
+                                                         <TableCell className="w-12">
+                               <Checkbox 
+                                 checked={selectedEmployees.has(employee.id)}
+                                 onCheckedChange={(checked) => handleSelectEmployee(employee.id, checked as boolean)}
+                                 className="cursor-pointer"
+                               />
+                             </TableCell>
+                            <TableCell>{employee.employeeId}</TableCell>
+                            <TableCell>{employee.name}</TableCell>
+                            <TableCell>{employee.position}</TableCell>
+                            <TableCell>{employee.rank}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    {/* 페이지네이션 */}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      className="mt-4"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          {/* 설명 텍스트 */}
-          <div className="mt-6 text-sm text-gray-600">
-            <p className="mb-2">
-              • 이 설명서는 책임 관리 시스템의 모든 기능과 사용법을 상세히 설명합니다.
-            </p>
-            <p className="mb-2">
-              • 각 모듈별로 사용법과 주의사항을 명확하게 구분하여 표시합니다.
-            </p>
-            <p>
-              • 시스템의 효율적인 활용을 위한 팁과 트러블슈팅 가이드를 제공합니다.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+              
+                            {/* 우측: 책무기술서 작성 폼 */}
+              <div className="lg:col-span-3">
+                <div className="bg-white border border-gray-200 h-[720px] overflow-y-auto">
+                  <div className="w-full">
+                    <img 
+                      src="/images/그림1.png" 
+                      alt="책무 이행을 위한 주요 관리의무 1" 
+                      className="w-full h-auto"
+                    />
+                    <img 
+                      src="/images/그림2.png" 
+                      alt="책무 이행을 위한 주요 관리의무 2" 
+                      className="w-full h-auto"
+                    />
+                    <img 
+                      src="/images/그림3.png" 
+                      alt="책무 이행을 위한 주요 관리의무 3" 
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+              </div>
+         </div>
+       </div>
+     </div>
+   );
+ }

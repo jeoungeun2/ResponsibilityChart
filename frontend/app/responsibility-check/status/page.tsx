@@ -9,28 +9,9 @@ import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
 import { ResponsibilityCheckStatusData, responsibilityCheckStatusData } from '@/data/responsibility-check-status-data';
 import ControlActivityModal from '@/components/ControlActivityModal';
+import StatusBadge from '@/components/ui/StatusBadge';
 
-// 수행현황 상태별 색상 컴포넌트
-const PerformanceStatusBadge = ({ status }: { status: string }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case '진행중':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case '점검승인대기':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case '점검승인완료':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
-  return (
-    <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(status)}`}>
-      {status}
-    </span>
-  );
-};
 
 export default function ResponsibilityCheckStatusPage() {
   const { isSidebarCollapsed } = useSidebar();
@@ -182,8 +163,11 @@ export default function ResponsibilityCheckStatusPage() {
       key: "performanceStatus" as keyof ResponsibilityCheckStatusData,
       header: "수행현황",
       visible: true,
+      width: "w-40", // 열 너비 설정
       render: (value: any, row: any) => (
-        <PerformanceStatusBadge status={row.performanceStatus} />
+        <div className="min-w-[100px]">
+          <StatusBadge status={row.performanceStatus} />
+        </div>
       )
     }
   ];
@@ -212,7 +196,7 @@ export default function ResponsibilityCheckStatusPage() {
     <div className="relative">
       <div className={`max-w-7xl mx-auto space-y-6 pt-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        <H1 title="책무 점검 현황" />
+        <H1 title="관리조치활동 수행" />
         
 
         <DataTable
@@ -251,7 +235,7 @@ export default function ResponsibilityCheckStatusPage() {
             },
             {
               key: "targetYear",
-              label: "대상연월",
+              label: "대상연도",
               type: "dropdown" as const,
               width: "w-32"
             },
