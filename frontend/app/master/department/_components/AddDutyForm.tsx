@@ -8,12 +8,9 @@ import { ChevronDown } from 'lucide-react';
 import { Maximize2, Minimize2, X } from 'lucide-react';
 import AddButton from '@/components/ui/add-button';
 import DeleteButton from '@/components/ui/delete-button';
-import SaveButton from './SaveButton';
-import ApprovalRequestButton from './ApprovalRequestButton';
-import ApproveButton from './ApproveButton';
-import RejectButton from './RejectButton';
+
 import EvidenceUploadSection from './EvidenceUploadSection';
-import ResponsibilityUsageCheck from './ResponsibilityUsageCheck';
+
 
 interface AddDutyFormProps {
   open: boolean;
@@ -42,12 +39,17 @@ export default function AddDutyForm({
   const [dutyDetails, setDutyDetails] = useState<string[]>([
     "내부통제기준마련, 업무절차 수립 등에 대한 관리감독",
   ]);
-  const [relatedLaws, setRelatedLaws] = useState<
-    Array<{ law: string; article: string }>
-  >([{ law: "", article: "" }]);
-  const [internalRegulations, setInternalRegulations] = useState<
-    Array<{ regulation: string; article: string }>
-  >([{ regulation: "", article: "" }]);
+  
+  // 각 책무세부내용별 관련법령 및 내규 상태
+  const [detailRelatedLaws, setDetailRelatedLaws] = useState<
+    Array<Array<{ law: string; article: string }>>
+  >([[{ law: "", article: "" }]]);
+  const [detailInternalRegulations, setDetailInternalRegulations] = useState<
+    Array<Array<{ regulation: string; article: string }>>
+  >([[{ regulation: "", article: "" }]]);
+  const [detailManagementObligations, setDetailManagementObligations] = useState<
+    Array<Array<string>>
+  >([[""]]);
 
   // 사용여부 상태
   const [usageStatus, setUsageStatus] = useState<string>("Y");
@@ -55,9 +57,25 @@ export default function AddDutyForm({
   const labelCls = "block text-base font-medium text-gray-600 mb-1";
 
   // 책무 세부
-  const addDutyDetail = () => setDutyDetails((prev) => [...prev, ""]);
-  const removeDutyDetail = (index: number) =>
-    setDutyDetails((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
+  const addDutyDetail = () => {
+    setDutyDetails((prev) => [...prev, ""]);
+    setDetailRelatedLaws((prev) => [...prev, [{ law: "", article: "" }]]);
+    setDetailInternalRegulations((prev) => [...prev, [{ regulation: "", article: "" }]]);
+    setDetailManagementObligations((prev) => [...prev, [""]]);
+  };
+  
+  const removeDutyDetail = (index: number) => {
+    if (dutyDetails.length > 1) {
+      setDutyDetails((prev) => prev.filter((_, i) => i !== index));
+      setDetailRelatedLaws((prev) => prev.filter((_, i) => i !== index));
+      setDetailInternalRegulations((prev) => prev.filter((_, i) => i !== index));
+      setDetailManagementObligations((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      // If only one item, clear the content instead of removing
+      updateDutyDetail(index, "");
+    }
+  };
+  
   const updateDutyDetail = (index: number, value: string) =>
     setDutyDetails((prev) => {
       const next = [...prev];
@@ -65,32 +83,119 @@ export default function AddDutyForm({
       return next;
     });
 
-  // 법령
-  const addRelatedLaw = () => setRelatedLaws((p) => [...p, { law: "", article: "" }]);
-  const removeRelatedLaw = (index: number) =>
-    setRelatedLaws((p) => (p.length > 1 ? p.filter((_, i) => i !== index) : p));
-  const updateRelatedLaw = (index: number, field: "law" | "article", value: string) =>
-    setRelatedLaws((p) => {
-      const next = [...p];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
+  // 각 책무세부내용별 관련법령 관리
+  const getRelatedLawsForDetail = (detailIndex: number) => {
+    return detailRelatedLaws[detailIndex] || [{ law: "", article: "" }];
+  };
 
-  // 내규
-  const addInternalRegulation = () =>
-    setInternalRegulations((p) => [...p, { regulation: "", article: "" }]);
-  const removeInternalRegulation = (index: number) =>
-    setInternalRegulations((p) => (p.length > 1 ? p.filter((_, i) => i !== index) : p));
-  const updateInternalRegulation = (
-    index: number,
-    field: "regulation" | "article",
-    value: string
-  ) =>
-    setInternalRegulations((p) => {
-      const next = [...p];
-      next[index] = { ...next[index], [field]: value };
+  const addRelatedLawForDetail = (detailIndex: number) => {
+    setDetailRelatedLaws((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [];
+      }
+      next[detailIndex] = [...next[detailIndex], { law: "", article: "" }];
       return next;
     });
+  };
+
+  const removeRelatedLawForDetail = (detailIndex: number, lawIndex: number) => {
+    setDetailRelatedLaws((prev) => {
+      const next = [...prev];
+      if (next[detailIndex] && next[detailIndex].length > 1) {
+        next[detailIndex] = next[detailIndex].filter((_, i) => i !== lawIndex);
+      }
+      return next;
+    });
+  };
+
+  const updateRelatedLawForDetail = (detailIndex: number, lawIndex: number, field: "law" | "article", value: string) => {
+    setDetailRelatedLaws((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [{ law: "", article: "" }];
+      }
+      next[detailIndex] = [...next[detailIndex]];
+      next[detailIndex][lawIndex] = { ...next[detailIndex][lawIndex], [field]: value };
+      return next;
+    });
+  };
+
+  // 각 책무세부내용별 내규 관리
+  const getInternalRegulationsForDetail = (detailIndex: number) => {
+    return detailInternalRegulations[detailIndex] || [{ regulation: "", article: "" }];
+  };
+
+  const addInternalRegulationForDetail = (detailIndex: number) => {
+    setDetailInternalRegulations((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [];
+      }
+      next[detailIndex] = [...next[detailIndex], { regulation: "", article: "" }];
+      return next;
+    });
+  };
+
+  const removeInternalRegulationForDetail = (detailIndex: number, regIndex: number) => {
+    setDetailInternalRegulations((prev) => {
+      const next = [...prev];
+      if (next[detailIndex] && next[detailIndex].length > 1) {
+        next[detailIndex] = next[detailIndex].filter((_, i) => i !== regIndex);
+      }
+      return next;
+    });
+  };
+
+  const updateInternalRegulationForDetail = (detailIndex: number, regIndex: number, field: "regulation" | "article", value: string) => {
+    setDetailInternalRegulations((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [{ regulation: "", article: "" }];
+      }
+      next[detailIndex] = [...next[detailIndex]];
+      next[detailIndex][regIndex] = { ...next[detailIndex][regIndex], [field]: value };
+      return next;
+    });
+  };
+
+  // 각 책무세부내용별 관리의무 관리
+  const getManagementObligationsForDetail = (detailIndex: number) => {
+    return detailManagementObligations[detailIndex] || [""];
+  };
+
+  const addManagementObligationForDetail = (detailIndex: number) => {
+    setDetailManagementObligations((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [];
+      }
+      next[detailIndex] = [...next[detailIndex], ""];
+      return next;
+    });
+  };
+
+  const removeManagementObligationForDetail = (detailIndex: number, obligationIndex: number) => {
+    setDetailManagementObligations((prev) => {
+      const next = [...prev];
+      if (next[detailIndex] && next[detailIndex].length > 1) {
+        next[detailIndex] = next[detailIndex].filter((_, i) => i !== obligationIndex);
+      }
+      return next;
+    });
+  };
+
+  const updateManagementObligationForDetail = (detailIndex: number, obligationIndex: number, value: string) => {
+    setDetailManagementObligations((prev) => {
+      const next = [...prev];
+      if (!next[detailIndex]) {
+        next[detailIndex] = [""];
+      }
+      next[detailIndex] = [...next[detailIndex]];
+      next[detailIndex][obligationIndex] = value;
+      return next;
+    });
+  };
 
   const handleAdd = () => {
     onAdd();
@@ -227,10 +332,12 @@ export default function AddDutyForm({
                 {/* 책무코드 */}
                 <div className="col-span-12 md:col-span-4">
                   <label className={labelCls}>책무코드</label>
-                  <Input type="text" placeholder="*승인 클릭 시 자동생성" readOnly className="bg-muted cursor-not-allowed" />
+                  <Input type="text" placeholder="*등록 클릭 시 자동생성" readOnly className="bg-muted cursor-not-allowed" />
                 </div>
               </div>
             </section>
+
+
 
             {/* =============== 책무 세부내용 등록/수정 =============== */}
             <section className="p-4 border-b border-gray-200 pb-6">
@@ -245,275 +352,259 @@ export default function AddDutyForm({
                 </AddButton>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-6">
                 {dutyDetails.map((detail, idx) => (
                   <div
                     key={`detail-${idx}`}
-                    className="grid grid-cols-12 gap-4 items-start rounded-xl"
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
                   >
-                    <div className="col-span-12 lg:col-span-8">
-                      <label className={labelCls}>책무세부 {idx + 1}</label>
-                      <Input
-                        type="text"
-                        placeholder="책무 세부내용을 입력하세요"
-                        value={detail}
-                        onChange={(e) => updateDutyDetail(idx, e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-12 lg:col-span-4">
-                      <label className={labelCls}>책무세부코드</label>
-                      <div className="flex items-center w-full">
+                    {/* 책무세부내용 입력 */}
+                    <div className="grid grid-cols-12 gap-4 items-start mb-4">
+                      <div className="col-span-12 lg:col-span-8">
+                        <label className={labelCls}>책무세부 {idx + 1}</label>
                         <Input
                           type="text"
-                          placeholder="*승인 클릭 시 자동생성"
-                          readOnly
-                          className="bg-muted cursor-not-allowed flex-1"
+                          placeholder="책무 세부내용을 입력하세요"
+                          value={detail}
+                          onChange={(e) => updateDutyDetail(idx, e.target.value)}
                         />
-                        <DeleteButton
-                          onClick={() => {
-                            if (dutyDetails.length > 1) {
-                              removeDutyDetail(idx);
-                            } else {
-                              // If only one item, clear the content instead of removing
-                              updateDutyDetail(idx, "");
-                            }
-                          }}
-                          size="md"
-                          className="ml-1"
-                          ariaLabel="세부 삭제"
-                        />
+                      </div>
+                      <div className="col-span-12 lg:col-span-4">
+                        <label className={labelCls}>책무세부코드</label>
+                        <div className="flex items-center w-full">
+                          <Input
+                            type="text"
+                            placeholder="*등록 클릭 시 자동생성"
+                            readOnly
+                            className="bg-muted cursor-not-allowed flex-1"
+                          />
+                          <DeleteButton
+                            onClick={() => {
+                              if (dutyDetails.length > 1) {
+                                removeDutyDetail(idx);
+                              } else {
+                                // If only one item, clear the content instead of removing
+                                updateDutyDetail(idx, "");
+                              }
+                            }}
+                            size="md"
+                            className="ml-1"
+                            ariaLabel="세부 삭제"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 관련 법령 및 내규 Mapping */}
+                    <div className="border-t border-gray-300 pt-4">
+                      <h4 className="text-base font-medium text-gray-700 mb-3">
+                        관련 법령 및 내규 Mapping
+                      </h4>
+                      
+                      <div className="grid grid-cols-12 gap-4">
+                        {/* 왼쪽 열: 관련 법령 */}
+                        <div className="col-span-12 lg:col-span-6">
+                          <div className="flex items-end justify-between mb-2">
+                            <h5 className="text-sm font-medium text-gray-600">관련 법령</h5>
+                            <AddButton
+                              onClick={() => addRelatedLawForDetail(idx)}
+                              iconOnly={true}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {getRelatedLawsForDetail(idx).map((law, lawIdx) => (
+                              <div key={`law-${idx}-${lawIdx}`} className="space-y-2">
+                                <div className="flex items-center">
+                                  <Input
+                                    type="text"
+                                    placeholder="법령명을 입력하세요"
+                                    value={law.law}
+                                    onChange={(e) => updateRelatedLawForDetail(idx, lawIdx, "law", e.target.value)}
+                                    className="flex-1"
+                                  />
+                                  <DeleteButton
+                                    onClick={() => removeRelatedLawForDetail(idx, lawIdx)}
+                                    size="md"
+                                    className="ml-1"
+                                    ariaLabel="법령 삭제"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 오른쪽 열: 내규 */}
+                        <div className="col-span-12 lg:col-span-6">
+                          <div className="flex items-end justify-between mb-2">
+                            <h5 className="text-sm font-medium text-gray-600">내규</h5>
+                            <AddButton
+                              onClick={() => addInternalRegulationForDetail(idx)}
+                              iconOnly={true}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {getInternalRegulationsForDetail(idx).map((reg, regIdx) => (
+                              <div key={`reg-${idx}-${regIdx}`} className="space-y-2">
+                                <div className="flex items-center">
+                                  <Input
+                                    type="text"
+                                    placeholder="내규명을 입력하세요"
+                                    value={reg.regulation}
+                                    onChange={(e) => updateInternalRegulationForDetail(idx, regIdx, "regulation", e.target.value)}
+                                    className="flex-1"
+                                  />
+                                  <DeleteButton
+                                    onClick={() => removeInternalRegulationForDetail(idx, regIdx)}
+                                    size="md"
+                                    className="ml-1"
+                                    ariaLabel="내규 삭제"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 관리의무 섹션 */}
+                      <div className="border-t border-gray-300 pt-4 mt-4">
+                        <div className="flex items-end justify-between mb-2">
+                          <h5 className="text-sm font-medium text-gray-600">관리의무</h5>
+                          <AddButton
+                            onClick={() => addManagementObligationForDetail(idx)}
+                            iconOnly={true}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          {getManagementObligationsForDetail(idx).map((obligation, obligationIdx) => (
+                            <div key={`obligation-${idx}-${obligationIdx}`} className="space-y-2">
+                              <div className="grid grid-cols-12 gap-4 items-start">
+                                <div className="col-span-12 lg:col-span-8">
+                                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    관리의무 {obligationIdx + 1}
+                                  </label>
+                                  <Input
+                                    type="text"
+                                    placeholder="관리의무를 입력하세요"
+                                    value={obligation}
+                                    onChange={(e) => updateManagementObligationForDetail(idx, obligationIdx, e.target.value)}
+                                  />
+                                </div>
+                                <div className="col-span-12 lg:col-span-4">
+                                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                                    관리의무코드
+                                  </label>
+                                  <div className="flex items-center w-full">
+                                    <Input
+                                      type="text"
+                                      placeholder="*등록 클릭 시 자동생성"
+                                      readOnly
+                                      className="bg-muted cursor-not-allowed flex-1"
+                                    />
+                                    <DeleteButton
+                                      onClick={() => removeManagementObligationForDetail(idx, obligationIdx)}
+                                      size="md"
+                                      className="ml-1"
+                                      ariaLabel="관리의무 삭제"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
-
-
               </div>
             </section>
 
-            {/* =============== 조직 Mapping =============== */}
-            <section className="p-4 border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                조직 Mapping
-              </h3>
 
-              <div className="grid grid-cols-12 gap-6">
-                <div className="col-span-12 md:col-span-4">
-                  <label className={labelCls}>관리대상조직</label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full px-4 justify-between"
-                      >
-                        <span className="truncate flex-1 text-left">
-                          {formData.managedOrganization ?? "전체"}
-                        </span>
-                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-full">
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("managedOrganization", "전체")}
-                        className="cursor-pointer"
-                      >
-                        전체
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("managedOrganization", "본사")}
-                        className="cursor-pointer"
-                      >
-                        본사
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("managedOrganization", "지점")}
-                        className="cursor-pointer"
-                      >
-                        지점
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
 
-                <div className="col-span-12 md:col-span-4">
-                  <label className={labelCls}>소관부서/본부</label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full px-4 justify-between"
-                      >
-                        <span className="truncate flex-1 text-left">
-                          {formData.responsibleDepartment ?? "전체"}
-                        </span>
-                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-full">
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleDepartment", "전체")}
-                        className="cursor-pointer"
-                      >
-                        전체
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleDepartment", "경영지원본부")}
-                        className="cursor-pointer"
-                      >
-                        경영지원본부
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleDepartment", "영업본부")}
-                        className="cursor-pointer"
-                      >
-                        영업본부
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <div className="col-span-12 md:col-span-4">
-                  <label className={labelCls}>소관팀</label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full px-4 justify-between"
-                      >
-                        <span className="truncate flex-1 text-left">
-                          {formData.responsibleTeam ?? "전체"}
-                        </span>
-                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-full">
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleTeam", "전체")}
-                        className="cursor-pointer"
-                      >
-                        전체
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleTeam", "인사팀")}
-                        className="cursor-pointer"
-                      >
-                        인사팀
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("responsibleTeam", "재무팀")}
-                        className="cursor-pointer"
-                      >
-                        재무팀
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </section>
-
-            {/* =============== 관련 법령 및 내규 Mapping =============== */}
-            <section className="p-4 border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                관련 법령 및 내규 Mapping
-              </h3>
-
-              <div className="grid grid-cols-12 gap-6">
-                {/* 왼쪽 열: 관련 법령 */}
-                <div className="col-span-12 lg:col-span-6">
-                  <div className="flex items-end justify-between mb-2">
-                    <h4 className="text-base font-medium text-gray-700">관련 법령</h4>
-                    <AddButton
-                      onClick={addRelatedLaw}
-                      iconOnly={true}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {relatedLaws.map((law, idx) => (
-                      <div key={`law-${idx}`} className="space-y-3">
-                        <div className="flex items-center">
-                          <Input
-                            type="text"
-                            placeholder="법령명을 입력하세요"
-                            value={law.law}
-                            onChange={(e) => updateRelatedLaw(idx, "law", e.target.value)}
-                            className="flex-1"
-                          />
-                          <DeleteButton
-                            onClick={() => removeRelatedLaw(idx)}
-                            size="md"
-                            className="ml-1"
-                            ariaLabel="법령 삭제"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 오른쪽 열: 내규 */}
-                <div className="col-span-12 lg:col-span-6">
-                  <div className="flex items-end justify-between mb-2">
-                    <h4 className="text-base font-medium text-gray-700">내규</h4>
-                    <AddButton
-                      onClick={addInternalRegulation}
-                      iconOnly={true}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {internalRegulations.map((r, idx) => (
-                      <div key={`reg-${idx}`} className="space-y-3">
-                        <div className="flex ">
-                          <Input
-                            type="text"
-                            placeholder="내규명을 입력하세요"
-                            value={r.regulation}
-                            onChange={(e) => updateInternalRegulation(idx, "regulation", e.target.value)}
-                            className="flex-1"
-                          />
-                          <DeleteButton
-                            onClick={() => removeInternalRegulation(idx)}
-                            size="md"
-                            className="ml-1"
-                            ariaLabel="내규 삭제"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* =============== 이사회 승인 증빙 업로드 / 책무 사용여부 체크 =============== */}
+            {/* =============== 이사회 승인 증빙 업로드 / 책무수정유형 =============== */}
             {mode === 'edit' ? (
-              <ResponsibilityUsageCheck
-                usageStatus={usageStatus}
-                onUsageStatusChange={setUsageStatus}
-              />
+              <section className="p-4 border-b border-gray-200 pb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  책무수정유형
+                </h3>
+
+                <div className="grid grid-cols-12 gap-6">
+                  <div className="col-span-12 md:col-span-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          id="simple-edit"
+                          name="editType"
+                          value="simple"
+                          checked={formData.editType === "simple"}
+                          onChange={(e) => onFormDataChange("editType", e.target.value)}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                        />
+                        <label htmlFor="simple-edit" className="text-sm font-medium text-gray-700">
+                          단순수정
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="radio"
+                          id="board-resolution-edit"
+                          name="editType"
+                          value="boardResolution"
+                          checked={formData.editType === "boardResolution"}
+                          onChange={(e) => onFormDataChange("editType", e.target.value)}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                        />
+                        <label htmlFor="board-resolution-edit" className="text-sm font-medium text-gray-700">
+                          이사회결의 수정
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {formData.editType === "boardResolution" && (
+                    <div className="col-span-12 md:col-span-6">
+                      <label className={labelCls}>
+                        이사회결의일자 <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="date"
+                        value={formData.boardApprovalDate || ""}
+                        onChange={(e) => onFormDataChange("boardApprovalDate", e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              </section>
             ) : (
               <EvidenceUploadSection />
             )}
 
             {/* =============== 액션 버튼 =============== */}
             <div className="flex flex-wrap gap-3 justify-end pt-3 border-t border-gray-200 pr-4 pb-4 sticky bottom-0 bg-white/30 backdrop-blur-sm">
-              <SaveButton 
-                onClick={() => console.log('저장')}
-                disabled={isLoading}
-              />
-              <ApprovalRequestButton 
-                onClick={() => console.log('승인요청')}
-                disabled={isLoading || disabled}
-              />
-              <ApproveButton 
-                onClick={() => console.log('승인')}
-                disabled={isLoading}
-              />
-              <RejectButton 
-                onClick={() => console.log('반려')}
-                disabled={isLoading}
-              />
+              {mode === 'add' ? (
+                <Button 
+                  onClick={handleAdd}
+                  disabled={isLoading}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
+                >
+                  등록
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => console.log('등록')}
+                  disabled={isLoading}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
+                >
+                  등록
+                </Button>
+              )}
             </div>
           </div>
         </div>

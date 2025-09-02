@@ -5,7 +5,10 @@ export interface ManagementActionData {
   managedOrg: string; // 관리대상조직
   dutyCode: string; // 책무코드
   duty: string; // 책무
+  dutyDetailCode: string; // 책무세부코드
   dutyDetail: string; // 책무 세부내용
+  managementObligationCode: string; // 관리의무코드
+  managementObligation: string; // 관리의무
   actionCode: string; // 관리조치코드
   action: string; // 관리조치
   actionTypes: {
@@ -17,8 +20,8 @@ export interface ManagementActionData {
     educationSupport: boolean; // 교육 및 훈련지원
     investigationReport: boolean; // 조사 및 제재조치 결과보고
   };
-  detailedActions: string; // 관리조치 세부활동
   checkCycle: string; // 점검주기
+  checkMonth: string; // 점검월
   evidence: string; // 증빙
 }
 
@@ -29,7 +32,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "대표이사",
     dutyCode: "CE-지정책임-A1",
     duty: "책무구조도의 마련, 관리업무와 관련된 책무",
+    dutyDetailCode: "CE-지정책임-A1-001",
     dutyDetail: "내부통제등의 취중 책임자로서 종괄적인 관리 조치 운영책임",
+    managementObligationCode: "MO-001",
+    managementObligation: "내부통제기준의 제·개정 및 운영",
     actionCode: "CE-지정책임-A1-001",
     action: "내부통제기준의 제·개정사항을 검토하고 경영관리틴을 통해 이사회에 보고",
     actionTypes: {
@@ -41,8 +47,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: false,
       investigationReport: false
     },
-    detailedActions: "책무와 관련된 내부통제등이 효과적으로 작동할 수 있도록 스킬부서 내부통제기준 마련",
     checkCycle: "발생시",
+    checkMonth: "1월",
     evidence: "승인"
   },
   {
@@ -51,7 +57,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "경영기획팀",
     dutyCode: "CE-지정책임-A2",
     duty: "경영전략 수립 및 실행",
+    dutyDetailCode: "CE-지정책임-A2-001",
     dutyDetail: "전사 경영전략 수립 및 실행에 대한 종합 관리",
+    managementObligationCode: "MO-002",
+    managementObligation: "경영전략 수립 및 실행 관리",
     actionCode: "CE-지정책임-A2-001",
     action: "연간 경영계획 수립 및 실행 점검",
     actionTypes: {
@@ -63,8 +72,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: false,
       investigationReport: false
     },
-    detailedActions: "경영전략 수립 및 실행 과정에서의 내부통제 점검",
     checkCycle: "분기별",
+    checkMonth: "3월",
     evidence: "보고서"
   },
   {
@@ -73,7 +82,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "인사팀",
     dutyCode: "CE-지정책임-A3",
     duty: "인사정책 수립 및 운영",
+    dutyDetailCode: "CE-지정책임-A3-001",
     dutyDetail: "전사 인사정책 수립 및 운영에 대한 관리",
+    managementObligationCode: "MO-003",
+    managementObligation: "인사정책 수립 및 운영 관리",
     actionCode: "CE-지정책임-A3-001",
     action: "인사정책 수립 및 운영 점검",
     actionTypes: {
@@ -85,8 +97,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "인사정책 운영 과정에서의 준수 여부 점검 및 교육 실시",
     checkCycle: "반기별",
+    checkMonth: "6월",
     evidence: "점검보고서"
   },
   {
@@ -95,7 +107,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "재무팀",
     dutyCode: "CE-지정책임-A4",
     duty: "재무관리 및 회계감사",
+    dutyDetailCode: "CE-지정책임-A4-001",
     dutyDetail: "전사 재무관리 및 회계감사에 대한 종합 관리",
+    managementObligationCode: "MO-004",
+    managementObligation: "재무관리 및 회계감사 관리",
     actionCode: "CE-지정책임-A4-001",
     action: "재무제표 작성 및 감사 실시",
     actionTypes: {
@@ -107,8 +122,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: false,
       investigationReport: true
     },
-    detailedActions: "재무제표 작성 과정에서의 내부통제 점검 및 감사 결과 보고",
     checkCycle: "연간",
+    checkMonth: "12월",
     evidence: "감사보고서"
   },
   {
@@ -117,7 +132,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "영업팀",
     dutyCode: "CE-지정책임-A5",
     duty: "영업활동 관리 및 점검",
+    dutyDetailCode: "CE-지정책임-A5-001",
     dutyDetail: "전사 영업활동에 대한 관리 및 점검",
+    managementObligationCode: "MO-005",
+    managementObligation: "영업활동 관리 및 점검",
     actionCode: "CE-지정책임-A5-001",
     action: "영업활동 내부통제 점검",
     actionTypes: {
@@ -129,8 +147,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "영업활동 과정에서의 준수 여부 점검 및 교육 실시",
     checkCycle: "분기별",
+    checkMonth: "9월",
     evidence: "점검보고서"
   },
   {
@@ -139,7 +157,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "개발팀",
     dutyCode: "CE-지정책임-A6",
     duty: "개발 프로세스 관리",
+    dutyDetailCode: "CE-지정책임-A6-001",
     dutyDetail: "소프트웨어 개발 프로세스에 대한 관리 및 점검",
+    managementObligationCode: "MO-006",
+    managementObligation: "개발 프로세스 관리",
     actionCode: "CE-지정책임-A6-001",
     action: "개발 프로세스 내부통제 점검",
     actionTypes: {
@@ -151,8 +172,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "개발 프로세스 운영 과정에서의 기준 준수 여부 점검",
     checkCycle: "월별",
+    checkMonth: "매월",
     evidence: "점검보고서"
   },
   {
@@ -161,7 +182,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "품질관리팀",
     dutyCode: "CE-지정책임-A7",
     duty: "품질관리 체계 운영",
+    dutyDetailCode: "CE-지정책임-A7-001",
     dutyDetail: "전사 품질관리 체계 운영에 대한 관리",
+    managementObligationCode: "MO-007",
+    managementObligation: "품질관리 체계 운영 관리",
     actionCode: "CE-지정책임-A7-001",
     action: "품질관리 체계 운영 점검",
     actionTypes: {
@@ -173,8 +197,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: true
     },
-    detailedActions: "품질관리 체계 운영 과정에서의 종합적인 점검 및 조치",
     checkCycle: "월별",
+    checkMonth: "매월",
     evidence: "종합보고서"
   },
   {
@@ -183,7 +207,10 @@ export const sampleManagementActionData: ManagementActionData[] = [
     managedOrg: "보안팀",
     dutyCode: "CE-지정책임-A8",
     duty: "정보보안 관리",
+    dutyDetailCode: "CE-지정책임-A8-001",
     dutyDetail: "전사 정보보안 관리에 대한 종합 관리",
+    managementObligationCode: "MO-008",
+    managementObligation: "정보보안 관리",
     actionCode: "CE-지정책임-A8-001",
     action: "정보보안 정책 수립 및 운영",
     actionTypes: {
@@ -195,8 +222,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: true
     },
-    detailedActions: "정보보안 정책 수립 및 운영 과정에서의 종합적인 점검",
     checkCycle: "분기별",
+    checkMonth: "3월",
     evidence: "보안점검보고서"
   },
   {
@@ -217,7 +244,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: true
     },
-    detailedActions: "법적 준수 여부 점검 및 위반사항 조치",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "법적 준수 여부 점검 및 위반사항 조치",
     checkCycle: "반기별",
     evidence: "법무점검보고서"
   },
@@ -239,7 +267,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: false,
       investigationReport: false
     },
-    detailedActions: "구매 프로세스 운영 과정에서의 내부통제 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "구매 프로세스 운영 과정에서의 내부통제 점검",
     checkCycle: "분기별",
     evidence: "구매점검보고서"
   },
@@ -261,7 +290,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "생산 프로세스 운영 과정에서의 종합적인 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "생산 프로세스 운영 과정에서의 종합적인 점검",
     checkCycle: "월별",
     evidence: "생산점검보고서"
   },
@@ -283,7 +313,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "마케팅 활동 과정에서의 준수 여부 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "마케팅 활동 과정에서의 준수 여부 점검",
     checkCycle: "분기별",
     evidence: "마케팅점검보고서"
   },
@@ -305,7 +336,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: false
     },
-    detailedActions: "고객지원 서비스 운영 과정에서의 종합적인 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "고객지원 서비스 운영 과정에서의 종합적인 점검",
     checkCycle: "월별",
     evidence: "고객지원점검보고서"
   },
@@ -327,7 +359,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: true,
       investigationReport: true
     },
-    detailedActions: "연구개발 프로세스 운영 과정에서의 종합적인 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "연구개발 프로세스 운영 과정에서의 종합적인 점검",
     checkCycle: "반기별",
     evidence: "연구개발점검보고서"
   },
@@ -349,7 +382,8 @@ export const sampleManagementActionData: ManagementActionData[] = [
       educationSupport: false,
       investigationReport: false
     },
-    detailedActions: "물류 프로세스 운영 과정에서의 내부통제 점검",
+    dutyDetailCode: "CE-지정책임-A8-001",
+    dutyDetail: "물류 프로세스 운영 과정에서의 내부통제 점검",
     checkCycle: "분기별",
     evidence: "물류점검보고서"
   }

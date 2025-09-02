@@ -71,13 +71,31 @@ export default function CommonBreadcrumb() {
       }
     }
     
+    // 책무 관리
+    if (segments.includes('responsibility-management')) {
+      breadcrumbs.push({
+        label: '책무 관리',
+        href: '/responsibility-management',
+        isActive: false
+      })
+      
+      // allocation (책무 배분)
+      if (segments.includes('allocation')) {
+        breadcrumbs.push({
+          label: '책무 배분',
+          href: '/responsibility-management/allocation',
+          isActive: true
+        })
+      }
+    }
+    
     return breadcrumbs
   }
   
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       <Breadcrumb>
         <BreadcrumbList className="text-base font-medium">
           {breadcrumbs.map((breadcrumb, index) => (

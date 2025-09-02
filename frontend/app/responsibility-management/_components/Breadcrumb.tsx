@@ -68,7 +68,7 @@ export default function CommonBreadcrumb() {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       <Breadcrumb>
         <BreadcrumbList className="text-base font-medium">
           {breadcrumbs.map((breadcrumb, index) => (

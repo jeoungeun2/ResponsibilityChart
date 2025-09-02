@@ -137,8 +137,26 @@ export default function ExecutivePage() {
       width: "w-80"
     },
     {
+      key: "dutyDetailCode" as keyof ManagementActionData,
+      header: "책무세부코드",
+      visible: true,
+      width: "w-32"
+    },
+    {
       key: "dutyDetail" as keyof ManagementActionData,
       header: "책무 세부내용",
+      visible: true,
+      width: "w-80"
+    },
+    {
+      key: "managementObligationCode" as keyof ManagementActionData,
+      header: "관리의무코드",
+      visible: true,
+      width: "w-32"
+    },
+    {
+      key: "managementObligation" as keyof ManagementActionData,
+      header: "관리의무",
       visible: true,
       width: "w-80"
     },
@@ -197,14 +215,14 @@ export default function ExecutivePage() {
       ]
     },
     {
-      key: "detailedActions" as keyof ManagementActionData,
-      header: "관리조치 세부활동",
-      visible: true,
-      width: "w-80"
-    },
-    {
       key: "checkCycle" as keyof ManagementActionData,
       header: "점검주기",
+      visible: true,
+      width: "w-24"
+    },
+    {
+      key: "checkMonth" as keyof ManagementActionData,
+      header: "점검월",
       visible: true,
       width: "w-24"
     },
@@ -289,12 +307,6 @@ export default function ExecutivePage() {
       <Header 
         rightContent={
           <div className="flex items-center space-x-3">
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
-              </svg>
-              <span>업로드</span>
-            </button>
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -304,9 +316,9 @@ export default function ExecutivePage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
-        <H1 title="임원별 관리조치 Master" />
+        <H1 title="관리조치 Master" />
         
         {/* 복잡한 데이터 테이블 */}
         <ComplexDataTable
@@ -371,6 +383,17 @@ export default function ExecutivePage() {
           onAdd={() => {}}
           isAddLoading={false}
           isNameValid={true}
+          // 엑셀업로드, 삭제, 추가 버튼 활성화
+          enableExcelUpload={true}
+          enableBulkDelete={true}
+          enableAddButton={true}
+          onExcelUpload={() => console.log('엑셀업로드')}
+          onBulkDelete={(selectedIds: string[]) => {
+            console.log('일괄 삭제:', selectedIds);
+            alert(`${selectedIds.length}개의 관리조치가 삭제되었습니다.`);
+          }}
+          // 액션 컬럼 비활성화 (별도 actions 컬럼 사용)
+          showActionColumn={false}
         />
 
         {/* 페이지네이션 */}

@@ -230,7 +230,7 @@ export default function MeetingMasterPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
         <H1 
           title="회의체 Master" 

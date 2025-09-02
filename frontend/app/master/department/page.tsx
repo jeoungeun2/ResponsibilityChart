@@ -25,15 +25,17 @@ export default function DepartmentPage() {
   // 수정 폼 관련 상태 관리
   const [showEditForm, setShowEditForm] = useState(false);
   const [editFormData, setEditFormData] = useState<Record<string, any>>({});
+  
+  // 이사회승인증빙 팝업 관련 상태 관리
+  const [showEvidenceModal, setShowEvidenceModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    category: '',
-    department: '',
-    responsibilityName: '',
+    referenceDate: '',
     position: '',
-    executive: '',
-    departmentGroup: ''
+    category: '',
+    responsibilityName: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -59,8 +61,41 @@ export default function DepartmentPage() {
     setShowEditForm(false);
   };
 
+  // 이사회승인증빙 클릭 핸들러
+  const handleEvidenceClick = (row: any) => {
+    setSelectedRow(row);
+    setShowEvidenceModal(true);
+  };
+
+  // 이사회승인증빙 모달 닫기 핸들러
+  const handleCloseEvidenceModal = () => {
+    setShowEvidenceModal(false);
+    setSelectedRow(null);
+  };
+
   // 컬럼 정의
   const columns: any[] = [
+    {
+      key: "dutyAssignmentStatus" as keyof DutyData,
+      header: "책무배부여부",
+      visible: true
+    },
+    {
+      key: "executive" as keyof DutyData,
+      header: "임원",
+      visible: true
+    },
+    {
+      key: "dutyAssignmentDate" as keyof DutyData,
+      header: "책무배분일",
+      visible: true
+    },
+    {
+      key: "position" as keyof DutyData,
+      header: "직책",
+      visible: true,
+      separator: true
+    },
     {
       key: "category" as keyof DutyData,
       header: "책무구분",
@@ -87,14 +122,32 @@ export default function DepartmentPage() {
       visible: true
     },
     {
-      key: "position" as keyof DutyData,
-      header: "직책",
+      key: "dutyRegistrationDate" as keyof DutyData,
+      header: "책무등록일",
       visible: true
     },
     {
-      key: "executive" as keyof DutyData,
-      header: "임원",
+      key: "relatedLaws" as keyof DutyData,
+      header: "관련 법령/내규",
       visible: true
+    },
+    {
+      key: "evidence",
+      header: "이사회승인증빙",
+      visible: true,
+      render: (value: any, row: any) => (
+        <div className="flex justify-center">
+          <button
+            onClick={() => handleEvidenceClick(row)}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="이사회승인증빙 관리"
+          >
+            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </button>
+        </div>
+      )
     },
     {
       key: "actions",
@@ -120,8 +173,16 @@ export default function DepartmentPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "department",
-      label: "부문",
+      key: "referenceDate",
+      label: "조회기준일자",
+      type: "date" as const,
+      width: "w-36",
+      required: true,
+      labelClassName: "text-orange-600 font-medium"
+    },
+    {
+      key: "position",
+      label: "직책",
       type: "dropdown" as const,
       width: "w-40"
     },
@@ -136,12 +197,6 @@ export default function DepartmentPage() {
       label: "책무명",
       type: "dropdown" as const,
       width: "w-48"
-    },
-    {
-      key: "departmentGroup",
-      label: "부서/본부",
-      type: "dropdown" as const,
-      width: "w-40"
     }
   ];
 
@@ -238,12 +293,6 @@ export default function DepartmentPage() {
       <Header 
         rightContent={
           <div className="flex items-center space-x-3">
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
-              </svg>
-              <span>업로드</span>
-            </button>
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -253,7 +302,7 @@ export default function DepartmentPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
         <H1 title="책무관리 Master" />
         
@@ -332,6 +381,120 @@ export default function DepartmentPage() {
           disabled={false}
           mode="edit"
         />
+
+        {/* 이사회승인증빙 모달 */}
+        {showEvidenceModal && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  이사회승인증빙 관리
+                </h2>
+                <button
+                  onClick={handleCloseEvidenceModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">선택된 책무 정보</h3>
+                <div className="text-sm text-gray-600">
+                  <p><span className="font-medium">임원:</span> {selectedRow?.executive}</p>
+                  <p><span className="font-medium">직책:</span> {selectedRow?.position}</p>
+                  <p><span className="font-medium">책무:</span> {selectedRow?.name}</p>
+                  <p><span className="font-medium">관련 법령/내규:</span> {selectedRow?.relatedLaws}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* 업로드 섹션 */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <div className="mt-4">
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                        이사회승인증빙 파일 업로드
+                      </span>
+                      <span className="mt-1 block text-sm text-gray-500">
+                        PDF, DOC, DOCX 파일만 업로드 가능
+                      </span>
+                    </label>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      className="sr-only"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          console.log('업로드할 파일:', file.name);
+                          alert(`${file.name} 파일이 업로드되었습니다.`);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* 다운로드 섹션 */}
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 mb-2">업로드된 증빙 파일</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between bg-white rounded p-3">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm text-gray-700">이사회승인서_20240115.pdf</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          console.log('파일 다운로드:', '이사회승인서_20240115.pdf');
+                          alert('파일이 다운로드되었습니다.');
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        다운로드
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between bg-white rounded p-3">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm text-gray-700">회의록_20240115.docx</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          console.log('파일 다운로드:', '회의록_20240115.docx');
+                          alert('파일이 다운로드되었습니다.');
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        다운로드
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={handleCloseEvidenceModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

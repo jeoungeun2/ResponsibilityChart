@@ -1,6 +1,9 @@
 // 책무배분관리 데이터 타입 정의
 export interface ResponsibilityAllocationData {
   id: string;
+  position: string;        // 직책
+  employeeId: string;      // 사번
+  employeeName: string;    // 성명
   division: string;        // 책무구분
   code: string;            // 책무코드
   name: string;            // 책무명
@@ -13,6 +16,9 @@ export interface ResponsibilityAllocationData {
 export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   {
     id: "1",
+    position: "대표이사",
+    employeeId: "EMP001",
+    employeeName: "김철수",
     division: "경영",
     code: "AM-경영관리-C11",
     name: "경영지원업무와 관련된 책무",
@@ -22,6 +28,9 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "2",
+    position: "부사장",
+    employeeId: "EMP002",
+    employeeName: "이영희",
     division: "경영관리",
     code: "AM-경영관리-C12",
     name: "인사업무와 관련된 책무",
@@ -31,6 +40,9 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "3",
+    position: "전무",
+    employeeId: "EMP003",
+    employeeName: "박민수",
     division: "재무",
     code: "AM-재무관리-C13",
     name: "재무관리와 관련된 책무",
@@ -40,6 +52,9 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "4",
+    position: "상무",
+    employeeId: "EMP004",
+    employeeName: "정수진",
     division: "정보",
     code: "AM-정보관리-C14",
     name: "정보시스템 관리와 관련된 책무",
@@ -49,6 +64,9 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "5",
+    position: "이사",
+    employeeId: "EMP005",
+    employeeName: "최영수",
     division: "법무",
     code: "AM-법무관리-C15",
     name: "법적 준수 관리와 관련된 책무",
@@ -58,6 +76,9 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "6",
+    position: "대표이사",
+    employeeId: "EMP006",
+    employeeName: "김철수",
     division: "보안",
     code: "AM-보안관리-C16",
     name: "보안 관리와 관련된 책무",
@@ -67,6 +88,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "7",
+    position: "부사장",
     division: "품질",
     code: "AM-품질관리-C17",
     name: "품질 관리와 관련된 책무",
@@ -76,6 +98,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "8",
+    position: "전무",
     division: "환경",
     code: "AM-환경관리-C18",
     name: "환경 관리와 관련된 책무",
@@ -85,6 +108,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "9",
+    position: "상무",
     division: "시설",
     code: "AM-시설관리-C19",
     name: "시설 관리와 관련된 책무",
@@ -94,6 +118,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "10",
+    position: "이사",
     division: "구매",
     code: "AM-구매관리-C20",
     name: "구매 관리와 관련된 책무",
@@ -103,6 +128,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "11",
+    position: "대표이사",
     division: "물류",
     code: "AM-물류관리-C21",
     name: "물류 관리와 관련된 책무",
@@ -112,6 +138,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "12",
+    position: "부사장",
     division: "고객",
     code: "AM-고객관리-C22",
     name: "고객 관리와 관련된 책무",
@@ -121,6 +148,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "13",
+    position: "전무",
     division: "마케팅",
     code: "AM-마케팅관리-C23",
     name: "마케팅 관리와 관련된 책무",
@@ -130,6 +158,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "14",
+    position: "상무",
     division: "연구개발",
     code: "AM-연구개발관리-C24",
     name: "연구개발 관리와 관련된 책무",
@@ -139,6 +168,7 @@ export const responsibilityAllocationData: ResponsibilityAllocationData[] = [
   },
   {
     id: "15",
+    position: "이사",
     division: "지식",
     code: "AM-지식관리-C25",
     name: "지식 관리와 관련된 책무",

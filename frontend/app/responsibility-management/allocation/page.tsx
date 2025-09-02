@@ -4,7 +4,8 @@ import { useState } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
-import CommonBreadcrumb from '../_components/Breadcrumb';
+import CommonBreadcrumb from '../../master/executive/_components/Breadcrumb';
+import Header from '../../master/executive/_components/Header';
 import DutyDetailModal from '../_components/DutyDetailModal';
 import { useSidebar } from '@/config/providers';
 import { ResponsibilityAllocationData, responsibilityAllocationData } from '@/data/responsibility-allocation-data';
@@ -39,6 +40,11 @@ export default function ResponsibilityAllocationPage() {
 
   // 컬럼 정의 (함수 내부로 이동)
   const columns: any[] = [
+    {
+      key: "position" as keyof ResponsibilityAllocationData,
+      header: "직책",
+      visible: true
+    },
     {
       key: "division" as keyof ResponsibilityAllocationData,
       header: "책무구분",
@@ -135,9 +141,28 @@ export default function ResponsibilityAllocationPage() {
   };
 
   return (
-    <div className="relative">
-      <div className={`max-w-7xl mx-auto space-y-6 pt-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
-        <CommonBreadcrumb />
+    <div className="relative liquidGlass-page">
+      {/* 리퀴드 글래스 배경 효과 */}
+      <div className="liquidGlass-bg-effect"></div>
+      <div className="liquidGlass-bg-tint"></div>
+      <div className="liquidGlass-bg-shine"></div>
+      
+      <Header 
+        rightContent={
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>다운로드</span>
+            </button>
+          </div>
+        }
+      />
+      <div className={`w-full space-y-6 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
+        <div className="pt-14">
+          <CommonBreadcrumb />
+        </div>
         <H1 title="책무 배분" />
         
 

@@ -40,8 +40,8 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       label: '관리조치 Master',
       href: '/management-action',
       subItems: [
-        { label: '임원별 관리조치 Master', href: '/management-action/executive' },
-        { label: '부서별 관리조치 Master', href: '/management-action/department' },
+        { label: '관리조치 Master', href: '/management-action/executive' },
+        { label: '관리조치 수행팀 정보', href: '/management-action/department' },
       ],
       imageSrc: '/images/team-management.png',
     },

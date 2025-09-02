@@ -37,7 +37,7 @@ export default function CommonBreadcrumb() {
       // executive
       if (segments.includes('executive')) {
         breadcrumbs.push({
-          label: '임원별 관리조치 Master',
+          label: '관리조치 Master',
           href: '/management-action/executive',
           isActive: true
         })
@@ -46,7 +46,7 @@ export default function CommonBreadcrumb() {
       // department
       if (segments.includes('department')) {
         breadcrumbs.push({
-          label: '부서별 관리조치 Master',
+          label: '관리조치 수행팀 정보',
           href: '/management-action/department',
           isActive: true
         })
@@ -59,7 +59,7 @@ export default function CommonBreadcrumb() {
   const breadcrumbs = getBreadcrumbs()
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       <Breadcrumb>
         <BreadcrumbList className="text-base font-medium">
           {breadcrumbs.map((breadcrumb, index) => (

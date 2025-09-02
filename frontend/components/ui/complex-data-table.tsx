@@ -61,6 +61,11 @@ interface ComplexDataTableProps<T> {
   onSelectionReset?: () => void; // 선택 상태 초기화 콜백
   enableBulkDelete?: boolean; // 선택 삭제 기능 활성화 여부
   enableRowSelection?: boolean; // 행 선택 체크박스 활성화 여부
+  // 엑셀업로드 관련 props
+  enableExcelUpload?: boolean; // 엑셀업로드 버튼 활성화 여부
+  onExcelUpload?: () => void; // 엑셀업로드 핸들러
+  // 추가 버튼 관련 props
+  enableAddButton?: boolean; // 추가 버튼 활성화 여부
   // 추가 폼 관련 props
   enableAddForm?: boolean; // 추가 폼 활성화 여부
   showAddForm?: boolean;
@@ -101,6 +106,9 @@ export function ComplexDataTable<T extends Record<string, any>>({
   onSelectionReset,
   enableBulkDelete = true,
   enableRowSelection = true,
+  enableExcelUpload = false,
+  onExcelUpload,
+  enableAddButton = false,
   enableAddForm,
   showAddForm,
   onShowAddForm,
@@ -386,13 +394,10 @@ export function ComplexDataTable<T extends Record<string, any>>({
           </div>
 
           {/* Group 2: Column toggles & Actions */}
-          <div className="grid grid-cols-7 gap-4 items-center">
+          <div className="flex items-center justify-between">
             {/* Column visibility */}
             <div className="flex items-center space-x-2">
-              <h3 className="text-base font-semibold text-gray-900">표시할 열</h3>
-            </div>
-            
-            <div className="col-span-2">
+              <h3 className="text-base font-semibold text-gray-900 whitespace-nowrap">표시할 열</h3>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -430,31 +435,10 @@ export function ComplexDataTable<T extends Record<string, any>>({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div></div>
-            <div></div>
             
             {/* Action buttons */}
-            <div className="flex items-center justify-center w-full">
-              {/* Add buttons (v2 first, else v1) */}
-              {enableAddFormV2 && onShowAddFormV2 ? (
-                <button
-                  onClick={onShowAddFormV2}
-                  className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-6 py-2 transition-colors cursor-pointer text-base font-medium w-full"
-                >
-                  추가
-                </button>
-              ) : enableAddForm && onShowAddForm ? (
-                <button
-                  onClick={onShowAddForm}
-                  className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-6 py-2 transition-colors cursor-pointer text-base font-medium w-full"
-                >
-                  {showAddForm ? "취소" : "추가"}
-                </button>
-              ) : null}
-            </div>
-
-            {/* Bulk delete */}
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center space-x-3">
+              {/* Bulk delete */}
               {enableBulkDelete && (
                 <button
                   onClick={() => {
@@ -466,13 +450,33 @@ export function ComplexDataTable<T extends Record<string, any>>({
                   }}
                   disabled={selectedRows.size === 0 || !onBulkDelete}
                   className={cn(
-                    "px-6 py-2 transition-colors flex items-center justify-center space-x-2 border text-base font-medium w-full",
+                    "px-4 py-2 transition-colors flex items-center justify-center space-x-2 border min-w-[100px]",
                     selectedRows.size > 0 && onBulkDelete
                       ? "text-[#FD5108] border-[#FD5108]/70 hover:bg-[#FD5108]/10 bg-[#FD5108]/20 cursor-pointer"
                       : "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
                   )}
                 >
                   <span>삭제 ({selectedRows.size})</span>
+                </button>
+              )}
+              
+              {/* Excel upload */}
+              {enableExcelUpload && (
+                <button
+                  onClick={onExcelUpload}
+                  className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 transition-colors cursor-pointer border border-green-300 min-w-[120px]"
+                >
+                  엑셀 업로드
+                </button>
+              )}
+              
+              {/* Add button */}
+              {enableAddButton && onShowAddFormV2 && (
+                <button
+                  onClick={onShowAddFormV2}
+                  className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer min-w-[80px]"
+                >
+                  추가
                 </button>
               )}
             </div>

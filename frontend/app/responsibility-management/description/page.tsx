@@ -127,7 +127,7 @@ export default function DescriptionPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 pt-24 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 pt-24 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
         <H1 
           title="책무기술서 작성" 

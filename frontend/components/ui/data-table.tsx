@@ -27,6 +27,7 @@ export interface Column<T> {
   header: string
   visible: boolean
   width?: string
+  separator?: boolean
   render?: (value: any, row: T) => React.ReactNode
 }
 
@@ -521,12 +522,15 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Table */}
-      <div className="border-t border-b bg-white">
-        <Table>
+      <div className="border-t border-b bg-white w-full">
+        <Table className="w-full">
           <TableHeader>
             <TableRow className="bg-gray-50 hover:bg-gray-50">
               {enableRowSelection && (
-                <TableHead className="w-12 p-2">
+                <TableHead 
+                  className="w-12 p-2 !border-t !border-orange-600"
+                  style={{ borderTop: '1px solid #ea580c' }}
+                >
                   <Checkbox
                     checked={selectedRows.size === filteredData.length && filteredData.length > 0}
                     onCheckedChange={handleSelectAll}
@@ -535,12 +539,26 @@ export function DataTable<T extends Record<string, any>>({
                   />
                 </TableHead>
               )}
-              {visibleColumns.map((column) => (
-                <TableHead key={String(column.key)} className="p-2 font-semibold text-gray-900">
+              {visibleColumns.map((column, index) => (
+                <TableHead 
+                  key={String(column.key)} 
+                  className={cn(
+                    "p-2 font-semibold text-gray-900 !border-t !border-orange-600",
+                    column.separator && "border-l-2 border-gray-400"
+                  )}
+                  style={{ borderTop: '1px solid #ea580c' }}
+                >
                   {column.header}
                 </TableHead>
               ))}
-              {showActionColumn && <TableHead className="w-12 p-2">액션</TableHead>}
+              {showActionColumn && (
+                <TableHead 
+                  className="w-12 p-2 !border-t !border-orange-600"
+                  style={{ borderTop: '1px solid #ea580c' }}
+                >
+                  액션
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
 
@@ -610,7 +628,10 @@ export function DataTable<T extends Record<string, any>>({
                        return (
                          <TableCell 
                            key={String(column.key)} 
-                           className="p-2 text-gray-700 text-sm"
+                           className={cn(
+                             "p-2 text-gray-700 text-sm",
+                             column.separator && "border-l-2 border-gray-400"
+                           )}
                            rowSpan={rowSpan > 1 ? rowSpan : undefined}
                          >
                            {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}
