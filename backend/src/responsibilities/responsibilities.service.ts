@@ -1,153 +1,138 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateDutyDto } from './dto/create-duty.dto';
 import { UpdateDutyDto } from './dto/update-duty.dto';
 import { DutyResponseDto } from './dto/response-duty.dto';
 
 @Injectable()
 export class ResponsibilitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor() {}
 
   // 책무 생성
   async create(createDutyDto: CreateDutyDto): Promise<DutyResponseDto> {
-    // 책무코드 중복 확인
-    const existingDuty = await this.prisma.duty.findUnique({
-      where: { code: createDutyDto.code },
-    });
-
-    if (existingDuty) {
-      throw new BadRequestException('이미 존재하는 책무코드입니다.');
-    }
-
-    // 카테고리 존재 확인
-    const category = await this.prisma.dutyCategory.findUnique({
-      where: { id: createDutyDto.categoryId },
-    });
-
-    if (!category) {
-      throw new NotFoundException('존재하지 않는 책무구분입니다.');
-    }
-
-    // 책무와 세부내용 함께 생성
-    const duty = await this.prisma.duty.create({
-      data: {
-        code: createDutyDto.code,
-        name: createDutyDto.name,
-        categoryId: createDutyDto.categoryId,
-        details: createDutyDto.details ? {
-          create: createDutyDto.details.map(detail => ({
-            code: detail.code,
-            content: detail.content,
-          })),
-        } : undefined,
+    // 임시 더미 데이터 반환
+    return {
+      id: 'temp-id-' + Date.now(),
+      code: createDutyDto.code,
+      name: createDutyDto.name,
+      categoryId: createDutyDto.categoryId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: {
+        id: createDutyDto.categoryId,
+        name: '임시 카테고리',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
-      include: {
-        category: true,
-        details: true,
-      },
-    });
-
-    return duty;
+      details: createDutyDto.details ? createDutyDto.details.map(detail => ({
+        id: 'temp-detail-id-' + Date.now(),
+        code: detail.code,
+        content: detail.content,
+        dutyId: 'temp-id-' + Date.now(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })) : [],
+    };
   }
 
   // 책무 목록 조회 (간단한 버전)
   async findAll() {
-    return await this.prisma.duty.findMany({
-      include: {
-        category: true,
-        details: true,
+    // 임시 더미 데이터 반환
+    return [
+      {
+        id: 'temp-1',
+        code: 'D001',
+        name: '임시 책무 1',
+        categoryId: 'cat-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        category: {
+          id: 'cat-1',
+          name: '임시 카테고리 1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        details: [],
       },
-      orderBy: { createdAt: 'desc' },
-    });
+      {
+        id: 'temp-2',
+        code: 'D002',
+        name: '임시 책무 2',
+        categoryId: 'cat-2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        category: {
+          id: 'cat-2',
+          name: '임시 카테고리 2',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        details: [],
+      },
+    ];
   }
 
   // 책무 상세 조회
   async findOne(id: string): Promise<DutyResponseDto> {
-    const duty = await this.prisma.duty.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        details: true,
+    // 임시 더미 데이터 반환
+    return {
+      id: id,
+      code: 'D001',
+      name: '임시 책무',
+      categoryId: 'cat-1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: {
+        id: 'cat-1',
+        name: '임시 카테고리',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
-    });
-
-    if (!duty) {
-      throw new NotFoundException('존재하지 않는 책무입니다.');
-    }
-
-    return duty;
+      details: [],
+    };
   }
 
   // 책무 수정
   async update(id: string, updateDutyDto: UpdateDutyDto): Promise<DutyResponseDto> {
-    // 책무 존재 확인
-    const existingDuty = await this.prisma.duty.findUnique({
-      where: { id },
-    });
-
-    if (!existingDuty) {
-      throw new NotFoundException('존재하지 않는 책무입니다.');
-    }
-
-    // 책무코드 중복 확인 (자신 제외)
-    if (updateDutyDto.code && updateDutyDto.code !== existingDuty.code) {
-      const duplicateCode = await this.prisma.duty.findUnique({
-        where: { code: updateDutyDto.code },
-      });
-
-      if (duplicateCode) {
-        throw new BadRequestException('이미 존재하는 책무코드입니다.');
-      }
-    }
-
-    // 카테고리 존재 확인
-    if (updateDutyDto.categoryId) {
-      const category = await this.prisma.dutyCategory.findUnique({
-        where: { id: updateDutyDto.categoryId },
-      });
-
-      if (!category) {
-        throw new NotFoundException('존재하지 않는 책무구분입니다.');
-      }
-    }
-
-    // 책무 수정
-    const updatedDuty = await this.prisma.duty.update({
-      where: { id },
-      data: {
-        code: updateDutyDto.code,
-        name: updateDutyDto.name,
-        categoryId: updateDutyDto.categoryId,
+    // 임시 더미 데이터 반환
+    return {
+      id: id,
+      code: updateDutyDto.code || 'D001',
+      name: updateDutyDto.name || '임시 책무',
+      categoryId: updateDutyDto.categoryId || 'cat-1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      category: {
+        id: updateDutyDto.categoryId || 'cat-1',
+        name: '임시 카테고리',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
-      include: {
-        category: true,
-        details: true,
-      },
-    });
-
-    return updatedDuty;
+      details: [],
+    };
   }
 
   // 책무 삭제
   async remove(id: string): Promise<void> {
-    const duty = await this.prisma.duty.findUnique({
-      where: { id },
-    });
-
-    if (!duty) {
-      throw new NotFoundException('존재하지 않는 책무입니다.');
-    }
-
-    // 책무와 관련된 세부내용도 함께 삭제 (Cascade)
-    await this.prisma.duty.delete({
-      where: { id },
-    });
+    // 임시로 아무것도 하지 않음
+    console.log(`책무 ${id} 삭제 요청됨`);
   }
 
   // 책무구분 목록 조회
   async getCategories() {
-    return await this.prisma.dutyCategory.findMany({
-      orderBy: { name: 'asc' },
-    });
+    // 임시 더미 데이터 반환
+    return [
+      {
+        id: 'cat-1',
+        name: '임시 카테고리 1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'cat-2',
+        name: '임시 카테고리 2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
   }
 }

@@ -7,6 +7,8 @@ import { Pagination } from '@/components/ui/pagination';
 import CommonBreadcrumb from '../../executive/_components/Breadcrumb';
 import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ExecutiveEvaluationData, executiveEvaluationSampleData, getEvaluationStatusDisplay } from '@/data/executive-evaluation-data';
 import ExecutiveDetailModal from '@/components/ExecutiveDetailModal';
 import StatusCard_2 from '@/components/StatusCard_2';
@@ -17,6 +19,7 @@ import DeleteIcon from '@/components/ui/delete-icon';
 
 export default function ExecutiveFrontEvaluationPage() {
   const { isSidebarCollapsed } = useSidebar();
+  const pathname = usePathname();
   
   // 모달 관련 상태 관리
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -24,10 +27,10 @@ export default function ExecutiveFrontEvaluationPage() {
    
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    position: '',
-    jobTitle: '',
-    name: '',
-    evaluationStatus: ''
+    evaluationStatus: '',
+    evaluationResult: '',
+    employeeId: '',
+    name: ''
   });
 
   // H1 필터용 추가 상태 관리
@@ -93,34 +96,25 @@ export default function ExecutiveFrontEvaluationPage() {
       key: "name" as keyof ExecutiveEvaluationData,
       header: "성명",
       visible: true,
-      render: (value: any, row: any) => (
-        <button 
-          onClick={() => handleViewDetail(row)}
-          className="text-blue-600 underline cursor-pointer hover:text-blue-800"
-        >
-          {value}
-        </button>
-      )
-    },
-    {
-      key: "jobTitle" as keyof ExecutiveEvaluationData,
-      header: "직책",
-      visible: true
+      width: "w-24"
     },
     {
       key: "position" as keyof ExecutiveEvaluationData,
       header: "직위",
-      visible: true
+      visible: true,
+      width: "w-24"
     },
     {
-      key: "managedOrganization" as keyof ExecutiveEvaluationData,
-      header: "관리대상 조직",
-      visible: true
+      key: "employeeId" as keyof ExecutiveEvaluationData,
+      header: "사번",
+      visible: true,
+      width: "w-24"
     },
     {
       key: "evaluationStatus" as keyof ExecutiveEvaluationData,
       header: "평가상태",
       visible: true,
+      width: "w-28",
       render: (value: any, row: any) => (
         <StatusBadge status={value} />
       )
@@ -129,8 +123,26 @@ export default function ExecutiveFrontEvaluationPage() {
       key: "evaluationCompletionDate" as keyof ExecutiveEvaluationData,
       header: "평가완료일자",
       visible: true,
+      width: "w-32",
       render: (value: any, row: any) => (
         <span>{value || '-'}</span>
+      )
+    },
+    {
+      key: "evaluationResult" as keyof ExecutiveEvaluationData,
+      header: "평가결과",
+      visible: true,
+      width: "w-24",
+      render: (value: any, row: any) => (
+        <span className={`px-2 py-1 rounded text-xs font-medium ${
+          value === '적격' 
+            ? 'bg-green-100 text-green-700' 
+            : value === '비적격'
+            ? 'bg-red-100 text-red-700'
+            : 'bg-gray-100 text-gray-700'
+        }`}>
+          {value || '-'}
+        </span>
       )
     },
     {
@@ -177,62 +189,43 @@ export default function ExecutiveFrontEvaluationPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "position",
-      label: "직위",
+      key: "evaluationStatus",
+      label: "평가상태",
       type: "dropdown" as const,
       width: "w-32"
     },
     {
-      key: "jobTitle",
-      label: "직책",
+      key: "evaluationResult",
+      label: "평가결과",
       type: "dropdown" as const,
+      width: "w-32"
+    },
+    {
+      key: "employeeId",
+      label: "사번",
+      type: "input" as const,
       width: "w-32"
     },
     {
       key: "name",
       label: "성명",
-      type: "dropdown" as const,
-      width: "w-32"
-    },
-    {
-      key: "evaluationStatus",
-      label: "평가상태",
-      type: "dropdown" as const,
+      type: "input" as const,
       width: "w-32"
     }
   ];
 
   // 필터 옵션들
   const filterOptions = {
-    position: [
-      { value: "대표이사", label: "대표이사" },
-      { value: "상무", label: "상무" },
-      { value: "실장", label: "실장" },
-      { value: "부문장", label: "부문장" },
-      { value: "이사대우", label: "이사대우" }
-    ],
-    jobTitle: [
-      { value: "대표이사", label: "대표이사" },
-      { value: "ETF투자부문장", label: "ETF투자부문장" },
-      { value: "감사실장", label: "감사실장" },
-      { value: "경영관리부문장", label: "경영관리부문장" },
-      { value: "글로벌투자부문장", label: "글로벌투자부문장" },
-      { value: "금융소비자보호실장", label: "금융소비자보호실장" }
-    ],
-    name: [
-      { value: "전체", label: "전체" },
-      { value: "이도현", label: "이도현" },
-      { value: "황준호", label: "황준호" },
-      { value: "윤태섭", label: "윤태섭" },
-      { value: "노지환", label: "노지환" },
-      { value: "정유진", label: "정유진" },
-      { value: "임혜진", label: "임혜진" }
-    ],
     evaluationStatus: [
       { value: "전체", label: "전체" },
       { value: "completed", label: "완료" },
       { value: "in-progress", label: "진행중" },
       { value: "not-evaluated", label: "미평가" }
+    ],
+    evaluationResult: [
+      { value: "전체", label: "전체" },
+      { value: "적격", label: "적격" },
+      { value: "비적격", label: "비적격" }
     ]
   };
 
@@ -279,8 +272,40 @@ export default function ExecutiveFrontEvaluationPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 pt-10 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
+        
+        {/* 탭 네비게이션 */}
+        <div className="flex space-x-1 border-b border-gray-200">
+          <Link href="/master/executive_front" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/master/executive_front' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            임원리스트 관리
+          </Link>
+          <Link href="/master/executive_front/position" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/master/executive_front/position' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            임원별 직책관리
+          </Link>
+          <Link href="/master/executive_front/concurrent" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/master/executive_front/concurrent' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            겸직내역 관리
+          </Link>
+          <Link href="/master/executive_front/evaluation" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/master/executive_front/evaluation' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            임원적격성평가
+          </Link>
+        </div>
        
         <H1 
           title="임원적격성평가" 

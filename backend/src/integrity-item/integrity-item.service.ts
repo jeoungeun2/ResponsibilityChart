@@ -1,232 +1,176 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateIntegrityItemDto } from './dto/create-integrity-item.dto';
 import { UpdateIntegrityItemDto } from './dto/update-integrity-item.dto';
 
 @Injectable()
 export class IntegrityItemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   /**
    * 정직성 항목 생성
    */
   async create(dto: CreateIntegrityItemDto) {
-    // 임원 존재 여부 확인
-    const executive = await this.prisma.executive.findUnique({
-      where: { id: dto.executiveId }
-    });
-
-    if (!executive) {
-      throw new NotFoundException('임원을 찾을 수 없습니다.');
-    }
-
-    // 동일한 임원의 동일한 카테고리 항목이 이미 존재하는지 확인
-    const existingItem = await this.prisma.executiveIntegrityItem.findFirst({
-      where: {
-        executiveId: dto.executiveId,
-        category: dto.category
+    // 임시 더미 데이터 반환
+    return {
+      id: 'temp-integrity-id-' + Date.now(),
+      ...dto,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      executive: {
+        id: dto.executiveId,
+        name: '임시 임원',
+        positionLabel: '임시 직책',
+        titleLabel: '임시 직위'
       }
-    });
-
-    if (existingItem) {
-      throw new ConflictException('해당 임원의 동일한 카테고리 항목이 이미 존재합니다.');
-    }
-
-    return this.prisma.executiveIntegrityItem.create({
-      data: dto,
-      include: {
-        executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
-        }
-      }
-    });
+    };
   }
 
   /**
    * 정직성 항목 단건 조회
    */
   async findOne(id: string) {
-    const integrityItem = await this.prisma.executiveIntegrityItem.findUnique({
-      where: { id },
-      include: {
-        executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
-        }
+    // 임시 더미 데이터 반환
+    return {
+      id: id,
+      executiveId: 'temp-exec-id',
+      category: 'HONESTY',
+      result: 'PASS',
+      description: '임시 정직성 항목',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      executive: {
+        id: 'temp-exec-id',
+        name: '임시 임원',
+        positionLabel: '임시 직책',
+        titleLabel: '임시 직위'
       }
-    });
-
-    if (!integrityItem) {
-      throw new NotFoundException('정직성 항목을 찾을 수 없습니다.');
-    }
-
-    return integrityItem;
+    };
   }
 
   /**
    * 모든 정직성 항목 조회
    */
   async findAll() {
-    return this.prisma.executiveIntegrityItem.findMany({
-      include: {
+    // 임시 더미 데이터 반환
+    return [
+      {
+        id: 'temp-1',
+        executiveId: 'temp-exec-1',
+        category: 'HONESTY',
+        result: 'PASS',
+        description: '임시 정직성 항목 1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
+          id: 'temp-exec-1',
+          name: '임시 임원 1',
+          positionLabel: '임시 직책 1',
+          titleLabel: '임시 직위 1'
         }
       },
-      orderBy: [
-        { executive: { name: 'asc' } },
-        { category: 'asc' }
-      ]
-    });
+      {
+        id: 'temp-2',
+        executiveId: 'temp-exec-2',
+        category: 'RELIABILITY',
+        result: 'PASS',
+        description: '임시 정직성 항목 2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        executive: {
+          id: 'temp-exec-2',
+          name: '임시 임원 2',
+          positionLabel: '임시 직책 2',
+          titleLabel: '임시 직위 2'
+        }
+      }
+    ];
   }
 
   /**
    * 특정 임원의 정직성 항목 조회
    */
   async findByExecutiveId(executiveId: string) {
-    // 임원 존재 여부 확인
-    const executive = await this.prisma.executive.findUnique({
-      where: { id: executiveId }
-    });
-
-    if (!executive) {
-      throw new NotFoundException('임원을 찾을 수 없습니다.');
-    }
-
-    return this.prisma.executiveIntegrityItem.findMany({
-      where: { executiveId },
-      include: {
+    // 임시 더미 데이터 반환
+    return [
+      {
+        id: 'temp-integrity-id',
+        executiveId: executiveId,
+        category: 'HONESTY',
+        result: 'PASS',
+        description: '임시 정직성 항목',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
+          id: executiveId,
+          name: '임시 임원',
+          positionLabel: '임시 직책',
+          titleLabel: '임시 직위'
         }
-      },
-      orderBy: { category: 'asc' }
-    });
+      }
+    ];
   }
 
   /**
    * 카테고리별 정직성 항목 조회
    */
   async findByCategory(category: string) {
-    return this.prisma.executiveIntegrityItem.findMany({
-      where: { category: category as any },
-      include: {
+    // 임시 더미 데이터 반환
+    return [
+      {
+        id: 'temp-integrity-id',
+        executiveId: 'temp-exec-id',
+        category: category,
+        result: 'PASS',
+        description: '임시 정직성 항목',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
+          id: 'temp-exec-id',
+          name: '임시 임원',
+          positionLabel: '임시 직책',
+          titleLabel: '임시 직위'
         }
-      },
-      orderBy: { executive: { name: 'asc' } }
-    });
+      }
+    ];
   }
 
   /**
    * 정직성 항목 수정
    */
   async update(id: string, dto: UpdateIntegrityItemDto) {
-    // 정직성 항목 존재 여부 확인
-    await this.findOne(id);
-
-    // executiveId가 변경되는 경우, 새로운 임원 존재 여부 확인
-    if (dto.executiveId) {
-      const executive = await this.prisma.executive.findUnique({
-        where: { id: dto.executiveId }
-      });
-
-      if (!executive) {
-        throw new NotFoundException('임원을 찾을 수 없습니다.');
+    // 임시 더미 데이터 반환
+    return {
+      id: id,
+      executiveId: dto.executiveId || 'temp-exec-id',
+      category: dto.category || 'HONESTY',
+      result: dto.result || 'PASS',
+      description: dto.description || '임시 정직성 항목',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      executive: {
+        id: dto.executiveId || 'temp-exec-id',
+        name: '임시 임원',
+        positionLabel: '임시 직책',
+        titleLabel: '임시 직위'
       }
-    }
-
-    // 카테고리가 변경되는 경우, 동일한 임원의 동일한 카테고리 항목이 이미 존재하는지 확인
-    if (dto.category) {
-      const currentItem = await this.prisma.executiveIntegrityItem.findUnique({
-        where: { id }
-      });
-
-      if (!currentItem) {
-        throw new NotFoundException('정직성 항목을 찾을 수 없습니다.');
-      }
-
-      const existingItem = await this.prisma.executiveIntegrityItem.findFirst({
-        where: {
-          executiveId: dto.executiveId || currentItem.executiveId,
-          category: dto.category,
-          id: { not: id } // 현재 항목 제외
-        }
-      });
-
-      if (existingItem) {
-        throw new ConflictException('해당 임원의 동일한 카테고리 항목이 이미 존재합니다.');
-      }
-    }
-
-    return this.prisma.executiveIntegrityItem.update({
-      where: { id },
-      data: dto,
-      include: {
-        executive: {
-          select: {
-            id: true,
-            name: true,
-            positionLabel: true,
-            titleLabel: true
-          }
-        }
-      }
-    });
+    };
   }
 
   /**
    * 정직성 항목 삭제
    */
   async remove(id: string) {
-    // 정직성 항목 존재 여부 확인
-    await this.findOne(id);
-
-    return this.prisma.executiveIntegrityItem.delete({
-      where: { id }
-    });
+    // 임시로 아무것도 하지 않음
+    console.log(`정직성 항목 ${id} 삭제 요청됨`);
+    return { id };
   }
 
   /**
    * 특정 임원의 모든 정직성 항목 삭제
    */
   async removeByExecutiveId(executiveId: string) {
-    // 임원 존재 여부 확인
-    const executive = await this.prisma.executive.findUnique({
-      where: { id: executiveId }
-    });
-
-    if (!executive) {
-      throw new NotFoundException('임원을 찾을 수 없습니다.');
-    }
-
-    return this.prisma.executiveIntegrityItem.deleteMany({
-      where: { executiveId }
-    });
+    // 임시로 아무것도 하지 않음
+    console.log(`임원 ${executiveId}의 모든 정직성 항목 삭제 요청됨`);
+    return { count: 1 };
   }
 }

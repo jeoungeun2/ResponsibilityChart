@@ -14,9 +14,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import SaveButton from '@/app/master/department/_components/SaveButton';
-import ApprovalRequestButton from '@/app/master/department/_components/ApprovalRequestButton';
-import ApproveButton from '@/app/master/department/_components/ApproveButton';
-import RejectButton from '@/app/master/department/_components/RejectButton';
 
 interface AddExecutiveFormProps {
   open: boolean;
@@ -129,44 +126,7 @@ export default function AddExecutiveForm({
                   />
                 </div>
 
-                <div className="col-span-12 md:col-span-6">
-                  <label className={labelCls}>
-                    직책 <span className="text-red-500">*</span>
-                  </label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full px-4 justify-between"
-                      >
-                        <span className="truncate flex-1 text-left">
-                          {formData.position || "선택하세요"}
-                        </span>
-                        <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-full">
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("position", "대표이사")}
-                        className="cursor-pointer"
-                      >
-                        대표이사
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("position", "ETF투자부문장")}
-                        className="cursor-pointer"
-                      >
-                        ETF투자부문장
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onFormDataChange("position", "감사실장")}
-                        className="cursor-pointer"
-                      >
-                        감사실장
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+
 
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
@@ -176,7 +136,7 @@ export default function AddExecutiveForm({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full px-4 justify-between"
+                        className="w-full px-4 justify-between h-10"
                       >
                         <span className="truncate flex-1 text-left">
                           {formData.jobTitle || "선택하세요"}
@@ -299,29 +259,29 @@ export default function AddExecutiveForm({
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
-                    겸직여부 <span className="text-red-500">*</span>
+                    사외겸직여부 <span className="text-red-500">*</span>
                   </label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full px-4 justify-between"
+                        className="w-full px-4 justify-between h-10"
                       >
                         <span className="truncate flex-1 text-left">
-                          {formData.hasConcurrentPosition || "선택하세요"}
+                          {formData.hasExternalConcurrentPosition || "선택하세요"}
                         </span>
                         <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-full">
                       <DropdownMenuItem
-                        onClick={() => onFormDataChange("hasConcurrentPosition", "있음")}
+                        onClick={() => onFormDataChange("hasExternalConcurrentPosition", "있음")}
                         className="cursor-pointer"
                       >
                         있음
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => onFormDataChange("hasConcurrentPosition", "없음")}
+                        onClick={() => onFormDataChange("hasExternalConcurrentPosition", "없음")}
                         className="cursor-pointer"
                       >
                         없음
@@ -332,15 +292,57 @@ export default function AddExecutiveForm({
 
                 <div className="col-span-12 md:col-span-6">
                   <label className={labelCls}>
-                    겸직사항
+                    겸직업종
                   </label>
                   <Input
                     type="text"
-                    placeholder="겸직사항을 입력하세요"
-                    value={formData.concurrentPositionDetails || ""}
-                    onChange={(e) => onFormDataChange("concurrentPositionDetails", e.target.value)}
+                    placeholder="겸직업종을 입력하세요"
+                    value={formData.concurrentIndustry || ""}
+                    onChange={(e) => onFormDataChange("concurrentIndustry", e.target.value)}
                     className="w-full"
-                    disabled={formData.hasConcurrentPosition === "없음"}
+                    disabled={formData.hasExternalConcurrentPosition === "없음"}
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>
+                    겸직회사
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="겸직회사를 입력하세요"
+                    value={formData.concurrentCompany || ""}
+                    onChange={(e) => onFormDataChange("concurrentCompany", e.target.value)}
+                    className="w-full"
+                    disabled={formData.hasExternalConcurrentPosition === "없음"}
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>
+                    겸직직위
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="겸직직위를 입력하세요"
+                    value={formData.concurrentJobTitle || ""}
+                    onChange={(e) => onFormDataChange("concurrentJobTitle", e.target.value)}
+                    className="w-full"
+                    disabled={formData.hasExternalConcurrentPosition === "없음"}
+                  />
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className={labelCls}>
+                    겸직직책
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="겸직직책을 입력하세요"
+                    value={formData.concurrentPosition || ""}
+                    onChange={(e) => onFormDataChange("concurrentPosition", e.target.value)}
+                    className="w-full"
+                    disabled={formData.hasExternalConcurrentPosition === "없음"}
                   />
                 </div>
               </div>
@@ -351,19 +353,9 @@ export default function AddExecutiveForm({
               <SaveButton 
                 onClick={handleAdd}
                 disabled={isLoading || disabled}
-              />
-              <ApprovalRequestButton 
-                onClick={handleAdd}
-                disabled={isLoading || disabled}
-              />
-              <ApproveButton 
-                onClick={handleAdd}
-                disabled={isLoading}
-              />
-              <RejectButton 
-                onClick={handleAdd}
-                disabled={isLoading}
-              />
+              >
+                등록
+              </SaveButton>
             </div>
           </div>
         </div>

@@ -1,45 +1,27 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateExecutiveDto } from './dto/create-executive.dto';
 import { UpdateExecutiveDto } from './dto/update-executive.dto';
 import { SearchExecutiveDto } from './dto/search-executive.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ExecutivesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   /**
    * 임원 생성
    */
   async create(dto: CreateExecutiveDto) {
     try {
-      // 이름 중복 체크
-      const existingExecutive = await this.prisma.executive.findFirst({
-        where: { name: dto.name }
-      });
-
-      if (existingExecutive) {
-        throw new ConflictException('이미 존재하는 임원입니다.');
-      }
-
-      // 날짜 문자열을 Date 객체로 변환
-      const executiveData = {
+      // 임시 더미 데이터 반환
+      return {
+        id: 'temp-exec-id-' + Date.now(),
         ...dto,
         termStartDate: dto.termStartDate ? new Date(dto.termStartDate) : null,
         termEndDate: dto.termEndDate ? new Date(dto.termEndDate) : null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-
-      return await this.prisma.executive.create({
-        data: executiveData,
-      });
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 생성 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 생성 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -49,39 +31,25 @@ export class ExecutivesService {
    */
   async findOne(id: string) {
     try {
-      const executive = await this.prisma.executive.findUnique({
-        where: { id },
-        include: {
-          // 조직 등록 정보 (1:1 관계)
-          orgReg: true,
-          // 자격/경험 항목들 (1:N 관계)
-          qualiItems: {
-            orderBy: [
-              { type: 'asc' },
-              { periodStart: 'desc' }
-            ]
-          },
-          // 정직성/신뢰성 항목들 (1:N 관계)
-          integrity: {
-            orderBy: { category: 'asc' }
-          },
-          // 평가 정보 (1:1 관계)
-          evaluation: true,
-        },
-      });
-
-      if (!executive) {
-        throw new NotFoundException('임원을 찾을 수 없습니다.');
-      }
-
-      return executive;
+      // 임시 더미 데이터 반환
+      return {
+        id: id,
+        name: '임시 임원',
+        employeeNo: 'EMP001',
+        positionLabel: '임시 직책',
+        titleLabel: '임시 직위',
+        phone: '010-0000-0000',
+        email: 'temp@example.com',
+        termStartDate: new Date(),
+        termEndDate: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        orgReg: null,
+        qualiItems: [],
+        integrity: [],
+        evaluation: null,
+      };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 조회 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 조회 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -91,33 +59,44 @@ export class ExecutivesService {
    */
   async findAll() {
     try {
-      return await this.prisma.executive.findMany({
-        include: {
-          // 조직 등록 정보 (1:1 관계)
-          orgReg: true,
-          // 자격/경험 항목들 (1:N 관계)
-          qualiItems: {
-            orderBy: [
-              { type: 'asc' },
-              { periodStart: 'desc' }
-            ]
-          },
-          // 정직성/신뢰성 항목들 (1:N 관계)
-          integrity: {
-            orderBy: { category: 'asc' }
-          },
-          // 평가 정보 (1:1 관계)
-          evaluation: true,
+      // 임시 더미 데이터 반환
+      return [
+        {
+          id: 'temp-1',
+          name: '임시 임원 1',
+          employeeNo: 'EMP001',
+          positionLabel: '임시 직책 1',
+          titleLabel: '임시 직위 1',
+          phone: '010-0000-0001',
+          email: 'temp1@example.com',
+          termStartDate: new Date(),
+          termEndDate: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          orgReg: null,
+          qualiItems: [],
+          integrity: [],
+          evaluation: null,
         },
-        orderBy: [
-          { name: 'asc' },
-          { createdAt: 'desc' }
-        ],
-      });
+        {
+          id: 'temp-2',
+          name: '임시 임원 2',
+          employeeNo: 'EMP002',
+          positionLabel: '임시 직책 2',
+          titleLabel: '임시 직위 2',
+          phone: '010-0000-0002',
+          email: 'temp2@example.com',
+          termStartDate: new Date(),
+          termEndDate: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          orgReg: null,
+          qualiItems: [],
+          integrity: [],
+          evaluation: null,
+        },
+      ];
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 조회 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 목록 조회 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -134,87 +113,43 @@ export class ExecutivesService {
       const sortBy = q.sortBy || 'createdAt';
       const order = q.order || 'desc';
       
-      const skip = (page - 1) * take;
-
-      // 검색 조건 구성
-      const where: Prisma.ExecutiveWhereInput = {};
-      
-      // 키워드 검색 (이름 또는 이메일)
-      if (q.keyword && q.keyword.trim()) {
-        where.OR = [
-          { name: { contains: q.keyword.trim(), mode: 'insensitive' } },
-          { email: { contains: q.keyword.trim(), mode: 'insensitive' } },
-        ];
-      }
-      
-      // 날짜 범위 필터
-      if (q.startDate || q.endDate) {
-        where.createdAt = {};
-        if (q.startDate) {
-          where.createdAt.gte = q.startDate;
-        }
-        if (q.endDate) {
-          where.createdAt.lte = q.endDate;
-        }
-      }
-
-      // 연관 테이블 필터링
-      if (q.evaluationStatus) {
-        where.evaluation = {
-          status: q.evaluationStatus as any
-        };
-      }
-
-      if (q.qualiItemType) {
-        where.qualiItems = {
-          some: {
-            type: q.qualiItemType as any
-          }
-        };
-      }
-
-      if (q.integrityCategory) {
-        where.integrity = {
-          some: {
-            category: q.integrityCategory as any
-          }
-        };
-      }
-
-      // 전체 개수 조회 (필터링된 결과의 총 개수)
-      const total = await this.prisma.executive.count({ where });
-
-      // 데이터 조회 (검색용 - 최소한의 조인)
-      const executives = await this.prisma.executive.findMany({
-        where,
-        skip,
-        take,
-        orderBy: [
-          { [sortBy]: order },
-          { id: order === 'desc' ? 'desc' : 'asc' } // 안정적 정렬을 위한 복합 키
-        ],
-        select: {
-          id: true,
-          name: true,
-          employeeNo: true,
-          positionLabel: true,
-          titleLabel: true,
-          phone: true,
-          email: true,
-          termStartDate: true,
-          termEndDate: true,
-          createdAt: true,
-          updatedAt: true,
-          // 평가 상태만 간단히 조회
+      // 임시 더미 데이터 반환
+      const executives = [
+        {
+          id: 'temp-1',
+          name: '임시 임원 1',
+          employeeNo: 'EMP001',
+          positionLabel: '임시 직책 1',
+          titleLabel: '임시 직위 1',
+          phone: '010-0000-0001',
+          email: 'temp1@example.com',
+          termStartDate: new Date(),
+          termEndDate: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           evaluation: {
-            select: {
-              status: true
-            }
+            status: 'PENDING'
           }
         },
-      });
+        {
+          id: 'temp-2',
+          name: '임시 임원 2',
+          employeeNo: 'EMP002',
+          positionLabel: '임시 직책 2',
+          titleLabel: '임시 직위 2',
+          phone: '010-0000-0002',
+          email: 'temp2@example.com',
+          termStartDate: new Date(),
+          termEndDate: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          evaluation: {
+            status: 'COMPLETED'
+          }
+        },
+      ];
 
-      // 페이지네이션 메타데이터 계산
+      const total = executives.length;
       const totalPages = Math.ceil(total / take);
       const hasNext = page < totalPages;
       const hasPrev = page > 1;
@@ -233,9 +168,6 @@ export class ExecutivesService {
         },
       };
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 조회 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 검색 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -245,39 +177,27 @@ export class ExecutivesService {
    */
   async findByName(name: string) {
     try {
-      return await this.prisma.executive.findMany({
-        where: {
-          name: {
-            contains: name,
-            mode: 'insensitive', // 대소문자 구분 없음
-          },
+      // 임시 더미 데이터 반환
+      return [
+        {
+          id: 'temp-1',
+          name: '임시 임원 1',
+          employeeNo: 'EMP001',
+          positionLabel: '임시 직책 1',
+          titleLabel: '임시 직위 1',
+          phone: '010-0000-0001',
+          email: 'temp1@example.com',
+          termStartDate: new Date(),
+          termEndDate: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          orgReg: null,
+          qualiItems: [],
+          integrity: [],
+          evaluation: null,
         },
-        include: {
-          // 조직 등록 정보 (1:1 관계)
-          orgReg: true,
-          // 자격/경험 항목들 (1:N 관계)
-          qualiItems: {
-            orderBy: [
-              { type: 'asc' },
-              { periodStart: 'desc' }
-            ]
-          },
-          // 정직성/신뢰성 항목들 (1:N 관계)
-          integrity: {
-            orderBy: { category: 'asc' }
-          },
-          // 평가 정보 (1:1 관계)
-          evaluation: true,
-        },
-        orderBy: [
-          { name: 'asc' },
-          { createdAt: 'desc' }
-        ],
-      });
+      ];
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 조회 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('이름으로 임원 검색 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -287,27 +207,16 @@ export class ExecutivesService {
    */
   async update(id: string, dto: UpdateExecutiveDto) {
     try {
-      // 임원 존재 여부 확인
-      await this.findOne(id);
-
-      // 날짜 문자열을 Date 객체로 변환
-      const updateData = {
+      // 임시 더미 데이터 반환
+      return {
+        id: id,
         ...dto,
-        termStartDate: dto.termStartDate ? new Date(dto.termStartDate) : undefined,
-        termEndDate: dto.termEndDate ? new Date(dto.termEndDate) : undefined,
+        termStartDate: dto.termStartDate ? new Date(dto.termStartDate) : null,
+        termEndDate: dto.termEndDate ? new Date(dto.termEndDate) : null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-
-      return await this.prisma.executive.update({
-        where: { id },
-        data: updateData,
-      });
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 수정 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 수정 중 예상치 못한 오류가 발생했습니다.');
     }
   }
@@ -317,19 +226,10 @@ export class ExecutivesService {
    */
   async remove(id: string) {
     try {
-      // 임원 존재 여부 확인
-      await this.findOne(id);
-
-      return await this.prisma.executive.delete({
-        where: { id },
-      });
+      // 임시로 아무것도 하지 않음
+      console.log(`임원 ${id} 삭제 요청됨`);
+      return { id };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`데이터베이스 삭제 중 오류가 발생했습니다: ${error.message}`);
-      }
       throw new InternalServerErrorException('임원 삭제 중 예상치 못한 오류가 발생했습니다.');
     }
   }

@@ -43,11 +43,20 @@ export default function CommonBreadcrumb() {
         })
       }
       
-      // organization (조직 및 직책관리 Master)
+      // organization (직책(조직) Master)
       if (segments.includes('organization')) {
         breadcrumbs.push({
-          label: '조직 및 직책관리 Master',
+          label: '직책(조직) Master',
           href: '/master/organization',
+          isActive: true
+        })
+      }
+      
+      // meeting (회의체 Master)
+      if (segments.includes('meeting')) {
+        breadcrumbs.push({
+          label: '회의체 Master',
+          href: '/master/meeting',
           isActive: true
         })
       }

@@ -4,27 +4,27 @@ import { useState, useEffect } from 'react';
 import H1 from '@/components/layouts/h1';
 import { DataTable } from '@/components/ui/data-table';
 import { Pagination } from '@/components/ui/pagination';
-import CommonBreadcrumb from '../executive/_components/Breadcrumb';
-import Header from '../executive/_components/Header';
+import CommonBreadcrumb from '../../executive/_components/Breadcrumb';
+import Header from '../_components/Header';
 import { useSidebar } from '@/config/providers';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
-import { ExecutiveData, executiveSampleData } from '@/data/executive-data';
-import AddExecutiveForm from './_components/AddExecutiveForm';
+import { ExecutivePositionData, executivePositionSampleData } from '@/data/executive-position-data';
+import AddExecutivePositionForm from '../_components/AddExecutivePositionForm';
 
-export default function ExecutiveFrontPage() {
+export default function ExecutiveFrontPositionPage() {
   const { isSidebarCollapsed } = useSidebar();
   const pathname = usePathname();
   const [tableColumns, setTableColumns] = useState<any[]>([]);
   
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    managedOrganization: '',
+    referenceDate: '',
+    position: '',
     employeeId: '',
-    name: '',
-    term: ''
+    name: ''
   });
 
   // H1 필터용 추가 상태 관리
@@ -45,7 +45,7 @@ export default function ExecutiveFrontPage() {
   const totalPages = 5; // 5개 페이지가 있다고 가정
 
   // 실제 데이터는 모두 표시
-  const currentData = executiveSampleData;
+  const currentData = executivePositionSampleData;
 
   // 수정 버튼 클릭 핸들러
   const handleEdit = (row: any) => {
@@ -71,53 +71,49 @@ export default function ExecutiveFrontPage() {
   // 컬럼 정의
   const columns: any[] = [
     {
-      key: "name" as keyof ExecutiveData,
+      key: "name" as keyof ExecutivePositionData,
       header: "성명",
       visible: true,
       width: "w-24"
     },
-
     {
-      key: "jobTitle" as keyof ExecutiveData,
+      key: "jobTitle" as keyof ExecutivePositionData,
       header: "직위",
       visible: true,
       width: "w-24"
     },
     {
-      key: "employeeId" as keyof ExecutiveData,
+      key: "employeeId" as keyof ExecutivePositionData,
       header: "사번",
       visible: true,
       width: "w-24"
     },
     {
-      key: "phoneNumber" as keyof ExecutiveData,
-      header: "전화번호",
+      key: "positionCode" as keyof ExecutivePositionData,
+      header: "직책코드",
       visible: true,
       width: "w-32"
     },
     {
-      key: "email" as keyof ExecutiveData,
-      header: "이메일",
+      key: "position" as keyof ExecutivePositionData,
+      header: "직책",
       visible: true,
       width: "w-48"
     },
     {
-      key: "managedOrganization" as keyof ExecutiveData,
-      header: "관리대상조직",
+      key: "positionStartDate" as keyof ExecutivePositionData,
+      header: "직책부여일자",
       visible: true,
       width: "w-32"
     },
     {
-      key: "termStartDate" as keyof ExecutiveData,
-      header: "임기시작일자",
+      key: "positionEndDate" as keyof ExecutivePositionData,
+      header: "직책회수일자",
       visible: true,
-      width: "w-32"
-    },
-    {
-      key: "termEndDate" as keyof ExecutiveData,
-      header: "임기종료일자",
-      visible: true,
-      width: "w-32"
+      width: "w-32",
+      render: (value: any, row: any) => (
+        <span>{value || '-'}</span>
+      )
     },
     {
       key: "actions",
@@ -146,13 +142,17 @@ export default function ExecutiveFrontPage() {
 
   // 필터 옵션들
   const filterOptions = {
-    managedOrganization: [
+    position: [
       { value: "대표이사", label: "대표이사" },
-      { value: "ETF투자부문", label: "ETF투자부문" },
-      { value: "감사실", label: "감사실" },
-      { value: "경영관리부문", label: "경영관리부문" },
-      { value: "글로벌투자부문", label: "글로벌투자부문" },
-      { value: "금융소비자보호실", label: "금융소비자보호실" }
+      { value: "ETF투자부문장", label: "ETF투자부문장" },
+      { value: "감사실장", label: "감사실장" },
+      { value: "경영관리부문장", label: "경영관리부문장" },
+      { value: "글로벌투자부문장", label: "글로벌투자부문장" },
+      { value: "금융소비자보호실장", label: "금융소비자보호실장" },
+      { value: "리스크관리부문장", label: "리스크관리부문장" },
+      { value: "IT시스템부문장", label: "IT시스템부문장" },
+      { value: "재무관리실장", label: "재무관리실장" },
+      { value: "인사팀장", label: "인사팀장" }
     ]
   };
 
@@ -188,26 +188,29 @@ export default function ExecutiveFrontPage() {
     }));
   };
 
-  // 추가 폼 관련 핸들러들
-  const handleFormDataChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  // 폼 데이터 변경 핸들러
+  const handleFormDataChange = (data: Record<string, string>) => {
+    setFormData(data);
   };
 
-  const handleAdd = () => {
-    console.log('새 임원정보 추가:', formData);
-    // 여기에 실제 추가 로직 구현
+  // 추가/수정 핸들러
+  const handleAdd = (newData: any) => {
+    console.log('폼 데이터:', newData);
+    console.log('선택된 임원:', newData.executive);
+    console.log('직책 목록:', newData.positions);
+    if (isEditMode) {
+      alert('수정되었습니다.');
+    } else {
+      alert('추가되었습니다.');
+    }
     handleCloseModal();
   };
 
   // 일괄 삭제 핸들러
   const handleBulkDelete = (selectedIds: string[]) => {
-    if (confirm(`${selectedIds.length}개의 임원 정보를 삭제하시겠습니까?`)) {
+    if (confirm(`선택된 ${selectedIds.length}명의 임원을 삭제하시겠습니까?`)) {
       console.log('일괄 삭제:', selectedIds);
-      // 여기에 실제 삭제 로직을 구현할 수 있습니다
-      alert('삭제되었습니다.');
+      alert(`${selectedIds.length}명의 임원이 삭제되었습니다.`);
     }
   };
 
@@ -215,7 +218,6 @@ export default function ExecutiveFrontPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     console.log(`페이지 ${page}로 이동`);
-    // 여기에 실제 페이지 변경 로직을 구현할 수 있습니다
   };
 
   return (
@@ -268,7 +270,7 @@ export default function ExecutiveFrontPage() {
         </div>
         
         <H1 
-          title="임원리스트 관리" 
+          title="임원별 직책관리" 
         />
         
         <DataTable
@@ -282,8 +284,16 @@ export default function ExecutiveFrontPage() {
           filterOptions={filterOptions}
           filters={[
             {
-              key: "managedOrganization",
-              label: "관리대상조직",
+              key: "referenceDate",
+              label: "조회기준일자",
+              type: "date" as const,
+              width: "w-36",
+              required: true,
+              labelClassName: "text-orange-600 font-medium"
+            },
+            {
+              key: "position",
+              label: "직책",
               type: "dropdown" as const,
               width: "w-32"
             },
@@ -309,15 +319,12 @@ export default function ExecutiveFrontPage() {
           // 추가 버전 2 사용
           enableAddFormV2={true}
           addFormV2Modal={
-            <AddExecutiveForm
-              open={showAddForm}
-              onOpenChange={handleCloseModal}
-              formData={formData}
-              onFormDataChange={handleFormDataChange}
-              onAdd={handleAdd}
-              isLoading={false}
-              disabled={false}
-              isEdit={isEditMode}
+            <AddExecutivePositionForm
+              isOpen={showAddForm}
+              onClose={handleCloseModal}
+              onSubmit={handleAdd}
+              isEditMode={isEditMode}
+              initialData={editingRow}
             />
           }
           onShowAddFormV2={handleShowAddForm}
@@ -342,6 +349,7 @@ export default function ExecutiveFrontPage() {
           onPageChange={handlePageChange}
           className="mt-6 mb-8"
         />
+        
       </div>
     </div>
   );

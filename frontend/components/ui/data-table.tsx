@@ -235,71 +235,36 @@ export function DataTable<T extends Record<string, any>>({
     onSelectionReset?.()
   }, [onBulkDelete, selectedRows, onSelectionReset])
 
+  // 셀 병합을 위한 헬퍼 함수
+  const getCellSpan = useCallback((data: T[], columnKey: keyof T, currentIndex: number) => {
+    const currentValue = data[currentIndex][columnKey]
+    let span = 1
+    
+    // 현재 행부터 아래로 같은 값이 연속되는 개수를 계산
+    for (let i = currentIndex + 1; i < data.length; i++) {
+      if (data[i][columnKey] === currentValue) {
+        span++
+      } else {
+        break
+      }
+    }
+    
+    return span
+  }, [])
+
+  // 셀이 병합된 셀의 첫 번째 행인지 확인
+  const isFirstRowOfMergedCell = useCallback((data: T[], columnKey: keyof T, currentIndex: number) => {
+    if (currentIndex === 0) return true
+    return data[currentIndex][columnKey] !== data[currentIndex - 1][columnKey]
+  }, [])
+
   return (
     <div className={cn("space-y-4", className)}>
       {/* Filters & Columns Toolbar */}
       <div className="p-3 bg-brand-grey-100 border border-brand-grey-200">
         <div className="grid gap-3">
-          {/* Group 1: Search & Filters */}
-          <div className="space-y-4 border-b border-gray-300 pb-3">
-                         {/* 필터 제목 추가 */}
-             <div className="grid grid-cols-7 gap-2 items-center">
-               <div className="flex items-center space-x-2">
-                 <h3 className="text-base font-semibold text-gray-900">필터</h3>
-               </div>
-               
-               {/* 빈 공간 */}
-               <div></div>
-               <div></div>
-               <div></div>
-               <div></div>
-               
-               {/* 조회 버튼 */}
-               <div className={`hover:bg-gray-200 flex items-center justify-center ${
-                 Object.values(searchFilters || {}).some(value => value && value !== "") 
-                   ? "bg-brand-500/20" 
-                   : "bg-gray-100"
-               }`}>
-                 <Button 
-                   onClick={() => console.log("조회 실행:", searchFilters)}
-                   variant="ghost"
-                   size="icon"
-                   className="cursor-pointer hover:bg-gray-200"
-                   title="조회"
-                 >
-                   <div className="space-x-2 flex items-center">
-                     <div className=" text-brand-500 font-bold text-sm">조회</div>
-                     <Search className="h-4 w-4 text-brand-500 font-bold" />
-                   </div>
-                 </Button>
-               </div>
-
-               {/* 초기화 버튼 */}
-               <div className="bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
-                 <Button 
-                   onClick={() => {
-                     // 모든 필터 초기화
-                     if (onFilterChange) {
-                       Object.keys(searchFilters || {}).forEach(key => {
-                         onFilterChange(key, "")
-                       })
-                     }
-                     // 드롭다운 검색어 초기화
-                     setDropdownSearches({})
-                     console.log("필터 초기화 완료")
-                   }}
-                   variant="ghost"
-                   size="icon"
-                   className=" cursor-pointer hover:bg-gray-200"
-                   title="초기화"
-                 >
-                   <div className="space-x-2 flex items-center">
-                     <div className=" text-black font-bold text-sm">초기화</div>
-                     <div className="h-4 w-4 text-black font-bold text-center">↺</div>
-                   </div>
-                 </Button>
-               </div>
-             </div>
+                     {/* Group 1: Search & Filters */}
+           <div className="space-y-4 border-b border-gray-300 pb-3">
             
             {searchFilters && onFilterChange && (
               <div className="grid grid-cols-4 gap-4">
@@ -375,23 +340,25 @@ export function DataTable<T extends Record<string, any>>({
                     const isSelected = filterValue && filterValue !== ""
                     
                     return (
-                      <div key={filter.key} className="flex items-center space-x-3">
-                        <label className={`text-sm font-medium whitespace-nowrap ${
+                      <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
                           isSelected ? "text-brand-500" : "text-gray-700"
                         }`}>
                           {filter.label}
                         </label>
-                        <Input
-                          type="text"
-                          placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
-                          value={filterValue}
-                          onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                          className={`h-10 w-32 ${
-                            isSelected 
-                              ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
-                              : ""
-                          }`}
-                        />
+                        <div className="col-span-2">
+                          <Input
+                            type="text"
+                            placeholder={filter.placeholder || `${filter.label}을 입력하세요`}
+                            value={filterValue}
+                            onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                            className={`h-10 w-full ${
+                              isSelected 
+                                ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
+                                : ""
+                            }`}
+                          />
+                        </div>
                       </div>
                     )
                   }
@@ -402,7 +369,11 @@ export function DataTable<T extends Record<string, any>>({
                     return (
                       <div key={filter.key} className="flex items-center space-x-3">
                         <label className={`text-sm font-medium whitespace-nowrap ${
-                          isSelected ? "text-brand-500" : "text-gray-700"
+                          (filter as any).required 
+                            ? "text-orange-600" 
+                            : isSelected 
+                            ? "text-brand-500" 
+                            : "text-gray-700"
                         }`}>
                           {filter.label}
                         </label>
@@ -420,90 +391,131 @@ export function DataTable<T extends Record<string, any>>({
                 })}
               </div>
             )}
+
+            {/* 조회, 초기화 버튼 */}
+            <div className="flex items-center justify-end space-x-3">
+              {/* 조회 버튼 */}
+              <Button 
+                onClick={() => console.log("조회 실행:", searchFilters)}
+                variant="outline"
+                className={`cursor-pointer ${
+                  Object.values(searchFilters || {}).some(value => value && value !== "") 
+                    ? "border-brand-500 text-brand-500 hover:bg-brand-50" 
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Search className="h-4 w-4 mr-2" />
+                조회
+              </Button>
+
+              {/* 초기화 버튼 */}
+              <Button 
+                onClick={() => {
+                  // 모든 필터 초기화
+                  if (onFilterChange) {
+                    Object.keys(searchFilters || {}).forEach(key => {
+                      onFilterChange(key, "")
+                    })
+                  }
+                  // 드롭다운 검색어 초기화
+                  setDropdownSearches({})
+                  console.log("필터 초기화 완료")
+                }}
+                variant="outline"
+                className="cursor-pointer border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <div className="h-4 w-4 mr-2 text-center">↺</div>
+                초기화
+              </Button>
+            </div>
           </div>
 
-                     {/* Group 2: Column toggles & Actions */}
-           <div className="grid grid-cols-7 gap-4 items-center">
-             {/* Column visibility */}
-             <div className="flex items-center space-x-2">
-               <h3 className="text-base font-semibold text-gray-900">표시할 열</h3>
-             </div>
-             
-             <div className="col-span-2">
-               <DropdownMenu>
-                 <DropdownMenuTrigger asChild>
-                   <Button
-                     variant="outline"
-                     className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-full justify-between"
-                   >
-                     {visibleColumns.length === columns.length
-                       ? "전체선택"
-                       : visibleColumns.length === 1
-                       ? visibleColumns[0].header
-                       : `${visibleColumns.length}개 컬럼`}
-                     <ChevronDown className="ml-2 h-4 w-4" />
-                   </Button>
-                 </DropdownMenuTrigger>
-                 <DropdownMenuContent align="start" className="w-48">
-                   <DropdownMenuCheckboxItem
-                     checked={visibleColumns.length === columns.length}
-                     onCheckedChange={(checked) => {
-                       const v = checked === true
-                       onColumnsChange(columns.map((col) => ({ ...col, visible: v })))
-                     }}
-                   >
-                     전체선택
-                   </DropdownMenuCheckboxItem>
-                   <DropdownMenuSeparator />
-                   {columns.map((column) => (
-                     <DropdownMenuCheckboxItem
-                       key={String(column.key)}
-                       checked={column.visible}
-                       onCheckedChange={() => toggleColumnVisibility(column.key)}
-                     >
-                       {column.header}
-                     </DropdownMenuCheckboxItem>
-                   ))}
-                 </DropdownMenuContent>
-               </DropdownMenu>
-             </div>
-<div></div>
-<div></div>
-             {/* Action buttons */}
-           
-               {/* Bulk delete */}
-               {enableBulkDelete && (
-                 <button
-                   onClick={handleBulkDeleteClick}
-                   disabled={selectedRows.size === 0 || !onBulkDelete}
-                   className={cn(
-                     "px-4 py-2 transition-colors flex items-center justify-center space-x-2 border",
-                     selectedRows.size > 0 && onBulkDelete
-                       ? "text-[#FD5108] border-[#FD5108]/70 hover:bg-[#FD5108]/10 bg-[#FD5108]/20 cursor-pointer"
-                       : "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
-                   )}
-                 >
-                   <span>삭제 ({selectedRows.size})</span>
-                 </button>
-               )}
+                                           {/* Group 2: Column toggles & Actions */}
+            <div className="flex items-center justify-between">
+              {/* Left side: Column visibility */}
+              <div className="flex items-center space-x-4">
+                <h3 className="text-base font-semibold text-gray-900">표시할 열</h3>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-10 px-4 border-gray-200 hover:bg-gray-50 w-40 justify-between"
+                    >
+                      {visibleColumns.length === columns.length
+                        ? "전체선택"
+                        : visibleColumns.length === 1
+                        ? visibleColumns[0].header
+                        : `${visibleColumns.length}개 컬럼`}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuCheckboxItem
+                      checked={visibleColumns.length === columns.length}
+                      onCheckedChange={(checked) => {
+                        const v = checked === true
+                        onColumnsChange(columns.map((col) => ({ ...col, visible: v })))
+                      }}
+                    >
+                      전체선택
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuSeparator />
+                    {columns.map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={String(column.key)}
+                        checked={column.visible}
+                        onCheckedChange={() => toggleColumnVisibility(column.key)}
+                      >
+                        {column.header}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-               {/* Add buttons (v2 first, else v1) */}
-               {enableAddFormV2 && onShowAddFormV2 ? (
-                 <button
-                   onClick={onShowAddFormV2}
-                   className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
-                 >
-                   추가
-                 </button>
-               ) : enableAddForm && onShowAddForm ? (
-                 <button
-                   onClick={onShowAddForm}
-                   className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
-                 >
-                   {showAddForm ? "취소" : "추가"}
-                 </button>
-               ) : null}
-             </div>
+              {/* Right side: Action buttons */}
+              <div className="flex items-center space-x-3">
+                {/* Bulk delete */}
+                {enableBulkDelete && (
+                  <button
+                    onClick={handleBulkDeleteClick}
+                    disabled={selectedRows.size === 0 || !onBulkDelete}
+                    className={cn(
+                      "px-4 py-2 transition-colors flex items-center justify-center space-x-2 border",
+                      selectedRows.size > 0 && onBulkDelete
+                        ? "text-[#FD5108] border-[#FD5108]/70 hover:bg-[#FD5108]/10 bg-[#FD5108]/20 cursor-pointer"
+                        : "text-gray-400 border-gray-300 bg-gray-100 cursor-not-allowed"
+                    )}
+                  >
+                    <span>삭제 ({selectedRows.size})</span>
+                  </button>
+                )}
+
+                {/* Excel Upload button */}
+                <button
+                  className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 transition-colors cursor-pointer border border-green-300"
+                >
+                  엑셀 업로드
+                </button>
+
+                {/* Add buttons (v2 first, else v1) */}
+                {enableAddFormV2 && onShowAddFormV2 ? (
+                  <button
+                    onClick={onShowAddFormV2}
+                    className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
+                  >
+                    추가
+                  </button>
+                ) : enableAddForm && onShowAddForm ? (
+                  <button
+                    onClick={onShowAddForm}
+                    className="bg-gray-900/60 border border-gray-900/70 hover:bg-gray-800 text-white px-4 py-2 transition-colors cursor-pointer"
+                  >
+                    {showAddForm ? "취소" : "추가"}
+                  </button>
+                ) : null}
+              </div>
+            </div>
           
         </div>
       </div>
@@ -583,11 +595,28 @@ export function DataTable<T extends Record<string, any>>({
                       </TableCell>
                     )}
 
-                    {visibleColumns.map((column) => (
-                      <TableCell key={String(column.key)} className="p-2 text-gray-700 text-sm">
-                        {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}
-                      </TableCell>
-                    ))}
+                                         {visibleColumns.map((column) => {
+                       const columnKey = column.key
+                       const isMergedColumn = columnKey === 'jobCode'
+                       
+                       // 병합할 컬럼이고 첫 번째 행이 아닌 경우 셀을 렌더링하지 않음
+                       if (isMergedColumn && !isFirstRowOfMergedCell(filteredData, columnKey, index)) {
+                         return null
+                       }
+                       
+                       // 병합할 컬럼인 경우 rowSpan 적용
+                       const rowSpan = isMergedColumn ? getCellSpan(filteredData, columnKey, index) : 1
+                       
+                       return (
+                         <TableCell 
+                           key={String(column.key)} 
+                           className="p-2 text-gray-700 text-sm"
+                           rowSpan={rowSpan > 1 ? rowSpan : undefined}
+                         >
+                           {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}
+                         </TableCell>
+                       )
+                     })}
 
                     {showActionColumn && (
                       <TableCell className="p-1.5">

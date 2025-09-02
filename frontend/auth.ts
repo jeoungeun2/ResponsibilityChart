@@ -1,6 +1,4 @@
 import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/prisma"
 import CredentialsProvider from "next-auth/providers/credentials";
 import { comparePassword } from "./lib/password-utils";
 import * as jwt from "jsonwebtoken";
@@ -9,7 +7,6 @@ import { JWT } from "next-auth/jwt";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   useSecureCookies: process.env.NODE_ENV === "production",
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
   
   secret: process.env.AUTH_SECRET,
   providers: [
@@ -32,12 +29,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("이메일과 비밀번호를 입력해주세요.");
         }
 
-        // 2. DB에서 유저를 찾기
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string,
-          },
-        });
+        // 2. 임시 더미 유저 데이터 (Prisma 제거로 인한 임시 처리)
+        const user = {
+          id: 'temp-user-id',
+          email: credentials.email as string,
+          hashedPassword: '$2b$10$temp.hash.for.testing',
+          name: '임시 사용자',
+          image: null,
+          emailVerified: null
+        };
 
         if (!user) {
           throw new Error("존재하지 않는 이메일입니다.");

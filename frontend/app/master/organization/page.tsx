@@ -30,6 +30,11 @@ export default function OrganizationPage() {
   // 조회기준일자 변경 시 데이터 재조회
   useEffect(() => {
     console.log('조회기준일자 변경:', referenceDate);
+    // 필터 상태도 업데이트
+    setSearchFilters(prev => ({
+      ...prev,
+      referenceDate: referenceDate
+    }));
     // 여기에 실제 API 호출 로직을 구현할 수 있습니다
     // 예: fetchOrganizationData(referenceDate);
   }, [referenceDate]);
@@ -39,8 +44,7 @@ export default function OrganizationPage() {
     jobTitle: '',
     orgDivision: '',
     managedOrg: '',
-    startDate: '',
-    endDate: ''
+    referenceDate: referenceDate
   });
 
 
@@ -52,6 +56,12 @@ export default function OrganizationPage() {
   // 필터 설정 정의
   const filters = [
     {
+      key: "referenceDate",
+      label: "조회기준일자",
+      type: "date" as const,
+      width: "w-auto"
+    },
+    {
       key: "jobTitle",
       label: "직책",
       type: "dropdown" as const,
@@ -62,18 +72,6 @@ export default function OrganizationPage() {
       label: "조직구분",
       type: "dropdown" as const,
       width: "w-40"
-    },
-    {
-      key: "startDate",
-      label: "조회대상기간",
-      type: "date" as const,
-      width: "w-auto"
-    },
-    {
-      key: "endDate",
-      label: "~",
-      type: "date" as const,
-      width: "w-auto"
     },
     {
       key: "managedOrg",
@@ -163,6 +161,11 @@ export default function OrganizationPage() {
       ...prev,
       [key]: value
     }));
+    
+    // 조회기준일자 필터가 변경되면 referenceDate 상태도 업데이트
+    if (key === 'referenceDate') {
+      setReferenceDate(value);
+    }
   };
 
 
@@ -247,12 +250,6 @@ export default function OrganizationPage() {
       <Header 
         rightContent={
           <div className="flex items-center space-x-3">
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
-              </svg>
-              <span>업로드</span>
-            </button>
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -265,19 +262,7 @@ export default function OrganizationPage() {
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
         <H1 
-          title="조직 및 직책관리 Master" 
-          rightContent={
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                조회기준일자
-              </label>
-              <StartDateFilter
-                startDate={referenceDate}
-                onStartDateChange={setReferenceDate}
-                placeholder="연도-월-일"
-              />
-            </div>
-          }
+          title="직책(조직) Master" 
         />
         
         <DataTable

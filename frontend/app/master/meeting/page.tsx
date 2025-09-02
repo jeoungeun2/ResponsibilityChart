@@ -7,31 +7,27 @@ import { Pagination } from '@/components/ui/pagination';
 import CommonBreadcrumb from '../executive/_components/Breadcrumb';
 import Header from '../executive/_components/Header';
 import { useSidebar } from '@/config/providers';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import EditIcon from '@/components/ui/edit-icon';
 import DeleteIcon from '@/components/ui/delete-icon';
-import { ExecutiveData, executiveSampleData } from '@/data/executive-data';
-import AddExecutiveForm from './_components/AddExecutiveForm';
+import { MeetingData, meetingSampleData } from '@/data/meeting-data';
+import AddMeetingForm from './_components/AddMeetingForm';
 
-export default function ExecutiveFrontPage() {
+export default function MeetingMasterPage() {
   const { isSidebarCollapsed } = useSidebar();
-  const pathname = usePathname();
   const [tableColumns, setTableColumns] = useState<any[]>([]);
   
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    managedOrganization: '',
+    meetingBody: '',
     employeeId: '',
-    name: '',
-    term: ''
+    name: ''
   });
 
   // H1 필터용 추가 상태 관리
   const [h1Filters, setH1Filters] = useState<Record<string, string>>({
-    position: '',
-    jobTitle: '',
-    managedOrganization: ''
+    meetingBody: '',
+    roleType: '',
+    name: ''
   });
 
   // 추가 폼 관련 상태 관리
@@ -45,7 +41,7 @@ export default function ExecutiveFrontPage() {
   const totalPages = 5; // 5개 페이지가 있다고 가정
 
   // 실제 데이터는 모두 표시
-  const currentData = executiveSampleData;
+  const currentData = meetingSampleData;
 
   // 수정 버튼 클릭 핸들러
   const handleEdit = (row: any) => {
@@ -54,16 +50,14 @@ export default function ExecutiveFrontPage() {
     
     // 기존 데이터를 폼에 설정
     setFormData({
-      name: row.name || '',
-      position: row.position || '',
-      jobTitle: row.jobTitle || '',
+      meetingBody: row.meetingBody || '',
+      roleType: row.roleType || '',
+      meetingFrequency: row.meetingFrequency || '',
+      mainDecisions: row.mainDecisions || '',
       employeeId: row.employeeId || '',
-      phoneNumber: row.phoneNumber || '',
-      email: row.email || '',
-      termStartDate: row.termStartDate || '',
-      termEndDate: row.termEndDate || '',
-      hasConcurrentPosition: row.hasConcurrentPosition || '',
-      concurrentPositionDetails: row.concurrentPositionDetails || ''
+      name: row.name || '',
+      effectiveStartDate: row.effectiveStartDate || '',
+      effectiveEndDate: row.effectiveEndDate || ''
     });
     setShowAddForm(true);
   };
@@ -71,53 +65,55 @@ export default function ExecutiveFrontPage() {
   // 컬럼 정의
   const columns: any[] = [
     {
-      key: "name" as keyof ExecutiveData,
-      header: "성명",
+      key: "meetingBody" as keyof MeetingData,
+      header: "주관회의체",
+      visible: true,
+      width: "w-32"
+    },
+    {
+      key: "roleType" as keyof MeetingData,
+      header: "위원장/위원",
+      visible: true,
+      width: "w-28"
+    },
+    {
+      key: "meetingFrequency" as keyof MeetingData,
+      header: "개최주기",
       visible: true,
       width: "w-24"
     },
-
     {
-      key: "jobTitle" as keyof ExecutiveData,
-      header: "직위",
+      key: "mainDecisions" as keyof MeetingData,
+      header: "주요심의의결사항",
       visible: true,
-      width: "w-24"
+      width: "w-48"
     },
     {
-      key: "employeeId" as keyof ExecutiveData,
+      key: "employeeId" as keyof MeetingData,
       header: "사번",
       visible: true,
       width: "w-24"
     },
     {
-      key: "phoneNumber" as keyof ExecutiveData,
-      header: "전화번호",
+      key: "name" as keyof MeetingData,
+      header: "성명",
+      visible: true,
+      width: "w-24"
+    },
+    {
+      key: "effectiveStartDate" as keyof MeetingData,
+      header: "적용시작일자",
       visible: true,
       width: "w-32"
     },
     {
-      key: "email" as keyof ExecutiveData,
-      header: "이메일",
+      key: "effectiveEndDate" as keyof MeetingData,
+      header: "적용종료일자",
       visible: true,
-      width: "w-48"
-    },
-    {
-      key: "managedOrganization" as keyof ExecutiveData,
-      header: "관리대상조직",
-      visible: true,
-      width: "w-32"
-    },
-    {
-      key: "termStartDate" as keyof ExecutiveData,
-      header: "임기시작일자",
-      visible: true,
-      width: "w-32"
-    },
-    {
-      key: "termEndDate" as keyof ExecutiveData,
-      header: "임기종료일자",
-      visible: true,
-      width: "w-32"
+      width: "w-32",
+      render: (value: any, row: any) => (
+        <span>{value || '-'}</span>
+      )
     },
     {
       key: "actions",
@@ -146,13 +142,14 @@ export default function ExecutiveFrontPage() {
 
   // 필터 옵션들
   const filterOptions = {
-    managedOrganization: [
-      { value: "대표이사", label: "대표이사" },
-      { value: "ETF투자부문", label: "ETF투자부문" },
-      { value: "감사실", label: "감사실" },
-      { value: "경영관리부문", label: "경영관리부문" },
-      { value: "글로벌투자부문", label: "글로벌투자부문" },
-      { value: "금융소비자보호실", label: "금융소비자보호실" }
+    meetingBody: [
+      { value: "이사회", label: "이사회" },
+      { value: "리스크관리위원회", label: "리스크관리위원회" },
+      { value: "감사위원회", label: "감사위원회" },
+      { value: "투자위원회", label: "투자위원회" },
+      { value: "IT위원회", label: "IT위원회" },
+      { value: "소비자보호위원회", label: "소비자보호위원회" },
+      { value: "경영관리위원회", label: "경영관리위원회" }
     ]
   };
 
@@ -188,26 +185,28 @@ export default function ExecutiveFrontPage() {
     }));
   };
 
-  // 추가 폼 관련 핸들러들
-  const handleFormDataChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  // 폼 데이터 변경 핸들러
+  const handleFormDataChange = (data: Record<string, string>) => {
+    setFormData(data);
   };
 
-  const handleAdd = () => {
-    console.log('새 임원정보 추가:', formData);
-    // 여기에 실제 추가 로직 구현
+  // 추가/수정 핸들러
+  const handleAdd = (newData: any) => {
+    console.log('폼 데이터:', newData);
+    console.log('멤버 데이터:', newData.members);
+    if (isEditMode) {
+      alert('수정되었습니다.');
+    } else {
+      alert('추가되었습니다.');
+    }
     handleCloseModal();
   };
 
   // 일괄 삭제 핸들러
   const handleBulkDelete = (selectedIds: string[]) => {
-    if (confirm(`${selectedIds.length}개의 임원 정보를 삭제하시겠습니까?`)) {
+    if (confirm(`선택된 ${selectedIds.length}개의 회의체 정보를 삭제하시겠습니까?`)) {
       console.log('일괄 삭제:', selectedIds);
-      // 여기에 실제 삭제 로직을 구현할 수 있습니다
-      alert('삭제되었습니다.');
+      alert(`${selectedIds.length}개의 회의체 정보가 삭제되었습니다.`);
     }
   };
 
@@ -215,7 +214,6 @@ export default function ExecutiveFrontPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     console.log(`페이지 ${page}로 이동`);
-    // 여기에 실제 페이지 변경 로직을 구현할 수 있습니다
   };
 
   return (
@@ -234,41 +232,8 @@ export default function ExecutiveFrontPage() {
       />
       <div className={`max-w-7xl mx-auto space-y-6 ${isSidebarCollapsed ? '' : 'px-8'}`}>
         <CommonBreadcrumb />
-        
-        {/* 탭 네비게이션 */}
-        <div className="flex space-x-1 border-b border-gray-200">
-          <Link href="/master/executive_front" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            pathname === '/master/executive_front' 
-              ? 'text-brand-600 border-brand-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-          }`}>
-            임원리스트 관리
-          </Link>
-          <Link href="/master/executive_front/position" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            pathname === '/master/executive_front/position' 
-              ? 'text-brand-600 border-brand-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-          }`}>
-            임원별 직책관리
-          </Link>
-          <Link href="/master/executive_front/concurrent" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            pathname === '/master/executive_front/concurrent' 
-              ? 'text-brand-600 border-brand-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-          }`}>
-            겸직내역 관리
-          </Link>
-          <Link href="/master/executive_front/evaluation" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            pathname === '/master/executive_front/evaluation' 
-              ? 'text-brand-600 border-brand-600' 
-              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-          }`}>
-            임원적격성평가
-          </Link>
-        </div>
-        
         <H1 
-          title="임원리스트 관리" 
+          title="회의체 Master" 
         />
         
         <DataTable
@@ -282,8 +247,8 @@ export default function ExecutiveFrontPage() {
           filterOptions={filterOptions}
           filters={[
             {
-              key: "managedOrganization",
-              label: "관리대상조직",
+              key: "meetingBody",
+              label: "회의체",
               type: "dropdown" as const,
               width: "w-32"
             },
@@ -306,29 +271,26 @@ export default function ExecutiveFrontPage() {
           enableBulkDelete={true}
           // 일괄 삭제 핸들러
           onBulkDelete={handleBulkDelete}
-          // 추가 버전 2 사용
+          // 추가 버전 2 사용 (조직 마스터와 동일하게)
           enableAddFormV2={true}
           addFormV2Modal={
-            <AddExecutiveForm
-              open={showAddForm}
-              onOpenChange={handleCloseModal}
-              formData={formData}
-              onFormDataChange={handleFormDataChange}
-              onAdd={handleAdd}
-              isLoading={false}
-              disabled={false}
-              isEdit={isEditMode}
+            <AddMeetingForm
+              isOpen={showAddForm}
+              onClose={handleCloseModal}
+              onSubmit={handleAdd}
+              isEditMode={isEditMode}
+              initialData={editingRow}
             />
           }
           onShowAddFormV2={handleShowAddForm}
           // 기존 추가 폼 비활성화
           enableAddForm={false}
-          showAddForm={false}
+          showAddForm={showAddForm}
           onShowAddForm={() => {}}
-          formData={{}}
+          formData={formData}
           formFields={[]}
-          onFormDataChange={() => {}}
-          onAdd={() => {}}
+          onFormDataChange={handleFormDataChange}
+          onAdd={handleAdd}
           isAddLoading={false}
           isNameValid={true}
           // 액션 컬럼 비활성화 (별도 actions 컬럼 사용)
@@ -342,6 +304,7 @@ export default function ExecutiveFrontPage() {
           onPageChange={handlePageChange}
           className="mt-6 mb-8"
         />
+        
       </div>
     </div>
   );

@@ -222,64 +222,6 @@ export function ComplexDataTable<T extends Record<string, any>>({
         <div className="grid gap-3">
           {/* Group 1: Search & Filters */}
           <div className="space-y-4 border-b border-gray-300 pb-3">
-            {/* 필터 제목 추가 */}
-            <div className="grid grid-cols-7 gap-2 items-center">
-              <div className="flex items-center space-x-2">
-                <h3 className="text-base font-semibold text-gray-900">필터</h3>
-              </div>
-              
-              {/* 빈 공간 */}
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              
-              {/* 조회 버튼 */}
-              <div className={`hover:bg-gray-200 flex items-center justify-center ${
-                Object.values(searchFilters || {}).some(value => value && value !== "") 
-                  ? "bg-brand-500/20" 
-                  : "bg-gray-100"
-              }`}>
-                <Button 
-                  onClick={() => console.log("조회 실행:", searchFilters)}
-                  variant="ghost"
-                  size="icon"
-                  className="cursor-pointer hover:bg-gray-200"
-                  title="조회"
-                >
-                  <div className="space-x-2 flex items-center">
-                    <div className=" text-brand-500 font-bold text-sm">조회</div>
-                    <Search className="h-4 w-4 text-brand-500 font-bold" />
-                  </div>
-                </Button>
-              </div>
-
-              {/* 초기화 버튼 */}
-              <div className="bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
-                <Button 
-                  onClick={() => {
-                    // 모든 필터 초기화
-                    if (onFilterChange) {
-                      Object.keys(searchFilters || {}).forEach(key => {
-                        onFilterChange(key, "")
-                      })
-                    }
-                    // 드롭다운 검색어 초기화
-                    setDropdownSearches({})
-                    console.log("필터 초기화 완료")
-                  }}
-                  variant="ghost"
-                  size="icon"
-                  className=" cursor-pointer hover:bg-gray-200"
-                  title="초기화"
-                >
-                  <div className="space-x-2 flex items-center">
-                    <div className=" text-black font-bold text-sm">초기화</div>
-                    <div className="h-4 w-4 text-black font-bold text-center">↺</div>
-                  </div>
-                </Button>
-              </div>
-            </div>
             
             {searchFilters && onFilterChange && (
               <div className="grid grid-cols-4 gap-4">
@@ -404,6 +346,43 @@ export function ComplexDataTable<T extends Record<string, any>>({
                 })}
               </div>
             )}
+
+            {/* 조회, 초기화 버튼 */}
+            <div className="flex items-center justify-end space-x-3">
+              {/* 조회 버튼 */}
+              <Button 
+                onClick={() => console.log("조회 실행:", searchFilters)}
+                variant="outline"
+                className={`cursor-pointer ${
+                  Object.values(searchFilters || {}).some(value => value && value !== "") 
+                    ? "border-brand-500 text-brand-500 hover:bg-brand-50" 
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Search className="h-4 w-4 mr-2" />
+                조회
+              </Button>
+
+              {/* 초기화 버튼 */}
+              <Button 
+                onClick={() => {
+                  // 모든 필터 초기화
+                  if (onFilterChange) {
+                    Object.keys(searchFilters || {}).forEach(key => {
+                      onFilterChange(key, "")
+                    })
+                  }
+                  // 드롭다운 검색어 초기화
+                  setDropdownSearches({})
+                  console.log("필터 초기화 완료")
+                }}
+                variant="outline"
+                className="cursor-pointer border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <div className="h-4 w-4 mr-2 text-center">↺</div>
+                초기화
+              </Button>
+            </div>
           </div>
 
           {/* Group 2: Column toggles & Actions */}

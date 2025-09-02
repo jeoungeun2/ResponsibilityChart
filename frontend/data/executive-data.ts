@@ -8,6 +8,8 @@ export interface ExecutiveData {
   email: string;
   managedOrganization: string;
   term: string;
+  termStartDate: string;
+  termEndDate: string;
   hasConcurrentPosition: string;
   concurrentPositionDetails?: string;
 }
@@ -23,6 +25,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "lee.dohyun@corp.com",
     managedOrganization: "대표이사",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -35,6 +39,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "hwang.junho@corp.com",
     managedOrganization: "ETF투자부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "있음",
     concurrentPositionDetails: "ETF운용위원회 위원"
   },
@@ -48,6 +54,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "yoon.taeseob@corp.com",
     managedOrganization: "감사실",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -60,6 +68,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "kim.minsu@corp.com",
     managedOrganization: "자산운용부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "있음",
     concurrentPositionDetails: "투자심의위원회 위원"
   },
@@ -73,6 +83,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "park.jiyoung@corp.com",
     managedOrganization: "자산관리부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -85,6 +97,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "choi.donghyun@corp.com",
     managedOrganization: "글로벌투자부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "있음",
     concurrentPositionDetails: "해외투자심의위원회 위원"
   },
@@ -98,6 +112,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "jung.sujin@corp.com",
     managedOrganization: "IT부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -110,6 +126,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "han.seungwoo@corp.com",
     managedOrganization: "인사부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "있음",
     concurrentPositionDetails: "인사위원회 위원"
   },
@@ -123,6 +141,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "song.mira@corp.com",
     managedOrganization: "재무부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -135,6 +155,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "kang.hyunwoo@corp.com",
     managedOrganization: "법무부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "있음",
     concurrentPositionDetails: "법무위원회 위원"
   },
@@ -148,6 +170,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "lim.seoyeon@corp.com",
     managedOrganization: "ETF투자부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -160,6 +184,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "oh.junho@corp.com",
     managedOrganization: "IT부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -172,6 +198,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "yoon.seoa@corp.com",
     managedOrganization: "IT부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -184,6 +212,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "bae.junseok@corp.com",
     managedOrganization: "인사부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   },
   {
@@ -196,6 +226,8 @@ export const executiveSampleData: ExecutiveData[] = [
     email: "cho.eunyoung@corp.com",
     managedOrganization: "재무부문",
     term: "2024.01.01 ~ 2026.12.31",
+    termStartDate: "2024.01.01",
+    termEndDate: "2026.12.31",
     hasConcurrentPosition: "없음"
   }
 ];

@@ -28,15 +28,11 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
     {
       href: '/master',
       label: '책무구조 Master',
-      subItems: [
+                   subItems: [
+        { href: '/master/organization', label: '직책(조직) Master' },
+        { href: '/master/meeting', label: '회의체 Master' },
         { href: '/master/executive_front', label: '임원관리 Master' },  
-
-
-         { href: '/master/organization', label: '조직 및 직책관리 Master' },
-
-          { href: '/master/department', label: '책무관리 Master' },
-             
-       
+        { href: '/master/department', label: '책무관리 Master' },
       ],
       imageSrc: '/images/data-analysis (1).png',
     },
@@ -85,7 +81,7 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       aria-label="사이드바 내비게이션"
     >
       {/* 헤더 / 토글 버튼 */}
-      <div className="flex items-center justify-between px-6  h-15 flex-shrink-0 bg-[#ec5a29]">
+      <div className="flex items-center justify-between px-6 h-14 flex-shrink-0 bg-[#ec5a29]">
         <div className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
           {!isCollapsed && (
             <div className="w-16 h-12 flex items-center justify-center  ">

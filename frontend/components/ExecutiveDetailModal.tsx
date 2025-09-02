@@ -21,7 +21,19 @@ export default function ExecutiveDetailModal({
   initialEditMode = false
 }: ExecutiveDetailModalProps) {
   const [isEditing, setIsEditing] = useState(initialEditMode);
-  const [editData, setEditData] = useState<any>({});
+  const [editData, setEditData] = useState<any>({
+    name: '',
+    employeeId: '',
+    jobTitle: '',
+    position: '',
+    evaluationStatus: '',
+    evaluationCompletionDate: '',
+    evaluationResult: '',
+    judgmentReason: '',
+    supportingDocuments: [],
+    selectedFile: '',
+    fileName: ''
+  });
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 모달이 열릴 때마다 편집 데이터 초기화
@@ -29,6 +41,7 @@ export default function ExecutiveDetailModal({
     if (executive) {
       setEditData({
         name: executive.name || '',
+        employeeId: executive.employeeId || '',
         jobTitle: executive.jobTitle || '',
         position: executive.position || '',
         evaluationStatus: executive.evaluationStatus || '',
@@ -151,13 +164,14 @@ export default function ExecutiveDetailModal({
                <h3 className="text-lg font-semibold text-gray-900 mb-4">임원 정보</h3>
                                <div className="border border-gray-200 overflow-hidden">
                   {/* 헤더 행 */}
-                  <div className="grid grid-cols-3 border-b border-gray-300">
+                  <div className="grid grid-cols-4 border-b border-gray-300">
                     <div className="text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">성명</div>
+                    <div className="text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center border-l border-gray-300">사번</div>
                     <div className="text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center border-l border-gray-300">직책</div>
                     <div className="text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center border-l border-gray-300">직위</div>
                   </div>
                                      {/* 내용 행 */}
-                   <div className="grid grid-cols-3">
+                   <div className="grid grid-cols-4">
                      <div className="px-4 py-1.5 text-gray-800 flex items-center text-[14px]">
                        {isEditing ? (
                          <Input
@@ -168,6 +182,18 @@ export default function ExecutiveDetailModal({
                          />
                        ) : (
                          <span>{executive.name || '-'}</span>
+                       )}
+                     </div>
+                     <div className="px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                       {isEditing ? (
+                         <Input
+                           type="text"
+                           value={editData.employeeId}
+                           onChange={(e) => handleInputChange('employeeId', e.target.value)}
+                           className="w-full h-8 text-[14px]"
+                         />
+                       ) : (
+                         <span>{executive.employeeId || '-'}</span>
                        )}
                      </div>
                      <div className="px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
@@ -206,20 +232,36 @@ export default function ExecutiveDetailModal({
                  평가결과
                </h3>
                
-               {/* 평가결과 */}
-               <div className="mb-6">
-                 <label className="block text-base font-medium text-gray-600 mb-2">평가결과</label>
-                 {isEditing ? (
-                   <Input
-                     value={editData.evaluationResult || ''}
-                     onChange={(e) => handleInputChange('evaluationResult', e.target.value)}
-                     placeholder="평가결과를 입력하세요"
-                   />
-                 ) : (
-                   <div className="px-3 py-2 bg-gray-50">
-                     {executive.evaluationResult || '평가결과가 입력되지 않았습니다.'}
-                   </div>
-                 )}
+               {/* 평가결과와 평가일자 */}
+               <div className="grid grid-cols-2 gap-4 mb-6">
+                 <div>
+                   <label className="block text-base font-medium text-gray-600 mb-2">평가결과</label>
+                   {isEditing ? (
+                     <Input
+                       value={editData.evaluationResult || ''}
+                       onChange={(e) => handleInputChange('evaluationResult', e.target.value)}
+                       placeholder="평가결과를 입력하세요"
+                     />
+                   ) : (
+                     <div className="px-3 py-2 bg-gray-50">
+                       {executive.evaluationResult || '평가결과가 입력되지 않았습니다.'}
+                     </div>
+                   )}
+                 </div>
+                 <div>
+                   <label className="block text-base font-medium text-gray-600 mb-2">평가일자</label>
+                   {isEditing ? (
+                     <Input
+                       type="date"
+                       value={editData.evaluationCompletionDate || ''}
+                       onChange={(e) => handleInputChange('evaluationCompletionDate', e.target.value)}
+                     />
+                   ) : (
+                     <div className="px-3 py-2 bg-gray-50">
+                       {executive.evaluationCompletionDate || '평가일자가 입력되지 않았습니다.'}
+                     </div>
+                   )}
+                 </div>
                </div>
 
                {/* 판단사유 */}
@@ -249,11 +291,16 @@ export default function ExecutiveDetailModal({
                         <div className="space-y-2">
                           <label className="block text-sm font-medium text-gray-600">기존 증빙서류</label>
                           <div className="space-y-2">
-                            {editData.supportingDocuments.map((doc: string, index: number) => (
+                            {editData.supportingDocuments.map((doc: any, index: number) => (
                               <div key={index} className="flex items-center justify-between px-3 py-2 bg-gray-100 border border-[#EC6437]">
                                 <div className="flex items-center space-x-2">
                                   <img src="/images/folder.png" alt="폴더" className="w-4 h-4" />
-                                  <span className="text-sm font-medium text-gray-900">{doc}</span>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-900">{doc.fileName || doc}</span>
+                                    {doc.uploadDateTime && (
+                                      <span className="text-xs text-gray-500">업로드: {doc.uploadDateTime}</span>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <button className="text-[#EC6437] hover:text-[#d45a2f] text-sm flex items-center space-x-1 cursor-pointer">
@@ -341,11 +388,16 @@ export default function ExecutiveDetailModal({
                     <div className="space-y-2">
                       {executive.supportingDocuments && executive.supportingDocuments.length > 0 ? (
                         <div className="space-y-2">
-                          {executive.supportingDocuments.map((doc: string, index: number) => (
+                          {executive.supportingDocuments.map((doc: any, index: number) => (
                             <div key={index} className="flex items-center justify-between px-3 py-2 bg-gray-100 border border-[#EC6437]">
                               <div className="flex items-center space-x-2">
                                 <img src="/images/folder.png" alt="폴더" className="w-4 h-4" />
-                                <span className="text-sm font-medium text-gray-900">{doc}</span>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-medium text-gray-900">{doc.fileName || doc}</span>
+                                  {doc.uploadDateTime && (
+                                    <span className="text-xs text-gray-500">업로드: {doc.uploadDateTime}</span>
+                                  )}
+                                </div>
                               </div>
                               <button className="text-[#EC6437] hover:text-[#d45a2f] text-sm flex items-center space-x-1 cursor-pointer">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

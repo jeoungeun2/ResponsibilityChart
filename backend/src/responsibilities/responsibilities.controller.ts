@@ -19,7 +19,7 @@ import { CreateDutyDto } from './dto/create-duty.dto';
 import { UpdateDutyDto } from './dto/update-duty.dto';
 import { DutyResponseDto } from './dto/response-duty.dto';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
-import type { Duty, DutyCategory } from '@prisma/client';
+
 
 
 @ApiTags('책무 관리')
