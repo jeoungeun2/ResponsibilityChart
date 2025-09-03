@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { executiveResponsibilityData } from "@/data/executive-responsibility-data";
 
 export default async function Home() {
-  const session = await auth();
+  // 정적 빌드를 위해 auth() 호출 제거
+  // const session = await auth();
 
   return (
     <div className="min-h-screen bg-gray-100">
