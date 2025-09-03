@@ -12,6 +12,8 @@ import ResponsibilityCheckModal from '@/components/ResponsibilityCheckModal';
 import StatusCard from '@/components/StatusCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import ActionButton from '@/components/ui/ActionButton';
+import { SearchFilter, FilterConfig } from '@/components/ui/SearchFilter';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table2';
 
 export default function ManagementPage() {
   const { isSidebarCollapsed } = useSidebar();
@@ -22,13 +24,20 @@ export default function ManagementPage() {
   const [modalActionType, setModalActionType] = useState<'inspect' | 'view'>('inspect');
    
   // 필터 관련 상태 관리
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  const currentMonth = (currentDate.getMonth() + 1).toString();
+
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    controlActivityCode: '',
+    targetYear: currentYear,
+    targetMonth: currentMonth,
     responsibleDepartment: '',
+    responsibleTeam: '',
+    executiveName: '',
     implementationStatus: '',
     inspectionStatus: '',
-    targetYear: '',
-    responsibleTeam: ''
+    inspectionResult: '',
+    reviewStatus: ''
   });
 
   // 페이지네이션 관련 상태 관리
@@ -51,28 +60,23 @@ export default function ManagementPage() {
   // 컬럼 정의 (함수 내부로 이동)
   const columns: any[] = [
     {
-      key: "controlActivityCode" as keyof ResponsibilityCheckManagementData,
-      header: "통제활동코드",
+      key: "managementActionCode" as keyof ResponsibilityCheckManagementData,
+      header: "관리조치코드",
       visible: true
     },
     {
-      key: "controlActivityName" as keyof ResponsibilityCheckManagementData,
-      header: "통제활동명",
-      visible: true
-    },
-    {
-      key: "controlActivity" as keyof ResponsibilityCheckManagementData,
-      header: "통제활동",
+      key: "managementAction" as keyof ResponsibilityCheckManagementData,
+      header: "관리조치",
       visible: true
     },
     {
       key: "responsibleDepartment" as keyof ResponsibilityCheckManagementData,
-      header: "담당부서",
+      header: "소관부서",
       visible: true
     },
     {
       key: "responsibleTeam" as keyof ResponsibilityCheckManagementData,
-      header: "담당팀",
+      header: "소관팀",
       visible: true
     },
     {
@@ -82,12 +86,7 @@ export default function ManagementPage() {
     },
     {
       key: "implementationDeadline" as keyof ResponsibilityCheckManagementData,
-      header: "이행기한",
-      visible: true
-    },
-    {
-      key: "inspectionDate" as keyof ResponsibilityCheckManagementData,
-      header: "점검일자",
+      header: "제출기한",
       visible: true
     },
     {
@@ -101,6 +100,31 @@ export default function ManagementPage() {
       )
     },
     {
+      key: "reviewer" as keyof ResponsibilityCheckManagementData,
+      header: "리뷰어",
+      visible: true
+    },
+    {
+      key: "reviewStatus" as keyof ResponsibilityCheckManagementData,
+      header: "리뷰상태",
+      visible: true,
+      render: (value: any, row: any) => (
+        <div className="min-w-[80px]">
+          <StatusBadge status={row.reviewStatus} />
+        </div>
+      )
+    },
+    {
+      key: "reviewDate" as keyof ResponsibilityCheckManagementData,
+      header: "리뷰일자",
+      visible: true
+    },
+    {
+      key: "responsibleExecutive" as keyof ResponsibilityCheckManagementData,
+      header: "담당임원",
+      visible: true
+    },
+    {
       key: "inspectionStatus" as keyof ResponsibilityCheckManagementData,
       header: "점검상태",
       visible: true,
@@ -109,6 +133,11 @@ export default function ManagementPage() {
           <StatusBadge status={row.inspectionStatus} />
         </div>
       )
+    },
+    {
+      key: "inspectionDate" as keyof ResponsibilityCheckManagementData,
+      header: "점검일자",
+      visible: true
     },
     {
       key: "inspectionResult" as keyof ResponsibilityCheckManagementData,
@@ -123,9 +152,12 @@ export default function ManagementPage() {
         if (result === '적정') {
           bgColor = 'bg-blue-100 text-blue-800';
           borderColor = 'border-blue-300';
-        } else if (result === '보완필요') {
+        } else if (result === '보완필요' || result === '미흡') {
           bgColor = 'bg-red-100 text-red-800';
           borderColor = 'border-red-300';
+        } else if (result === '대상없음') {
+          bgColor = 'bg-gray-100 text-gray-800';
+          borderColor = 'border-gray-300';
         }
         
         return (
@@ -142,10 +174,18 @@ export default function ManagementPage() {
       render: (value: any, row: any) => {
         const inspectionStatus = row.inspectionStatus;
         const implementationStatus = row.implementationStatus;
+        const inspectionResult = row.inspectionResult;
         
-        const actionType = (inspectionStatus === '완료' && implementationStatus === '승인요청') 
-          ? 'view' as const 
-          : 'inspect' as const;
+        let actionType: 'inspect' | 'view';
+        
+        // 점검결과가 "대상없음"인 경우 상세보기
+        if (inspectionResult === '대상없음') {
+          actionType = 'view' as const;
+        } else if (inspectionStatus === '완료' && implementationStatus === '승인요청') {
+          actionType = 'view' as const;
+        } else {
+          actionType = 'inspect' as const;
+        }
         
         return (
           <ActionButton
@@ -162,61 +202,84 @@ export default function ManagementPage() {
   // 필터 설정 정의
   const filters = [
     {
-      key: "controlActivityCode",
-      label: "통제활동코드",
+      key: "targetYear",
+      label: "대상연도",
       type: "dropdown" as const,
-      width: "w-40"
-    },
+      width: "w-40",
+      required: true
+    } as FilterConfig,
+    {
+      key: "targetMonth",
+      label: "대상월",
+      type: "dropdown" as const,
+      width: "w-40",
+      required: true
+    } as FilterConfig,
     {
       key: "responsibleDepartment",
-      label: "담당부서",
+      label: "소관부서",
       type: "dropdown" as const,
-      width: "w-32"
-    },
+      width: "w-40"
+    } as FilterConfig,
+    {
+      key: "responsibleTeam",
+      label: "소관팀",
+      type: "dropdown" as const,
+      width: "w-40"
+    } as FilterConfig,
+    {
+      key: "executiveName",
+      label: "임원명",
+      type: "input" as const,
+      width: "w-40"
+    } as FilterConfig,
     {
       key: "implementationStatus",
       label: "이행상태",
       type: "dropdown" as const,
-      width: "w-28"
-    },
+      width: "w-40"
+    } as FilterConfig,
     {
       key: "inspectionStatus",
       label: "점검상태",
       type: "dropdown" as const,
-      width: "w-28"
-    },
+      width: "w-40"
+    } as FilterConfig,
     {
-      key: "targetYear",
-      label: "대상연도",
+      key: "inspectionResult",
+      label: "점검결과",
       type: "dropdown" as const,
-      width: "w-32"
-    },
+      width: "w-40"
+    } as FilterConfig,
     {
-      key: "responsibleTeam",
-      label: "담당팀",
+      key: "reviewStatus",
+      label: "리뷰상태",
       type: "dropdown" as const,
-      width: "w-32"
-    }
+      width: "w-40"
+    } as FilterConfig
   ];
 
   // 필터 옵션들
   const filterOptions = {
-    controlActivityCode: [
-      { value: "CE-지정책임", label: "CE-지정책임" },
-      { value: "EQ-금융업무", label: "EQ-금융업무" },
-      { value: "CE-영업활동", label: "CE-영업활동" },
-      { value: "CE-개인고객", label: "CE-개인고객" },
-      { value: "CE-기업금융", label: "CE-기업금융" },
-      { value: "CE-자산관리", label: "CE-자산관리" },
-      { value: "CE-투자운용", label: "CE-투자운용" },
-      { value: "CE-정보시스템", label: "CE-정보시스템" },
-      { value: "CE-인사관리", label: "CE-인사관리" },
-      { value: "CE-재무관리", label: "CE-재무관리" },
-      { value: "CE-법무관리", label: "CE-법무관리" },
-      { value: "CE-구매관리", label: "CE-구매관리" },
-      { value: "CE-품질관리", label: "CE-품질관리" },
-      { value: "CE-환경관리", label: "CE-환경관리" },
-      { value: "CE-고객서비스", label: "CE-고객서비스" }
+    targetYear: [
+      { value: "2024", label: "2024년" },
+      { value: "2023", label: "2023년" },
+      { value: "2022", label: "2022년" },
+      { value: "2021", label: "2021년" }
+    ],
+    targetMonth: [
+      { value: "1", label: "1월" },
+      { value: "2", label: "2월" },
+      { value: "3", label: "3월" },
+      { value: "4", label: "4월" },
+      { value: "5", label: "5월" },
+      { value: "6", label: "6월" },
+      { value: "7", label: "7월" },
+      { value: "8", label: "8월" },
+      { value: "9", label: "9월" },
+      { value: "10", label: "10월" },
+      { value: "11", label: "11월" },
+      { value: "12", label: "12월" }
     ],
     responsibleDepartment: [
       { value: "준법감시실", label: "준법감시실" },
@@ -235,30 +298,44 @@ export default function ManagementPage() {
       { value: "환경그룹", label: "환경그룹" },
       { value: "고객서비스그룹", label: "고객서비스그룹" }
     ],
+    responsibleTeam: [
+      { value: "준법감시팀", label: "준법감시팀" },
+      { value: "리스크팀", label: "리스크팀" },
+      { value: "영업팀", label: "영업팀" },
+      { value: "개인팀", label: "개인팀" },
+      { value: "CIB팀", label: "CIB팀" },
+      { value: "자산관리팀", label: "자산관리팀" },
+      { value: "투자운용팀", label: "투자운용팀" },
+      { value: "IT팀", label: "IT팀" },
+      { value: "인사팀", label: "인사팀" },
+      { value: "재무팀", label: "재무팀" },
+      { value: "법무팀", label: "법무팀" },
+      { value: "구매팀", label: "구매팀" },
+      { value: "품질팀", label: "품질팀" },
+      { value: "환경팀", label: "환경팀" },
+      { value: "고객서비스팀", label: "고객서비스팀" }
+    ],
     implementationStatus: [
       { value: "승인요청", label: "승인요청" },
       { value: "미완료", label: "미완료" },
-      { value: "완료", label: "완료" }
+      { value: "완료", label: "완료" },
+      { value: "대상없음", label: "대상없음" }
     ],
     inspectionStatus: [
       { value: "완료", label: "완료" },
       { value: "진행중", label: "진행중" },
-      { value: "미점검", label: "미점검" }
+      { value: "미점검", label: "미점검" },
+      { value: "반려", label: "반려" }
     ],
-    targetYear: [
-      { value: "전체", label: "전체" },
-      { value: "2024", label: "2024년" },
-      { value: "2023", label: "2023년" },
-      { value: "2022", label: "2022년" },
-      { value: "2021", label: "2021년" }
+    inspectionResult: [
+      { value: "적정", label: "적정" },
+      { value: "미흡", label: "미흡" },
+      { value: "대상없음", label: "대상없음" }
     ],
-    responsibleTeam: [
-      { value: "전체", label: "전체" },
-      { value: "준법팀", label: "준법팀" },
-      { value: "리스크팀", label: "리스크팀" },
-      { value: "영업팀", label: "영업팀" },
-      { value: "개인팀", label: "개인팀" },
-      { value: "CIB팀", label: "CIB팀" }
+    reviewStatus: [
+      { value: "미완료", label: "미완료" },
+      { value: "승인완료", label: "승인완료" },
+      { value: "반려", label: "반려" }
     ]
   };
 
@@ -284,12 +361,6 @@ export default function ManagementPage() {
           <div className="flex items-center space-x-3">
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12 " />
-              </svg>
-              <span>업로드</span>
-            </button>
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>다운로드</span>
@@ -297,14 +368,22 @@ export default function ManagementPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 pt-14 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 pt-14 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
         <H1 title="관리조치 이행 점검" />
         
+        {/* 검색 필터 */}
+        <SearchFilter
+          searchFilters={searchFilters}
+          onFilterChange={handleFilterChange}
+          filterOptions={filterOptions}
+          filters={filters}
+        />
+
         {/* 상태 카드 그리드 */}
         <div className="grid grid-cols-4 gap-6">
           <StatusCard 
-            title="책무활동이행완료" 
+            title="관리조치이행완료" 
             value="364" 
             subValue="/489건"
             image="/images/complete2.png"
@@ -331,7 +410,7 @@ export default function ManagementPage() {
             subValueColor="text-gray-500"
           />
           <StatusCard 
-            title="점검결과 : 보완필요" 
+            title="점검결과 : 미흡" 
             value="2" 
             subValue="/172건"
             image="/images/alert-sign.png"
@@ -340,25 +419,45 @@ export default function ManagementPage() {
             subValueColor="text-gray-500"
           />
         </div>
-        
-        <DataTable
-          data={responsibilityCheckManagementData}
-          columns={tableColumns}
-          onColumnsChange={setTableColumns}
-          className="w-full"
-          // 필터 관련 props
-          searchFilters={searchFilters}
-          onFilterChange={handleFilterChange}
-          filterOptions={filterOptions}
-          filters={filters}
-          // 추가 버튼 및 체크박스 비활성화
-          enableAddForm={false}
-          enableRowSelection={false}
-          // 삭제 기능 비활성화
-          enableBulkDelete={false}
-          // 액션 컬럼 비활성화
-          showActionColumn={false}
-        />
+
+        {/* 데이터 테이블 */}
+        <div className="border-t border-b bg-white w-full">
+          <Table className="w-full">
+            <TableHeader>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                {tableColumns.map((column, index) => (
+                  <TableHead 
+                    key={String(column.key)} 
+                    className={`p-2 font-semibold text-gray-900 !border-t !border-orange-600 ${
+                      column.key === 'implementationStatus' || column.key === 'reviewDate' ? 'border-r border-gray-300' : ''
+                    }`}
+                  >
+                    {column.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {responsibilityCheckManagementData.map((item, index) => (
+                <TableRow
+                  key={item.id || index}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  {tableColumns.map((column, columnIndex) => (
+                    <TableCell 
+                      key={String(column.key)} 
+                      className={`p-2 text-gray-700 text-sm ${
+                        column.key === 'implementationStatus' || column.key === 'reviewDate' ? 'border-r border-dashed border-gray-300' : ''
+                      }`}
+                    >
+                      {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         {/* 페이지네이션 */}
         <Pagination

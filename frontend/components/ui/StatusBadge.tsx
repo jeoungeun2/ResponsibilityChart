@@ -42,12 +42,22 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'bg-gray-300';
       case '미점검':
         return 'bg-gray-300';
+      case '반려':
+        return 'bg-red-300';
+      case '대상없음':
+        return 'bg-gray-400';
       case 'rejected':
       case '거부':
         return 'bg-red-300';
       case 'approved':
       case '승인':
         return 'bg-blue-300';
+      case '승인완료':
+        return 'bg-green-300';
+      case '승인대기':
+        return 'bg-yellow-300';
+      case '미등록':
+        return 'bg-gray-400';
       default:
         return 'bg-gray-300';
     }
@@ -76,10 +86,20 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return '미완료';
       case '미점검':
         return '미점검';
+      case '반려':
+        return '반려';
+      case '대상없음':
+        return '대상없음';
       case 'rejected':
         return '거부';
       case 'approved':
         return '승인';
+      case '승인완료':
+        return '승인완료';
+      case '승인대기':
+        return '승인대기';
+      case '미등록':
+        return '미등록';
       default:
         return status;
     }
@@ -112,12 +132,22 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'text-gray-800';
       case '미점검':
         return 'text-gray-800';
+      case '반려':
+        return 'text-red-800';
+      case '대상없음':
+        return 'text-gray-800';
       case 'rejected':
       case '거부':
         return 'text-red-800';
       case 'approved':
       case '승인':
         return 'text-blue-800';
+      case '승인완료':
+        return 'text-green-800';
+      case '승인대기':
+        return 'text-yellow-800';
+      case '미등록':
+        return 'text-gray-800';
       default:
         return 'text-gray-800';
     }

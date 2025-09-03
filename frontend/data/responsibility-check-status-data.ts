@@ -8,6 +8,8 @@ export interface ResponsibilityCheckStatusData {
   controlActivityDetails: string; // 통제활동내용
   responsibleDepartment: string; // 소관부서
   assignee: string;              // 담당자
+  reviewer: string;              // 리뷰어
+  deadline: string;              // 제출기한
   performanceStatus: '진행중' | '점검승인대기' | '점검승인완료'; // 수행현황
   // 모달용 추가 필드들
   responsibilityType: string;
@@ -33,6 +35,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "이사회의 소집 및 통지 절차 준수 여부 점검 등 이사회 소집 관련 내부통제 점검",
     responsibleDepartment: "이사회의장",
     assignee: "김민수",
+    reviewer: "박영수",
+    deadline: "2024-12-31",
     performanceStatus: "진행중",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -55,6 +59,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "내부통제위원회 구성 및 운영의 적정성 검토, 안전성 및 건전성 확보",
     responsibleDepartment: "이사회의장",
     assignee: "박지영",
+    reviewer: "김철수",
+    deadline: "2024-11-30",
     performanceStatus: "진행중",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -77,6 +83,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "이사회 의결사항에 대한 보고서류 작성 및 제출 여부 점검",
     responsibleDepartment: "이사회의장",
     assignee: "최현호",
+    reviewer: "이영희",
+    deadline: "2024-10-15",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -99,6 +107,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "내부통제 정책 및 절차 마련 및 운영에 대한 점검",
     responsibleDepartment: "이사회의장",
     assignee: "이승민",
+    reviewer: "박민수",
+    deadline: "2024-09-20",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -121,6 +131,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "중요 규정의 제정 및 개정에 대한 심의 및 의결",
     responsibleDepartment: "이사회의장",
     assignee: "정수연",
+    reviewer: "정수진",
+    deadline: "2024-08-10",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -143,6 +155,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "대출 거래의 적정성 및 위험성에 대한 심의 및 의결",
     responsibleDepartment: "주식운용본부",
     assignee: "강태우",
+    reviewer: "최동호",
+    deadline: "2024-07-25",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -165,6 +179,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "담당자는 금융업무 관련 업무 처리 시 내부통제에 영향을 주는 사항을 사전에 검토",
     responsibleDepartment: "주식운용본부",
     assignee: "윤하늘",
+    reviewer: "김영수",
+    deadline: "2024-06-30",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -187,6 +203,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "투자자 상담 업무 처리 시 내부통제 기준 준수 여부 점검",
     responsibleDepartment: "주식운용본부",
     assignee: "송민아",
+    reviewer: "박지수",
+    deadline: "2024-05-15",
     performanceStatus: "점검승인완료",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -209,6 +227,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "금융 상품 판매 시 투자자 보호 및 내부통제 기준 준수",
     responsibleDepartment: "주식운용본부",
     assignee: "홍성진",
+    reviewer: "이민수",
+    deadline: "2024-04-20",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -231,6 +251,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "금융업무 관련 리스크 관리 체계 구축 및 운영 점검",
     responsibleDepartment: "주식운용본부",
     assignee: "김도현",
+    reviewer: "최영희",
+    deadline: "2024-03-10",
     performanceStatus: "점검승인완료",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -253,6 +275,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "연간 경영 전략 및 계획 수립 과정에서의 내부통제 점검",
     responsibleDepartment: "이사회의장",
     assignee: "김민수",
+    reviewer: "박영수",
+    deadline: "2025-12-31",
     performanceStatus: "진행중",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -275,6 +299,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "경영 전략 실행 결과에 대한 성과 평가 및 개선 방안 수립",
     responsibleDepartment: "이사회의장",
     assignee: "박지영",
+    reviewer: "김철수",
+    deadline: "2025-12-31",
     performanceStatus: "진행중",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -297,6 +323,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "인사 정책 수립 및 운영 과정에서의 내부통제 점검",
     responsibleDepartment: "이사회의장",
     assignee: "최현호",
+    reviewer: "이영희",
+    deadline: "2025-12-31",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -319,6 +347,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "채용, 퇴직, 보상 등 인사 제도 운영의 적정성 점검",
     responsibleDepartment: "이사회의장",
     assignee: "이승민",
+    reviewer: "박민수",
+    deadline: "2025-12-31",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",
@@ -341,6 +371,8 @@ export const responsibilityCheckStatusData: ResponsibilityCheckStatusData[] = [
     controlActivityDetails: "재무제표 작성 과정에서의 내부통제 점검 및 감사 결과 보고",
     responsibleDepartment: "이사회의장",
     assignee: "정수연",
+    reviewer: "정수진",
+    deadline: "2024-08-10",
     performanceStatus: "점검승인대기",
     // 모달용 추가 데이터
     responsibilityType: "지정책임자",

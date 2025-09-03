@@ -18,7 +18,10 @@ export default function DepartmentPage() {
   
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
-    division: ''
+    referenceDate: '',
+    managementAction: '',
+    department: '',
+    team: ''
   });
 
   // 추가 폼 관련 상태 관리
@@ -29,11 +32,31 @@ export default function DepartmentPage() {
 
   // 필터 옵션 데이터
   const filterOptions = {
-    division: [
+    managementAction: [
+      { value: "기준마련여부 점검", label: "기준마련여부 점검" },
+      { value: "효과적집행운영여부 점검", label: "효과적집행운영여부 점검" },
+      { value: "임직원 준수여부 점검", label: "임직원 준수여부 점검" },
+      { value: "관리사항 및 미흡사항 조치", label: "관리사항 및 미흡사항 조치" },
+      { value: "조치이행여부 점검", label: "조치이행여부 점검" },
+      { value: "교육 및 훈련 지원", label: "교육 및 훈련 지원" },
+      { value: "조서 및 제재조치결과 보고", label: "조서 및 제재조치결과 보고" }
+    ],
+    department: [
       { value: "ETF투자부문", label: "ETF투자부문" },
       { value: "감사실", label: "감사실" },
       { value: "경영관리부문", label: "경영관리부문" },
       { value: "공통", label: "공통" }
+    ],
+    team: [
+      { value: "금융영업팀", label: "금융영업팀" },
+      { value: "운용팀", label: "운용팀" },
+      { value: "리스크관리팀", label: "리스크관리팀" },
+      { value: "내부감사팀", label: "내부감사팀" },
+      { value: "인사팀", label: "인사팀" },
+      { value: "재무팀", label: "재무팀" },
+      { value: "회계팀", label: "회계팀" },
+      { value: "개인정보보호팀", label: "개인정보보호팀" },
+      { value: "내부통제팀", label: "내부통제팀" }
     ]
   };
    
@@ -51,11 +74,12 @@ export default function DepartmentPage() {
     
     // 기존 데이터를 폼에 설정
     setFormData({
-      division: row.division || '',
-      responsibilityCode: row.responsibilityCode || '',
-      responsibility: row.responsibility || '',
-      detailCode: row.detailCode || '',
-      detailContent: row.detailContent || ''
+      managementActionCode: row.managementActionCode || '',
+      managementAction: row.managementAction || '',
+      department: row.department || '',
+      team: row.team || '',
+      manager: row.manager || '',
+      reviewer: row.reviewer || ''
     });
     setShowAddForm(true);
   };
@@ -63,34 +87,40 @@ export default function DepartmentPage() {
   // 컬럼 정의
   const columns: any[] = [
     {
-      key: "division" as keyof ManagementActionData,
-      header: "부문구분",
+      key: "managementActionCode" as keyof ManagementActionData,
+      header: "관리조치코드",
       visible: true,
       width: "w-32"
     },
     {
-      key: "responsibilityCode" as keyof ManagementActionData,
-      header: "책무코드",
-      visible: true,
-      width: "w-40"
-    },
-    {
-      key: "responsibility" as keyof ManagementActionData,
-      header: "책무",
-      visible: true,
-      width: "w-80"
-    },
-    {
-      key: "detailCode" as keyof ManagementActionData,
-      header: "책무 세부코드",
+      key: "managementAction" as keyof ManagementActionData,
+      header: "관리조치",
       visible: true,
       width: "w-48"
     },
     {
-      key: "detailContent" as keyof ManagementActionData,
-      header: "책무 세부내용",
+      key: "department" as keyof ManagementActionData,
+      header: "소관부서",
       visible: true,
-      width: "w-80"
+      width: "w-40"
+    },
+    {
+      key: "team" as keyof ManagementActionData,
+      header: "소관팀",
+      visible: true,
+      width: "w-40"
+    },
+    {
+      key: "manager" as keyof ManagementActionData,
+      header: "담당자",
+      visible: true,
+      width: "w-32"
+    },
+    {
+      key: "reviewer" as keyof ManagementActionData,
+      header: "리뷰어",
+      visible: true,
+      width: "w-32"
     },
     {
       key: "actions",
@@ -186,7 +216,7 @@ export default function DepartmentPage() {
           columns={tableColumns}
           onColumnsChange={setTableColumns}
           className="w-full"
-          searchPlaceholder="부서별 관리조치 검색..."
+          searchPlaceholder="관리조치 수행팀 정보 검색..."
           isLoading={false}
           // 필터 관련 props
           searchFilters={searchFilters}
@@ -194,8 +224,27 @@ export default function DepartmentPage() {
           filterOptions={filterOptions}
           filters={[
             {
-              key: "division",
-              label: "부문구분",
+              key: "referenceDate",
+              label: "조회기준일자",
+              type: "date" as const,
+              width: "w-32",
+              required: true
+            },
+            {
+              key: "managementAction",
+              label: "관리조치",
+              type: "dropdown" as const,
+              width: "w-48"
+            },
+            {
+              key: "department",
+              label: "소관부서",
+              type: "dropdown" as const,
+              width: "w-32"
+            },
+            {
+              key: "team",
+              label: "소관팀",
               type: "dropdown" as const,
               width: "w-32"
             }

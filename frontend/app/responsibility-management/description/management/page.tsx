@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import H1 from '@/components/layouts/h1';
 import CommonBreadcrumb from '../../_components/Breadcrumb';
 import Header from '../../_components/Header';
@@ -21,12 +23,14 @@ import {
   type DutyDescriptionData 
 } from '@/data/duty-description-data';
 import { SearchFilter } from '@/components/ui/SearchFilter';
+import DocumentManagementFilter from '@/components/ui/DocumentManagementFilter';
 import { Pagination } from '@/components/ui/pagination';
 import StatusBadge from '@/components/ui/StatusBadge';
 import ActionButton from '@/components/ui/ActionButton';
 
 export default function DutyManagementPage() {
   const { isSidebarCollapsed } = useSidebar();
+  const pathname = usePathname();
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5; // 5개 페이지가 있다고 가정
@@ -88,18 +92,6 @@ export default function DutyManagementPage() {
           <div className="flex items-center space-x-3">
             <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>새 책무기술서</span>
-            </button>
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <span>업로드</span>
-            </button>
-            <button className="text-gray-900 font-semibold px-4 py-2 text-sm transition-colors flex items-center space-x-2 hover:bg-gray-900/20 cursor-pointer border-l border-white/80">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <span>다운로드</span>
@@ -107,8 +99,26 @@ export default function DutyManagementPage() {
           </div>
         }
       />
-      <div className={`max-w-7xl mx-auto space-y-6 pt-24 ${isSidebarCollapsed ? '' : 'px-8'}`}>
+      <div className={`w-full space-y-6 pt-14 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
         <CommonBreadcrumb />
+        
+        {/* 탭 네비게이션 */}
+        <div className="flex space-x-1 border-b border-gray-200">
+          <Link href="/responsibility-management/description" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/responsibility-management/description' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            책무기술서 조회
+          </Link>
+          <Link href="/responsibility-management/description/management" className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            pathname === '/responsibility-management/description/management' 
+              ? 'text-brand-600 border-brand-600' 
+              : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+          }`}>
+            책무기술서 관리
+          </Link>
+        </div>
         <H1 
           title="책무기술서 관리" 
           rightContent={
@@ -134,8 +144,8 @@ export default function DutyManagementPage() {
           }
         />
         
-        {/* SearchFilter */}
-        <SearchFilter
+        {/* DocumentManagementFilter */}
+        <DocumentManagementFilter
           searchFilters={searchFilters}
           onFilterChange={handleFilterChange}
           filters={filters}

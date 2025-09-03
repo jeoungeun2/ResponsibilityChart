@@ -20,10 +20,12 @@ export default function ExecutivePage() {
   
   // 필터 관련 상태 관리
   const [searchFilters, setSearchFilters] = useState<Record<string, string>>({
+    referenceDate: '',
     executive: '',
     duty: '',
     dutyDetail: '',
-    managementActionItem: ''
+    managementActionItem: '',
+    managementObligation: ''
   });
 
   // 추가 폼 관련 상태 관리
@@ -67,6 +69,15 @@ export default function ExecutivePage() {
       { value: '이행점검', label: '이행점검' },
       { value: '교육지원', label: '교육지원' },
       { value: '조사보고', label: '조사보고' }
+    ],
+    managementObligation: [
+      { value: '전체', label: '전체' },
+      { value: '관리감독의무', label: '관리감독의무' },
+      { value: '준법감시의무', label: '준법감시의무' },
+      { value: '내부통제의무', label: '내부통제의무' },
+      { value: '리스크관리의무', label: '리스크관리의무' },
+      { value: '정보공시의무', label: '정보공시의무' },
+      { value: '고객보호의무', label: '고객보호의무' }
     ]
   };
    
@@ -334,6 +345,13 @@ export default function ExecutivePage() {
           filterOptions={filterOptions}
           filters={[
             {
+              key: "referenceDate",
+              label: "조회기준일자",
+              type: "date" as const,
+              width: "w-32",
+              required: true
+            },
+            {
               key: "executive",
               label: "임원",
               type: "dropdown" as const,
@@ -348,6 +366,12 @@ export default function ExecutivePage() {
             {
               key: "dutyDetail",
               label: "책무상세",
+              type: "dropdown" as const,
+              width: "w-32"
+            },
+            {
+              key: "managementObligation",
+              label: "관리의무",
               type: "dropdown" as const,
               width: "w-32"
             },

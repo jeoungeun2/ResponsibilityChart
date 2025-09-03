@@ -27,30 +27,19 @@ export default function CommonBreadcrumb() {
     })
     
     // 책무 이행 점검
-    if (segments.includes('responsibility-check')) {
+    if (segments.includes('improvement-implementation')) {
       breadcrumbs.push({
         label: '책무 이행 점검',
         href: '/responsibility-check',
         isActive: false
       })
       
-      // status
-      if (segments.includes('status')) {
-        breadcrumbs.push({
-          label: '관리조치활동 수행',
-          href: '/responsibility-check/status',
-          isActive: true
-        })
-      }
-      
-      // management
-      if (segments.includes('management')) {
-        breadcrumbs.push({
-          label: '관리조치 이행 점검',
-          href: '/responsibility-check/management',
-          isActive: true
-        })
-      }
+      // 미흡사항개선 이행내역
+      breadcrumbs.push({
+        label: '미흡사항개선 이행내역',
+        href: '/improvement-implementation',
+        isActive: true
+      })
     }
     
     return breadcrumbs
@@ -61,19 +50,24 @@ export default function CommonBreadcrumb() {
   return (
     <div className="w-full">
       <Breadcrumb>
-        <BreadcrumbList className="text-base font-medium">
+        <BreadcrumbList>
           {breadcrumbs.map((breadcrumb, index) => (
-            <React.Fragment key={index}>
+            <React.Fragment key={breadcrumb.href}>
               <BreadcrumbItem>
                 {breadcrumb.isActive ? (
-                  <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-gray-500">
+                    {breadcrumb.label}
+                  </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={breadcrumb.href}>
+                  <BreadcrumbLink 
+                    href={breadcrumb.href}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
                     {breadcrumb.label}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator>/</BreadcrumbSeparator>}
+              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
             </React.Fragment>
           ))}
         </BreadcrumbList>

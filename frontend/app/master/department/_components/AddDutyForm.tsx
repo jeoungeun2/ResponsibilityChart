@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -50,11 +50,52 @@ export default function AddDutyForm({
   const [detailManagementObligations, setDetailManagementObligations] = useState<
     Array<Array<string>>
   >([[""]]);
+  
+  // 각 책무세부내용별 위험도평가 상태
+  const [detailRiskLevels, setDetailRiskLevels] = useState<Array<string>>([""]);
 
   // 사용여부 상태
   const [usageStatus, setUsageStatus] = useState<string>("Y");
+  
+  // 이사회승인증빙 업로드 상태
+  const [boardResolutionFiles, setBoardResolutionFiles] = useState<File[]>([]);
 
   const labelCls = "block text-base font-medium text-gray-600 mb-1";
+
+  // 수정 모드일 때 기존 데이터 로드
+  useEffect(() => {
+    if (mode === 'edit' && formData) {
+      // 책무세부내용 로드
+      if (formData.dutyDetails && Array.isArray(formData.dutyDetails)) {
+        setDutyDetails(formData.dutyDetails);
+      }
+      
+      // 관련법령 로드
+      if (formData.relatedLaws && Array.isArray(formData.relatedLaws)) {
+        setDetailRelatedLaws(formData.relatedLaws);
+      }
+      
+      // 내규 로드
+      if (formData.internalRegulations && Array.isArray(formData.internalRegulations)) {
+        setDetailInternalRegulations(formData.internalRegulations);
+      }
+      
+      // 관리의무 로드
+      if (formData.managementObligations && Array.isArray(formData.managementObligations)) {
+        setDetailManagementObligations(formData.managementObligations);
+      }
+      
+      // 위험도평가 로드
+      if (formData.riskLevels && Array.isArray(formData.riskLevels)) {
+        setDetailRiskLevels(formData.riskLevels);
+      }
+      
+      // 사용여부 로드
+      if (formData.usageStatus) {
+        setUsageStatus(formData.usageStatus);
+      }
+    }
+  }, [mode, formData]);
 
   // 책무 세부
   const addDutyDetail = () => {
@@ -62,6 +103,7 @@ export default function AddDutyForm({
     setDetailRelatedLaws((prev) => [...prev, [{ law: "", article: "" }]]);
     setDetailInternalRegulations((prev) => [...prev, [{ regulation: "", article: "" }]]);
     setDetailManagementObligations((prev) => [...prev, [""]]);
+    setDetailRiskLevels((prev) => [...prev, ""]);
   };
   
   const removeDutyDetail = (index: number) => {
@@ -70,6 +112,7 @@ export default function AddDutyForm({
       setDetailRelatedLaws((prev) => prev.filter((_, i) => i !== index));
       setDetailInternalRegulations((prev) => prev.filter((_, i) => i !== index));
       setDetailManagementObligations((prev) => prev.filter((_, i) => i !== index));
+      setDetailRiskLevels((prev) => prev.filter((_, i) => i !== index));
     } else {
       // If only one item, clear the content instead of removing
       updateDutyDetail(index, "");
@@ -82,6 +125,29 @@ export default function AddDutyForm({
       next[index] = value;
       return next;
     });
+
+  // 위험도평가 업데이트 함수
+  const updateRiskLevel = (index: number, value: string) => {
+    setDetailRiskLevels((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  // 이사회승인증빙 파일 업로드 핸들러
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setBoardResolutionFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  // 이사회승인증빙 파일 삭제 핸들러
+  const handleFileRemove = (index: number) => {
+    setBoardResolutionFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // 각 책무세부내용별 관련법령 관리
   const getRelatedLawsForDetail = (detailIndex: number) => {
@@ -360,113 +426,158 @@ export default function AddDutyForm({
                   >
                     {/* 책무세부내용 입력 */}
                     <div className="grid grid-cols-12 gap-4 items-start mb-4">
-                      <div className="col-span-12 lg:col-span-8">
-                        <label className={labelCls}>책무세부 {idx + 1}</label>
+                    <div className="col-span-12 lg:col-span-8">
+                      <label className={labelCls}>책무세부 {idx + 1}</label>
+                      <Input
+                        type="text"
+                        placeholder="책무 세부내용을 입력하세요"
+                        value={detail}
+                        onChange={(e) => updateDutyDetail(idx, e.target.value)}
+                      />
+                    </div>
+                    <div className="col-span-12 lg:col-span-4">
+                      <label className={labelCls}>책무세부코드</label>
+                      <div className="flex items-center w-full">
                         <Input
                           type="text"
-                          placeholder="책무 세부내용을 입력하세요"
-                          value={detail}
-                          onChange={(e) => updateDutyDetail(idx, e.target.value)}
+                            placeholder="*등록 클릭 시 자동생성"
+                          readOnly
+                          className="bg-muted cursor-not-allowed flex-1"
+                        />
+                        <DeleteButton
+                          onClick={() => {
+                            if (dutyDetails.length > 1) {
+                              removeDutyDetail(idx);
+                            } else {
+                              // If only one item, clear the content instead of removing
+                              updateDutyDetail(idx, "");
+                            }
+                          }}
+                          size="md"
+                          className="ml-1"
+                          ariaLabel="세부 삭제"
                         />
                       </div>
-                      <div className="col-span-12 lg:col-span-4">
-                        <label className={labelCls}>책무세부코드</label>
-                        <div className="flex items-center w-full">
-                          <Input
-                            type="text"
-                            placeholder="*등록 클릭 시 자동생성"
-                            readOnly
-                            className="bg-muted cursor-not-allowed flex-1"
-                          />
-                          <DeleteButton
-                            onClick={() => {
-                              if (dutyDetails.length > 1) {
-                                removeDutyDetail(idx);
-                              } else {
-                                // If only one item, clear the content instead of removing
-                                updateDutyDetail(idx, "");
-                              }
-                            }}
-                            size="md"
-                            className="ml-1"
-                            ariaLabel="세부 삭제"
-                          />
-                        </div>
-                      </div>
                     </div>
+                  </div>
 
                     {/* 관련 법령 및 내규 Mapping */}
                     <div className="border-t border-gray-300 pt-4">
+                      {/* 위험도평가 섹션 */}
+                      <div className="mb-6">
+                        <h4 className="text-base font-medium text-gray-700 mb-3">
+                          위험도평가
+                        </h4>
+                        <div className="grid grid-cols-12 gap-4">
+                          <div className="col-span-12 lg:col-span-6">
+                            <label className={labelCls}>
+                              위험도평가 <span className="text-red-500">*</span>
+                            </label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                                  className="w-full justify-between h-10 px-3 border-gray-200 hover:bg-gray-50"
+                                >
+                                  {detailRiskLevels[idx] || "위험도를 선택하세요"}
+                                  <ChevronDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-full">
+                                <DropdownMenuItem onClick={() => updateRiskLevel(idx, "고위험")}>
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-red-100 text-red-700 border-red-200 mr-2">
+                                    고위험
+                                  </span>
+                                  고위험
+                      </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateRiskLevel(idx, "중위험")}>
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-orange-100 text-orange-700 border-orange-200 mr-2">
+                                    중위험
+                        </span>
+                                  중위험
+                      </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateRiskLevel(idx, "저위험")}>
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-green-100 text-green-700 border-green-200 mr-2">
+                                    저위험
+                        </span>
+                                  저위험
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+                      </div>
+
                       <h4 className="text-base font-medium text-gray-700 mb-3">
-                        관련 법령 및 내규 Mapping
+                관련 법령 및 내규 Mapping
                       </h4>
-                      
+
                       <div className="grid grid-cols-12 gap-4">
-                        {/* 왼쪽 열: 관련 법령 */}
-                        <div className="col-span-12 lg:col-span-6">
-                          <div className="flex items-end justify-between mb-2">
+                {/* 왼쪽 열: 관련 법령 */}
+                <div className="col-span-12 lg:col-span-6">
+                  <div className="flex items-end justify-between mb-2">
                             <h5 className="text-sm font-medium text-gray-600">관련 법령</h5>
-                            <AddButton
+                    <AddButton
                               onClick={() => addRelatedLawForDetail(idx)}
-                              iconOnly={true}
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
+                      iconOnly={true}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
                             {getRelatedLawsForDetail(idx).map((law, lawIdx) => (
                               <div key={`law-${idx}-${lawIdx}`} className="space-y-2">
-                                <div className="flex items-center">
-                                  <Input
-                                    type="text"
-                                    placeholder="법령명을 입력하세요"
-                                    value={law.law}
+                        <div className="flex items-center">
+                          <Input
+                            type="text"
+                            placeholder="법령명을 입력하세요"
+                            value={law.law}
                                     onChange={(e) => updateRelatedLawForDetail(idx, lawIdx, "law", e.target.value)}
-                                    className="flex-1"
-                                  />
-                                  <DeleteButton
+                            className="flex-1"
+                          />
+                          <DeleteButton
                                     onClick={() => removeRelatedLawForDetail(idx, lawIdx)}
-                                    size="md"
-                                    className="ml-1"
-                                    ariaLabel="법령 삭제"
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                            size="md"
+                            className="ml-1"
+                            ariaLabel="법령 삭제"
+                          />
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                        {/* 오른쪽 열: 내규 */}
-                        <div className="col-span-12 lg:col-span-6">
-                          <div className="flex items-end justify-between mb-2">
+                {/* 오른쪽 열: 내규 */}
+                <div className="col-span-12 lg:col-span-6">
+                  <div className="flex items-end justify-between mb-2">
                             <h5 className="text-sm font-medium text-gray-600">내규</h5>
-                            <AddButton
+                    <AddButton
                               onClick={() => addInternalRegulationForDetail(idx)}
-                              iconOnly={true}
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
+                      iconOnly={true}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
                             {getInternalRegulationsForDetail(idx).map((reg, regIdx) => (
                               <div key={`reg-${idx}-${regIdx}`} className="space-y-2">
                                 <div className="flex items-center">
-                                  <Input
-                                    type="text"
-                                    placeholder="내규명을 입력하세요"
+                          <Input
+                            type="text"
+                            placeholder="내규명을 입력하세요"
                                     value={reg.regulation}
                                     onChange={(e) => updateInternalRegulationForDetail(idx, regIdx, "regulation", e.target.value)}
-                                    className="flex-1"
-                                  />
-                                  <DeleteButton
+                            className="flex-1"
+                          />
+                          <DeleteButton
                                     onClick={() => removeInternalRegulationForDetail(idx, regIdx)}
-                                    size="md"
-                                    className="ml-1"
-                                    ariaLabel="내규 삭제"
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                            size="md"
+                            className="ml-1"
+                            ariaLabel="내규 삭제"
+                          />
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                       </div>
 
                       {/* 관리의무 섹션 */}
@@ -581,6 +692,69 @@ export default function AddDutyForm({
                     </div>
                   )}
                 </div>
+
+                {/* 이사회승인증빙 업로드 섹션 */}
+                {formData.editType === "boardResolution" && (
+                  <div className="mt-6">
+                    <h4 className="text-base font-medium text-gray-700 mb-3">
+                      이사회승인증빙 업로드
+                    </h4>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                      <div className="text-center">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <div className="mt-4">
+                          <label htmlFor="file-upload" className="cursor-pointer">
+                            <span className="mt-2 block text-sm font-medium text-gray-900">
+                              파일을 선택하거나 드래그하여 업로드
+                            </span>
+                            <span className="mt-1 block text-sm text-gray-500">
+                              PDF, DOC, DOCX, JPG, PNG 파일만 업로드 가능
+                            </span>
+                          </label>
+                          <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            className="sr-only"
+                            onChange={handleFileUpload}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 업로드된 파일 목록 */}
+                    {boardResolutionFiles.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="text-sm font-medium text-gray-700 mb-2">업로드된 파일</h5>
+                        <div className="space-y-2">
+                          {boardResolutionFiles.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span className="text-sm text-gray-700">{file.name}</span>
+                                <span className="text-xs text-gray-500">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                              </div>
+                              <button
+                                onClick={() => handleFileRemove(index)}
+                                className="text-red-500 hover:text-red-700 p-1"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </section>
             ) : (
               <EvidenceUploadSection />
@@ -591,7 +765,7 @@ export default function AddDutyForm({
               {mode === 'add' ? (
                 <Button 
                   onClick={handleAdd}
-                  disabled={isLoading}
+                disabled={isLoading}
                   className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
                 >
                   등록
@@ -599,7 +773,7 @@ export default function AddDutyForm({
               ) : (
                 <Button 
                   onClick={() => console.log('등록')}
-                  disabled={isLoading}
+                disabled={isLoading}
                   className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
                 >
                   등록

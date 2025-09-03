@@ -59,8 +59,10 @@ export default function Navigation({ isCollapsed, onToggle }: NavigationProps) {
       label: '책무 이행 점검',
       href: '/responsibility-check',
       subItems: [
+        { label: '관리조치차수 생성', href: '/management-action-generation' },
         { label: '관리조치활동 수행', href: '/responsibility-check/status' },
         { label: '관리조치 이행 점검', href: '/responsibility-check/management' },
+        { label: '미흡사항개선 이행내역', href: '/improvement-implementation' },
       ],
       imageSrc: '/images/check (2).png',
     },

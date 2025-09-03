@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { StartDateFilter } from "@/components/ui/DateFilter"
 import { cn } from "@/lib/utils"
 
 /** Sub-column definition */
@@ -232,8 +233,9 @@ export function ComplexDataTable<T extends Record<string, any>>({
           <div className="space-y-4 border-b border-gray-300 pb-3">
             
             {searchFilters && onFilterChange && (
-              <div className="grid grid-cols-4 gap-4">
-                {filters?.map((filter) => {
+              <div className="flex items-end gap-4">
+                <div className="flex-1 grid grid-cols-4 gap-4">
+                  {filters?.map((filter) => {
                   const filterValue = searchFilters[filter.key] || ""
 
                   if (filter.type === "dropdown") {
@@ -330,44 +332,40 @@ export function ComplexDataTable<T extends Record<string, any>>({
                     const isSelected = filterValue && filterValue !== ""
                     
                     return (
-                      <div key={filter.key} className="flex items-center space-x-3">
-                        <label className={`text-sm font-medium whitespace-nowrap ${
-                          isSelected ? "text-brand-500" : "text-gray-700"
+                      <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
+                          (filter as any).required 
+                            ? "text-orange-600" 
+                            : isSelected 
+                            ? "text-brand-500" 
+                            : "text-gray-700"
                         }`}>
                           {filter.label}
                         </label>
-                        <Input
-                          type="date"
-                          value={filterValue}
-                          onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                          className={`h-10 w-32 ${
-                            isSelected 
-                              ? "border-brand-500/80 focus:ring-brand-500/20 focus:border-brand-500" 
-                              : ""
-                          }`}
-                        />
+                        <div className="col-span-2">
+                          <StartDateFilter
+                            startDate={filterValue}
+                            onStartDateChange={(date) => onFilterChange(filter.key, date)}
+                            placeholder="연도-월-일"
+                          />
+                        </div>
                       </div>
                     )
                   }
 
                   return null
                 })}
-              </div>
-            )}
-
-            {/* 조회, 초기화 버튼 */}
-            <div className="flex items-center justify-end space-x-3">
+                </div>
+                
+                {/* 조회, 초기화 버튼 */}
+                <div className="flex items-end space-x-3">
               {/* 조회 버튼 */}
               <Button 
                 onClick={() => console.log("조회 실행:", searchFilters)}
                 variant="outline"
-                className={`cursor-pointer ${
-                  Object.values(searchFilters || {}).some(value => value && value !== "") 
-                    ? "border-brand-500 text-brand-500 hover:bg-brand-50" 
-                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                }`}
+                className="cursor-pointer border-orange-400 text-orange-600 hover:bg-orange-50 hover:border-orange-500"
               >
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2 text-orange-600" />
                 조회
               </Button>
 
@@ -390,7 +388,9 @@ export function ComplexDataTable<T extends Record<string, any>>({
                 <div className="h-4 w-4 mr-2 text-center">↺</div>
                 초기화
               </Button>
-            </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Group 2: Column toggles & Actions */}

@@ -268,8 +268,9 @@ export function DataTable<T extends Record<string, any>>({
            <div className="space-y-4 border-b border-gray-300 pb-3">
             
             {searchFilters && onFilterChange && (
-              <div className="grid grid-cols-4 gap-4">
-                {filters?.map((filter) => {
+              <div className="flex items-end gap-4">
+                <div className="flex-1 grid grid-cols-4 gap-4">
+                  {filters?.map((filter) => {
                   const filterValue = searchFilters[filter.key] || ""
 
                   if (filter.type === "dropdown") {
@@ -368,8 +369,8 @@ export function DataTable<T extends Record<string, any>>({
                     const isSelected = filterValue && filterValue !== ""
                     
                     return (
-                      <div key={filter.key} className="flex items-center space-x-3">
-                        <label className={`text-sm font-medium whitespace-nowrap ${
+                      <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                        <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
                           (filter as any).required 
                             ? "text-orange-600" 
                             : isSelected 
@@ -378,11 +379,13 @@ export function DataTable<T extends Record<string, any>>({
                         }`}>
                           {filter.label}
                         </label>
-                        <StartDateFilter
-                          startDate={filterValue}
-                          onStartDateChange={(date) => onFilterChange(filter.key, date)}
-                          placeholder={filter.placeholder || "연도-월-일"}
-                        />
+                        <div className="col-span-2">
+                          <StartDateFilter
+                            startDate={filterValue}
+                            onStartDateChange={(date) => onFilterChange(filter.key, date)}
+                            placeholder={filter.placeholder || "연도-월-일"}
+                          />
+                        </div>
                       </div>
                     )
                   }
@@ -390,22 +393,17 @@ export function DataTable<T extends Record<string, any>>({
                   // date 타입은 현재 UI 없음(기능 변화 없이 그대로 무시)
                   return null
                 })}
-              </div>
-            )}
-
-            {/* 조회, 초기화 버튼 */}
-            <div className="flex items-center justify-end space-x-3">
+                </div>
+                
+                {/* 조회, 초기화 버튼 */}
+                <div className="flex items-end space-x-3">
               {/* 조회 버튼 */}
               <Button 
                 onClick={() => console.log("조회 실행:", searchFilters)}
                 variant="outline"
-                className={`cursor-pointer ${
-                  Object.values(searchFilters || {}).some(value => value && value !== "") 
-                    ? "border-brand-500 text-brand-500 hover:bg-brand-50" 
-                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                }`}
+                className="cursor-pointer border-orange-400 text-orange-600 hover:bg-orange-50 hover:border-orange-500"
               >
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2 text-orange-600" />
                 조회
               </Button>
 
@@ -428,7 +426,9 @@ export function DataTable<T extends Record<string, any>>({
                 <div className="h-4 w-4 mr-2 text-center">↺</div>
                 초기화
               </Button>
-            </div>
+                </div>
+              </div>
+            )}
           </div>
 
                                            {/* Group 2: Column toggles & Actions */}
@@ -544,9 +544,9 @@ export function DataTable<T extends Record<string, any>>({
                   key={String(column.key)} 
                   className={cn(
                     "p-2 font-semibold text-gray-900 !border-t !border-orange-600",
-                    column.separator && "border-l-2 border-gray-400"
+                    column.separator && "border-l border-gray-400"
                   )}
-                  style={{ borderTop: '1px solid #ea580c' }}
+                  style={{ borderTop: '0.5px solid #ea580c' }}
                 >
                   {column.header}
                 </TableHead>
@@ -630,8 +630,9 @@ export function DataTable<T extends Record<string, any>>({
                            key={String(column.key)} 
                            className={cn(
                              "p-2 text-gray-700 text-sm",
-                             column.separator && "border-l-2 border-gray-400"
+                             column.separator && "border-l border-dashed"
                            )}
+                           style={column.separator ? { borderLeftColor: '#ea580c' } : undefined}
                            rowSpan={rowSpan > 1 ? rowSpan : undefined}
                          >
                            {column.render ? column.render(item[column.key], item) : String(item[column.key] ?? "")}

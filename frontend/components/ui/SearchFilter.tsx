@@ -26,6 +26,7 @@ export interface FilterConfig {
   placeholder?: string
   width?: string
   dateRange?: boolean // 날짜 범위 여부
+  required?: boolean // 필수 필터 여부
 }
 
 export interface SearchFilterProps {
@@ -65,67 +66,8 @@ export function SearchFilter({
       <div className="grid gap-3">
         {/* Group 1: Search & Filters */}
         <div className="space-y-4 pb-1">
-          {/* 필터 제목 추가 */}
-          <div className="grid grid-cols-7 gap-2 items-center">
-            <div className="flex items-center space-x-2">
-              <h3 className="text-base font-semibold text-gray-900">필터</h3>
-            </div>
-            
-            {/* 빈 공간 */}
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            
-            {/* 조회 버튼 */}
-            <div className={`hover:bg-gray-200 flex items-center justify-center border border-gray-200 ${
-              Object.values(searchFilters || {}).some(value => value && value !== "") 
-                ? "bg-brand-500/20" 
-                : "bg-gray-100"
-            }`}>
-              <Button 
-                onClick={() => console.log("조회 실행:", searchFilters)}
-                variant="ghost"
-                size="icon"
-                className="cursor-pointer hover:bg-gray-200"
-                title="조회"
-              >
-                <div className="space-x-2 flex items-center">
-                  <div className=" text-brand-500 font-bold text-sm">조회</div>
-                  <Search className="h-4 w-4 text-brand-500 font-bold" />
-                </div>
-              </Button>
-            </div>
-
-            {/* 초기화 버튼 */}
-            <div className="bg-gray-100 hover:bg-gray-200 flex items-center justify-center border border-gray-200">
-              <Button 
-                onClick={() => {
-                  // 모든 필터 초기화
-                  if (onFilterChange) {
-                    Object.keys(searchFilters || {}).forEach(key => {
-                      onFilterChange(key, "")
-                    })
-                  }
-                  // 드롭다운 검색어 초기화
-                  setDropdownSearches({})
-                  console.log("필터 초기화 완료")
-                }}
-                variant="ghost"
-                size="icon"
-                className=" cursor-pointer hover:bg-gray-200"
-                title="초기화"
-              >
-                <div className="space-x-2 flex items-center">
-                  <div className=" text-black font-bold text-sm">초기화</div>
-                  <div className="h-4 w-4 text-black font-bold text-center">↺</div>
-                </div>
-              </Button>
-            </div>
-          </div>
-          
           {searchFilters && onFilterChange && (
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-6 gap-4">
               {filters?.map((filter) => {
                 const filterValue = searchFilters[filter.key] || ""
 
@@ -138,7 +80,11 @@ export function SearchFilter({
                   return (
                     <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
                       <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
-                        isSelected ? "text-brand-500" : "text-gray-700"
+                        filter.required
+                          ? "text-orange-600"
+                          : isSelected 
+                          ? "text-brand-500" 
+                          : "text-gray-700"
                       }`}>
                         {filter.label}
                       </label>
@@ -154,7 +100,7 @@ export function SearchFilter({
                               }`}
                             >
                               <span className="truncate flex-1 text-left">
-                                {filterValue ? selectedLabel : "전체선택"}
+                                {filterValue ? selectedLabel : (filter.required ? "선택하세요" : "전체선택")}
                               </span>
                               <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
                             </Button>
@@ -171,13 +117,17 @@ export function SearchFilter({
                               />
                             </div>
 
-                            <DropdownMenuItem
-                              onClick={() => onFilterChange(filter.key, "")}
-                              className="cursor-pointer"
-                            >
-                              <div className="w-full truncate">전체선택</div>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
+                            {!filter.required && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => onFilterChange(filter.key, "")}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="w-full truncate">전체선택</div>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
                             {getFilteredOptions(filter.key).map((option) => (
                               <DropdownMenuItem
                                 key={option.value}
@@ -194,13 +144,17 @@ export function SearchFilter({
                   )
                 }
 
-                                if (filter.type === "input") {
+                if (filter.type === "input") {
                   const isSelected = filterValue && filterValue !== ""
                    
                   return (
                     <div key={filter.key} className="grid grid-cols-3 items-center gap-3">
                       <label className={`text-sm font-medium whitespace-nowrap ${
-                        isSelected ? "text-brand-500" : "text-gray-700"
+                        filter.required
+                          ? "text-orange-600"
+                          : isSelected 
+                          ? "text-brand-500" 
+                          : "text-gray-700"
                       }`}>
                         {filter.label}
                       </label>
@@ -223,17 +177,23 @@ export function SearchFilter({
                   const isSelected = filterValue && filterValue !== ""
                   
                   return (
-                    <div key={filter.key} className="flex items-center space-x-3">
-                      <label className={`text-sm font-medium whitespace-nowrap ${
-                        isSelected ? "text-brand-500" : "text-gray-700"
+                    <div key={filter.key} className="grid grid-cols-3 items-center space-x-3">
+                      <label className={`text-sm font-medium whitespace-nowrap col-span-1 ${
+                        (filter as any).required
+                          ? "text-orange-600"
+                          : isSelected
+                          ? "text-brand-500"
+                          : "text-gray-700"
                       }`}>
                         {filter.label}
                       </label>
-                      <StartDateFilter
-                        startDate={filterValue}
-                        onStartDateChange={(date) => onFilterChange(filter.key, date)}
-                        placeholder={filter.placeholder || "연도-월-일"}
-                      />
+                      <div className="col-span-2">
+                        <StartDateFilter
+                          startDate={filterValue}
+                          onStartDateChange={(date) => onFilterChange(filter.key, date)}
+                          placeholder={filter.placeholder || "연도-월-일"}
+                        />
+                      </div>
                     </div>
                   )
                 }
@@ -241,6 +201,38 @@ export function SearchFilter({
                 // date 타입은 현재 UI 없음(기능 변화 없이 그대로 무시)
                 return null
               })}
+              
+              {/* 조회, 초기화 버튼을 세 칸 앞으로 배치 */}
+              <div className="col-span-3 flex justify-end space-x-2">
+                <Button 
+                  onClick={() => console.log("조회 실행:", searchFilters)}
+                  variant="outline"
+                  className="flex items-center space-x-2 border-orange-400 text-orange-600 hover:bg-orange-50 hover:border-orange-500"
+                >
+                  <Search className="h-4 w-4 text-orange-600" />
+                  <span>조회</span>
+                </Button>
+                <Button 
+                  onClick={() => {
+                    // 필수 필터를 제외한 모든 필터 초기화
+                    if (onFilterChange) {
+                      Object.keys(searchFilters || {}).forEach(key => {
+                        const filter = filters?.find(f => f.key === key)
+                        if (!filter?.required) {
+                          onFilterChange(key, "")
+                        }
+                      })
+                    }
+                    // 드롭다운 검색어 초기화
+                    setDropdownSearches({})
+                    console.log("필터 초기화 완료")
+                  }}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <span>초기화</span>
+                </Button>
+              </div>
             </div>
           )}
         </div>

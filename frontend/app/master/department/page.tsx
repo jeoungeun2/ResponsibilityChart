@@ -44,7 +44,26 @@ export default function DepartmentPage() {
 
   // 수정 버튼 클릭 핸들러
   const handleEdit = (row: any) => {
-    setEditFormData(row);
+    // 기존 데이터를 폼에서 사용할 수 있는 형태로 변환
+    const editData = {
+      ...row,
+      // 책무세부내용 (샘플 데이터)
+      dutyDetails: [row.detailContent || "내부통제기준마련, 업무절차 수립 등에 대한 관리감독"],
+      // 관련법령 (샘플 데이터)
+      relatedLaws: [[{ law: row.relatedLaws || "자본시장법", article: "제22조" }]],
+      // 내규 (샘플 데이터)
+      internalRegulations: [[{ regulation: "내부통제기준", article: "제1조" }]],
+      // 관리의무 (샘플 데이터)
+      managementObligations: [["관리감독의무"]],
+      // 위험도평가
+      riskLevels: [row.riskLevel || "중위험"],
+      // 사용여부
+      usageStatus: "Y",
+      // 수정유형 기본값
+      editType: "simple"
+    };
+    
+    setEditFormData(editData);
     setShowEditForm(true);
   };
 
@@ -94,7 +113,9 @@ export default function DepartmentPage() {
       key: "position" as keyof DutyData,
       header: "직책",
       visible: true,
-      separator: true
+      separator: true,
+      separatorStyle: "dashed",
+      separatorWidth: "1px"
     },
     {
       key: "category" as keyof DutyData,
@@ -120,6 +141,31 @@ export default function DepartmentPage() {
       key: "detailContent" as keyof DutyData,
       header: "책무 세부내용",
       visible: true
+    },
+    {
+      key: "riskLevel" as keyof DutyData,
+      header: "책무 위험도평가",
+      visible: true,
+      render: (value: string) => {
+        const getRiskColor = (risk: string) => {
+          switch (risk) {
+            case "고위험":
+              return "bg-red-100 text-red-700 border-red-200";
+            case "중위험":
+              return "bg-orange-100 text-orange-700 border-orange-200";
+            case "저위험":
+              return "bg-green-100 text-green-700 border-green-200";
+            default:
+              return "bg-gray-100 text-gray-700 border-gray-200";
+          }
+        };
+        
+        return (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getRiskColor(value)}`}>
+            {value}
+          </span>
+        );
+      }
     },
     {
       key: "dutyRegistrationDate" as keyof DutyData,

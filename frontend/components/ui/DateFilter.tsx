@@ -83,7 +83,7 @@ export function StartDateFilter({
         type="text"
         value={startDate || ""}
         placeholder={placeholder}
-        className="h-10 w-full bg-background pr-10"
+        className="h-10 w-full bg-background pr-10 border-orange-500 text-orange-600 focus:border-orange-500 focus:ring-orange-500"
         onChange={handleStartInputChange}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
@@ -98,7 +98,7 @@ export function StartDateFilter({
              variant="ghost"
              className="absolute top-1/2 right-2 size-6 -translate-y-1/2 p-0 cursor-pointer"
            >
-             <CalendarIcon className="size-3.5" />
+             <CalendarIcon className="size-3.5 text-orange-600" />
              <span className="sr-only">시작일 선택</span>
            </Button>
          </PopoverTrigger>

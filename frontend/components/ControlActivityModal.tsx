@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Download, Maximize2, Minimize2, Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import SaveButton from '@/app/master/department/_components/SaveButton';
 import ApprovalRequestButton from '@/app/master/department/_components/ApprovalRequestButton';
@@ -34,6 +35,7 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [remarks, setRemarks] = useState('');
 
+
   if (!isOpen || !data) return null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,6 +52,11 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
   const handleRequestApproval = () => {
     console.log('승인요청:', { evidenceFile, remarks });
     // 승인요청 로직 구현
+  };
+
+  const handleNoTarget = () => {
+    console.log('대상없음:', { evidenceFile, remarks });
+    // 대상없음 로직 구현
   };
 
   const toggleExpand = () => {
@@ -97,7 +104,7 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
           <div className="py-4 bg-[#f7f7f8] border-b border-gray-200">
             <div className="px-6 border-l-4 border-[#EC6437]">
               <h2 className="text-xl font-bold text-[#EC6437]">
-                통제활동 상세정보
+                관리조치 이행
               </h2>
             </div>
           </div>
@@ -126,9 +133,9 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
               </div>
             </section>
 
-            {/* 2. 관리의무 섹션 */}
+            {/* 2. 관리의무 및 관리조치 섹션 */}
             <section className="p-4 border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">관리의무</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">관리의무 및 관리조치</h3>
               <div className="border border-gray-200 overflow-hidden">
                 <div className="flex border-b border-gray-300 last:border-b-0">
                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리의무</div>
@@ -142,56 +149,25 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐 사항을 검토하고 경영관리팀을 통해 이사회에 보고</div>
                 </div>
-                <div className="flex">
+                <div className="flex border-b border-gray-300 last:border-b-0">
                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치유형</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검</div>
                 </div>
-              </div>
-            </section>
-
-            {/* 3. 통제활동 섹션 */}
-            <section className="p-4 border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">통제활동</h3>
-              <div className="border border-gray-200 overflow-hidden">
                 <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동코드</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">CE-지정책임-A1-A-001-1</div>
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">이행점검항목</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준 제·개폐 절차 준수 여부, 이사회 보고 절차 준수 여부</div>
                 </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동명</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안) 마련</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">직무와 관련된 내부통제등의 효과적으로 전행할 수 있도록 소관부서 내부통제기준 마련</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">수행주기</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">발생시</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당부서</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">준법감시실</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당팀</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">준법감시실</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당자</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">김통제</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
+                <div className="flex">
                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">증빙</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안), 내부통제기준 점토</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준 제·개폐 관련 회의록, 이사회 보고서</div>
                 </div>
               </div>
             </section>
 
-            {/* 4. 증빙업로드 및 비고 섹션 */}
+            {/* 3. 증빙업로드 및 비고 섹션 */}
             <section className="p-4 border-b border-gray-200 pb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                통제활동 증빙 업로드
+                관리조치 이행증빙 업로드
               </h3>
               <div className="space-y-4">
                 <div>
@@ -239,21 +215,28 @@ export default function ControlActivityModal({ isOpen, onClose, data }: ControlA
                     />
                   </div>
                 </div>
-                                 <div>
-                   <label className="block text-base font-medium text-gray-700 mb-2">비고</label>
-                                       <Textarea
-                      value={remarks}
-                      onChange={(e) => setRemarks(e.target.value)}
-                      rows={3}
-                      className="block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      placeholder="추가 메모를 입력하세요..."
-                    />
-                 </div>
+                <div>
+                  <label className="block text-base font-medium text-gray-700 mb-2">비고</label>
+                  <Textarea
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    rows={3}
+                    className="block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="추가 메모를 입력하세요..."
+                  />
+                </div>
               </div>
             </section>
 
                          {/* 액션 버튼 */}
              <div className="flex flex-wrap gap-3 justify-end pt-3 border-t border-gray-200 pr-4 pb-4 sticky bottom-0 bg-white/30 backdrop-blur-sm">
+               <Button
+                 variant="outline"
+                 onClick={handleNoTarget}
+                 className="py-1.5 w-21 text-sm font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200 hover:text-gray-900 cursor-pointer"
+               >
+                 대상없음
+               </Button>
                <SaveButton onClick={handleSave} />
                <ApprovalRequestButton onClick={handleRequestApproval} />
              </div>

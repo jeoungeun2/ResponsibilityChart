@@ -46,7 +46,7 @@ export default function CommonBreadcrumb() {
       // description
       if (segments.includes('description')) {
         breadcrumbs.push({
-          label: '책무기술서 작성',
+          label: '책무기술서 조회',
           href: '/responsibility-management/description',
           isActive: true
         })

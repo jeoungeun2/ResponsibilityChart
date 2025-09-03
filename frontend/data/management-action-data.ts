@@ -1,133 +1,149 @@
-// 관리행동 책무 데이터 타입 정의
+// 관리조치 수행팀 정보 데이터 타입 정의
 export interface ManagementActionData {
   id: string;
-  division: string;        // 부문구분
-  responsibilityCode: string;  // 책무코드
-  responsibility: string;      // 책무
-  detailCode: string;      // 책무 세부코드
-  detailContent: string;   // 책무 세부내용
+  managementActionCode: string;  // 관리조치코드
+  managementAction: string;      // 관리조치
+  department: string;            // 소관부서
+  team: string;                  // 소관팀
+  manager: string;               // 담당자
+  reviewer: string;              // 리뷰어
 }
 
-// 샘플 데이터 (15개) - 이미지 데이터 기반
+// 샘플 데이터 (15개) - 관리조치 수행팀 정보
 export const managementActionData: ManagementActionData[] = [
   {
     id: "1",
-    division: "ETF투자부문",
-    responsibilityCode: "ET-금융영업-B1",
-    responsibility: "집합투자업무와 관련된 책무",
-    detailCode: "ET-금융영업-B1-A",
-    detailContent: "집합투자 운용준칙 수립 및 리스크관리 업무를 관리·감독할 책임 (ETF투자부문에 한함)"
+    managementActionCode: "MA-001",
+    managementAction: "기준마련여부 점검",
+    department: "ETF투자부문",
+    team: "금융영업팀",
+    manager: "김영수",
+    reviewer: "박민정"
   },
   {
     id: "2",
-    division: "ETF투자부문",
-    responsibilityCode: "ET-금융영업-B1",
-    responsibility: "집합투자업무와 관련된 책무",
-    detailCode: "ET-금융영업-B1-B",
-    detailContent: "집합투자 운용 및 운용지시 업무를 관리·감독할 책임 (ETF투자부문에 한함)"
+    managementActionCode: "MA-002",
+    managementAction: "효과적집행운영여부 점검",
+    department: "ETF투자부문",
+    team: "금융영업팀",
+    manager: "이지현",
+    reviewer: "박민정"
   },
   {
     id: "3",
-    division: "ETF투자부문",
-    responsibilityCode: "ET-금융영업-B1",
-    responsibility: "집합투자업무와 관련된 책무",
-    detailCode: "ET-금융영업-B1-C",
-    detailContent: "집합투자 외부감응 모니터링 및 보고업무를 관리·감독할 책임 (ETF투자부문에 한함)"
+    managementActionCode: "MA-003",
+    managementAction: "임직원 준수여부 점검",
+    department: "ETF투자부문",
+    team: "운용팀",
+    manager: "정수진",
+    reviewer: "박민정"
   },
   {
     id: "4",
-    division: "ETF투자부문",
-    responsibilityCode: "ET-금융영업-B2",
-    responsibility: "투자자문업무와 관련된 책무",
-    detailCode: "ET-금융영업-B2-A",
-    detailContent: "투자자문 계약자산의 자문 운용을 관리·감독할 책임 (ETF투자부문에 한함)"
+    managementActionCode: "MA-004",
+    managementAction: "관리사항 및 미흡사항 조치",
+    department: "ETF투자부문",
+    team: "운용팀",
+    manager: "최동현",
+    reviewer: "박민정"
   },
   {
     id: "5",
-    division: "ETF투자부문",
-    responsibilityCode: "ET-금융영업-B3",
-    responsibility: "투자일임업무와 관련된 책무",
-    detailCode: "ET-금융영업-B3-A",
-    detailContent: "투자일임 계약자산의 자문 및 운용을 관리·감독할 책임 (ETF투자부문에 한함)"
+    managementActionCode: "MA-005",
+    managementAction: "조치이행여부 점검",
+    department: "ETF투자부문",
+    team: "리스크관리팀",
+    manager: "한미영",
+    reviewer: "박민정"
   },
   {
     id: "6",
-    division: "감사실",
-    responsibilityCode: "AU-지정책임-A2",
-    responsibility: "내부감사업무와 관련된 책무",
-    detailCode: "AU-지정책임-A2-A",
-    detailContent: "내부감사체계 구축 및 운영을 관리·감독할 책임"
+    managementActionCode: "MA-006",
+    managementAction: "교육 및 훈련 지원",
+    department: "감사실",
+    team: "내부감사팀",
+    manager: "송태호",
+    reviewer: "김철수"
   },
   {
     id: "7",
-    division: "감사실",
-    responsibilityCode: "AU-지정책임-A2",
-    responsibility: "내부감사업무와 관련된 책무",
-    detailCode: "AU-지정책임-A2-B",
-    detailContent: "내부통제제도(내부통제시스템, 자금세탁방지제도) 평가 및 보고를 관리·감독할 책임"
+    managementActionCode: "MA-007",
+    managementAction: "조서 및 제재조치결과 보고",
+    department: "감사실",
+    team: "내부감사팀",
+    manager: "윤서연",
+    reviewer: "김철수"
   },
   {
     id: "8",
-    division: "경영관리부문",
-    responsibilityCode: "AM-경영관리-C2",
-    responsibility: "인사업무와 관련된 책무",
-    detailCode: "AM-경영관리-C2-A",
-    detailContent: "인사업무 기준 수립 및 운영을 관리·감독할 책임"
+    managementActionCode: "MA-008",
+    managementAction: "기준마련여부 점검",
+    department: "경영관리부문",
+    team: "인사팀",
+    manager: "강민호",
+    reviewer: "이영희"
   },
   {
     id: "9",
-    division: "경영관리부문",
-    responsibilityCode: "AM-경영관리-C4",
-    responsibility: "고유자산 운용업무와 관련된 책무",
-    detailCode: "AM-경영관리-C4-A",
-    detailContent: "고유자산 관련 제도 수립 및 운영을 관리·감독할 책임"
+    managementActionCode: "MA-009",
+    managementAction: "효과적집행운영여부 점검",
+    department: "경영관리부문",
+    team: "재무팀",
+    manager: "조현우",
+    reviewer: "이영희"
   },
   {
     id: "10",
-    division: "경영관리부문",
-    responsibilityCode: "AM-경영관리-C5",
-    responsibility: "건전성 및 재무관리 업무와 관련된 책무",
-    detailCode: "AM-경영관리-C5-A",
-    detailContent: "건전성 및 재무관리 업무 기준 및 절차를 관리·감독할 책임"
+    managementActionCode: "MA-010",
+    managementAction: "임직원 준수여부 점검",
+    department: "경영관리부문",
+    team: "회계팀",
+    manager: "임소영",
+    reviewer: "이영희"
   },
   {
     id: "11",
-    division: "경영관리부문",
-    responsibilityCode: "AM-경영관리-C9",
-    responsibility: "회계·세무 업무와 관련된 책무",
-    detailCode: "AM-경영관리-C9-A",
-    detailContent: "회계·세무 정책 수립 및 운영을 관리·감독할 책임"
+    managementActionCode: "MA-011",
+    managementAction: "관리사항 및 미흡사항 조치",
+    department: "경영관리부문",
+    team: "회계팀",
+    manager: "배준호",
+    reviewer: "이영희"
   },
   {
     id: "12",
-    division: "공통",
-    responsibilityCode: "CA-지정책임-A8",
-    responsibility: "개인정보 보호업무와 관련된 책무",
-    detailCode: "CA-지정책임-A8-A",
-    detailContent: "개인정보 보호(채용/인사) 처리 절차를 관리·감독할 책임"
+    managementActionCode: "MA-012",
+    managementAction: "조치이행여부 점검",
+    department: "공통",
+    team: "개인정보보호팀",
+    manager: "신예린",
+    reviewer: "정민수"
   },
   {
     id: "13",
-    division: "공통",
-    responsibilityCode: "CA-지정책임-A12",
-    responsibility: "소관 조직 관련업무와 관련된 책무",
-    detailCode: "CA-지정책임-A12-A",
-    detailContent: "소관 조직, 업무와 관련된 내부통제기준이 적정하게 마련되었는지 여부를 점검할 책임"
+    managementActionCode: "MA-013",
+    managementAction: "교육 및 훈련 지원",
+    department: "공통",
+    team: "내부통제팀",
+    manager: "오세훈",
+    reviewer: "정민수"
   },
   {
     id: "14",
-    division: "공통",
-    responsibilityCode: "CA-지정책임-A12",
-    responsibility: "소관 조직 관련업무와 관련된 책무",
-    detailCode: "CA-지정책임-A12-B",
-    detailContent: "소관 조직, 업무와 관련된 의사결정 과정 및 예방통을 관리·감독할 책임"
+    managementActionCode: "MA-014",
+    managementAction: "조서 및 제재조치결과 보고",
+    department: "공통",
+    team: "내부통제팀",
+    manager: "류지은",
+    reviewer: "정민수"
   },
   {
     id: "15",
-    division: "공통",
-    responsibilityCode: "CA-지정책임-A12",
-    responsibility: "소관 조직 관련업무와 관련된 책무",
-    detailCode: "CA-지정책임-A12-C",
-    detailContent: "소관 조직, 업무와 관련된 내부통제 점검 결과에 따른 개선 등 후속조치 이행 및 임직원 교육·훈련 등을 지원할 책임"
+    managementActionCode: "MA-015",
+    managementAction: "기준마련여부 점검",
+    department: "공통",
+    team: "내부통제팀",
+    manager: "홍길동",
+    reviewer: "정민수"
   }
 ];

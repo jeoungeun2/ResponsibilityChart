@@ -29,6 +29,7 @@ interface ResponsibilityCheckModalProps {
 
 export default function ResponsibilityCheckModal({ isOpen, onClose, data, actionType }: ResponsibilityCheckModalProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
     inspectionDate: '',
     inspectionResult: '',
@@ -40,6 +41,16 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
     review1: '',
     review2: '',
     review3: ''
+  });
+
+  // 임원 점검의견 작성 데이터 상태
+  const [executiveOpinion, setExecutiveOpinion] = useState({
+    position: '대표이사',
+    name: '김○○',
+    result: '적정',
+    deficiency: '',
+    remarks: '2024년 연간 그룹 경영계획 등에서 상기 검토항목에 대해 점검하였음.',
+    inspectionDateTime: '2024-03-15 16:00'
   });
 
   if (!isOpen || !data) return null;
@@ -59,6 +70,35 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
     console.log(`${name}: ${value}`);
   };
 
+  const handleExecutiveOpinionChange = (field: string, value: string) => {
+    setExecutiveOpinion(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditClick = () => {
+    setIsEditMode(true);
+  };
+
+  const handleSaveClick = () => {
+    console.log('저장:', executiveOpinion);
+    setIsEditMode(false);
+  };
+
+  const handleRejectClick = () => {
+    console.log('반려:', executiveOpinion);
+    setIsEditMode(false);
+  };
+
+  const handleApproveClick = () => {
+    console.log('승인:', executiveOpinion);
+    setIsEditMode(false);
+  };
+
+  // 점검상태가 완료이고 상세보기 모드인지 확인
+  const isCompletedViewMode = actionType === 'view' && data?.inspectionStatus === '완료';
+
   const handleSubmit = () => {
     if (actionType === 'inspect') {
       console.log('점검 제출:', { ...data, ...formData });
@@ -71,7 +111,7 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
   };
 
   const getModalTitle = () => {
-    return actionType === 'inspect' ? '책무 점검' : '책무 상세보기';
+    return actionType === 'inspect' ? '관리조치 이행점검' : '관리조치 이행점검 상세';
   };
 
   const getSubmitButtonText = () => {
@@ -168,39 +208,17 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
                    <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치</div>
                    <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐 사항을 검토하고 경영관리팀을 통해 이사회에 보고</div>
                  </div>
-                 <div className="flex">
-                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">관리조치유형</div>
-                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">기준마련 여부 점검, 기준의 효과적 집행·운영 여부 점검</div>
-                </div>
-              </div>
-            </section>
 
-                        {/* 3. 통제활동 및 증빙 섹션 */}
-            <section className="p-4 border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">통제활동 및 증빙</h3>
-              <div className="border border-gray-200 overflow-hidden">
                 <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동코드</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">CE-지정책임-A1-A-001</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동명</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안) 마련</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">통제활동</div>
-                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">직무와 관련된 내부통제등의 효과적으로 전행할 수 있도록 소관부서 내부통제기준 마련</div>
-                </div>
-                <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">수행주기</div>
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">점검주기</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">발생시</div>
                 </div>
                 <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당부서</div>
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">소관부서</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">대표이사</div>
                 </div>
                 <div className="flex border-b border-gray-300 last:border-b-0">
-                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">담당팀</div>
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">소관팀</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">준법감시실</div>
                 </div>
                 <div className="flex border-b border-gray-300 last:border-b-0">
@@ -211,7 +229,7 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
                   <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">증빙</div>
                   <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">내부통제기준등의 제·개폐(안), 내부통제기준 점토</div>
                 </div>
-                                 <div className="flex border-b border-gray-300 last:border-b-0">
+                <div className="flex border-b border-gray-300 last:border-b-0">
                    <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">증빙업로드</div>
                    <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
                      <div className="space-y-2 w-full">
@@ -245,231 +263,147 @@ export default function ResponsibilityCheckModal({ isOpen, onClose, data, action
               </div>
             </section>
 
-            {/* 5. 이행점검 검토항목 섹션 */}
+
+
+            {/* 3. 이행점검 검토항목 섹션 */}
             <section className="p-4 border-b border-gray-200 pb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">이행점검 검토항목</h3>
-              <div className="space-y-4">
-                                 <div className="space-y-3">
-                   <div className="flex items-start space-x-4">
-                     <div className="flex-1">
-                                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                          1. 금융관계법령 제/개정시 내부통제기준 및 위험관리기준 반영이 적정한가
-                        </label>
-                                               <div className="flex items-center space-x-4">
-                                                     <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review1" 
-                               value="Y" 
-                               checked={radioValues.review1 === 'Y'}
-                               onChange={(e) => handleRadioChange('review1', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">Y</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review1" 
-                               value="N" 
-                               checked={radioValues.review1 === 'N'}
-                               onChange={(e) => handleRadioChange('review1', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review1" 
-                               value="N/A" 
-                               checked={radioValues.review1 === 'N/A'}
-                               onChange={(e) => handleRadioChange('review1', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N/A</span>
-                           </label>
-                        </div>
-                     </div>
-                   </div>
-                 </div>
-
-                 <div className="space-y-3">
-                   <div className="flex items-start space-x-4">
-                     <div className="flex-1">
-                                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                          2. 내부통제기준 및 위험관리기준 위반사항에 대한 조치 요구사항 및 결과에 대하여 점검을 수행하였는가
-                        </label>
-                                               <div className="flex items-center space-x-4">
-                                                     <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review2" 
-                               value="Y" 
-                               checked={radioValues.review2 === 'Y'}
-                               onChange={(e) => handleRadioChange('review2', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">Y</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review2" 
-                               value="N" 
-                               checked={radioValues.review2 === 'N'}
-                               onChange={(e) => handleRadioChange('review2', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review2" 
-                               value="N/A" 
-                               checked={radioValues.review2 === 'N/A'}
-                               onChange={(e) => handleRadioChange('review2', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N/A</span>
-                           </label>
-                        </div>
-                     </div>
-                   </div>
-                 </div>
-
-                 <div className="space-y-3">
-                   <div className="flex items-start space-x-4">
-                     <div className="flex-1">
-                                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                          3. 금감원 지적 및 조치사항 이행 내역에 대하여 점검을 수행하였는가
-                        </label>
-                                               <div className="flex items-center space-x-4">
-                                                     <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review3" 
-                               value="Y" 
-                               checked={radioValues.review3 === 'Y'}
-                               onChange={(e) => handleRadioChange('review3', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">Y</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review3" 
-                               value="N" 
-                               checked={radioValues.review3 === 'N'}
-                               onChange={(e) => handleRadioChange('review3', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N</span>
-                           </label>
-                           <label className="flex items-center space-x-2 cursor-pointer">
-                             <input 
-                               type="radio" 
-                               name="review3" 
-                               value="N/A" 
-                               checked={radioValues.review3 === 'N/A'}
-                               onChange={(e) => handleRadioChange('review3', e.target.value)}
-                               className="text-blue-600 cursor-pointer" 
-                             />
-                             <span className="text-sm text-gray-700">N/A</span>
-                           </label>
-                        </div>
-                     </div>
-                   </div>
-                 </div>
-              </div>
-
-                             {/* 의견작성 및 서명 섹션 */}
-               <div className="mt-4">
-                 <div className="border border-gray-200 overflow-hidden">
-                                       <div className="flex border-b border-gray-300 last:border-b-0">
-                      <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">의견작성</div>
-                      <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
-                        2024년 연간 그룹 경영계획 등에서 상기 검토항목에 대해 점검하였음.
-                      </div>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">검토항목</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                    <div className="space-y-2">
+                      <div>1. 금융관계법령 제/개정시 내부통제기준 및 위험관리기준 반영이 적정한가</div>
+                      <div>2. 내부통제기준 및 위험관리기준 위반사항에 대한 조치 요구사항 및 결과에 대하여 점검을 수행하였는가</div>
+                      <div>3. 금감원 지적 및 조치사항 이행 내역에 대하여 점검을 수행하였는가</div>
                     </div>
-                                                           <div className="flex border-b border-gray-300 last:border-b-0">
-                      <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">서명</div>
-                      <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">대표이사 OOO</div>
-                    </div>
-                    <div className="flex">
-                      <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">날짜</div>
-                      <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">2023-12-20 AM10:00</div>
-                    </div>
-                 </div>
-               </div>
-            </section>
-
-            {/* 점검 입력 필드 (점검하기 모드일 때만) */}
-            {actionType === 'inspect' && (
-              <section className="p-4 border-b border-gray-200 pb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">점검 정보 입력</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">점검일자</label>
-                    <input
-                      type="date"
-                      value={formData.inspectionDate}
-                      onChange={(e) => handleInputChange('inspectionDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">점검결과</label>
-                    <select
-                      value={formData.inspectionResult}
-                      onChange={(e) => handleInputChange('inspectionResult', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">선택하세요</option>
-                      <option value="적정">적정</option>
-                      <option value="보완필요">보완필요</option>
-                    </select>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">점검 비고</label>
-                    <textarea
-                      value={formData.inspectionRemarks}
-                      onChange={(e) => handleInputChange('inspectionRemarks', e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="점검 관련 추가 메모를 입력하세요..."
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">이행 비고</label>
-                    <textarea
-                      value={formData.implementationRemarks}
-                      onChange={(e) => handleInputChange('implementationRemarks', e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="이행 관련 추가 메모를 입력하세요..."
-                    />
                   </div>
                 </div>
-              </section>
-            )}
+              </div>
+            </section>
+
+            {/* 4. 리뷰어 검토 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">리뷰어 검토</h3>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">리뷰어</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">박○○</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">검토일시</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">2024-03-15 14:30</div>
+                </div>
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">리뷰어 의견</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                    내부통제기준 및 위험관리기준 관련 점검사항이 적정하게 수행되었음을 확인합니다. 
+                    금감원 지적사항에 대한 이행 내역도 충분히 검토되었으며, 향후 지속적인 모니터링이 필요합니다.
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 5. 임원점검의견작성 및 서명 섹션 */}
+            <section className="p-4 border-b border-gray-200 pb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">임원 점검의견 작성</h3>
+              <div className="border border-gray-200 overflow-hidden">
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">임원직위</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">대표이사</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">임원성명</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">김○○</div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">점검결과</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                    {isCompletedViewMode && !isEditMode ? (
+                      executiveOpinion.result
+                    ) : (
+                      <select 
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        value={executiveOpinion.result}
+                        onChange={(e) => handleExecutiveOpinionChange('result', e.target.value)}
+                        disabled={isCompletedViewMode && !isEditMode}
+                      >
+                        <option value="">선택하세요</option>
+                        <option value="적정">적정</option>
+                        <option value="미흡">미흡</option>
+                        <option value="대상없음">대상없음</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">미흡사항</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                    {isCompletedViewMode && !isEditMode ? (
+                      executiveOpinion.deficiency || '-'
+                    ) : (
+                      <textarea 
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none" 
+                        rows={3}
+                        placeholder="미흡사항이 있는 경우 입력하세요"
+                        value={executiveOpinion.deficiency}
+                        onChange={(e) => handleExecutiveOpinionChange('deficiency', e.target.value)}
+                        disabled={isCompletedViewMode && !isEditMode}
+                      ></textarea>
+                    )}
+                  </div>
+                </div>
+                <div className="flex border-b border-gray-300 last:border-b-0">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">비고</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">
+                    {isCompletedViewMode && !isEditMode ? (
+                      executiveOpinion.remarks
+                    ) : (
+                      <textarea 
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm resize-none" 
+                        rows={3}
+                        placeholder="비고사항을 입력하세요"
+                        value={executiveOpinion.remarks}
+                        onChange={(e) => handleExecutiveOpinionChange('remarks', e.target.value)}
+                        disabled={isCompletedViewMode && !isEditMode}
+                      ></textarea>
+                    )}
+                  </div>
+                </div>
+                <div className="flex">
+                  <div className="w-32 flex-shrink-0 text-[14px] font-medium text-gray-700 px-4 py-1.5 bg-[#f6efed] flex items-center">점검일시</div>
+                  <div className="flex-1 px-4 py-1.5 text-gray-800 border-l border-gray-300 flex items-center text-[14px]">2024-03-15 16:00</div>
+                </div>
+              </div>
+            </section>
+
+
 
                                                    {/* 액션 버튼 */}
               <div className="flex flex-wrap gap-3 justify-end pt-3 border-t border-gray-200 pr-4 pb-4 sticky bottom-0 bg-white/30 backdrop-blur-sm">
-                <SaveButton 
-                  onClick={() => console.log('저장')}
-                  disabled={false}
-                />
-                <RejectButton 
-                  onClick={() => console.log('반려')}
-                  disabled={false}
-                />
-                <ApproveButton 
-                  onClick={() => console.log('승인완료')}
-                  disabled={false}
-                />
+                {isCompletedViewMode && !isEditMode ? (
+                  <button
+                    onClick={handleEditClick}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-none hover:bg-orange-600 transition-colors"
+                  >
+                    수정
+                  </button>
+                ) : (
+                  <>
+                    <SaveButton 
+                      onClick={handleSaveClick}
+                      disabled={false}
+                    />
+                    <RejectButton 
+                      onClick={handleRejectClick}
+                      disabled={false}
+                    />
+                    <ApproveButton 
+                      onClick={handleApproveClick}
+                      disabled={false}
+                    />
+                  </>
+                )}
               </div>
           </div>
         </div>

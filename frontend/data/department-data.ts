@@ -10,6 +10,7 @@ export interface DutyData {
   name: string;                  // 책무
   detailCode: string;            // 책무 세부코드
   detailContent: string;         // 책무 세부내용
+  riskLevel: string;             // 책무 위험도평가
   dutyRegistrationDate: string;  // 책무등록일
   relatedLaws: string;           // 관련 법령/내규
 }
@@ -27,6 +28,7 @@ export const sampleData: DutyData[] = [
     name: "경영지원업무와 관련된 책무",
     detailCode: "AM-지정책임자-C11-A",
     detailContent: "경영지원 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "고위험",
     dutyRegistrationDate: "2024-01-10",
     relatedLaws: "자본시장법 제22조, 금융투자업법 제42조"
   },
@@ -41,6 +43,7 @@ export const sampleData: DutyData[] = [
     name: "인사관리업무와 관련된 책무",
     detailCode: "AM-경영관리-C12-A",
     detailContent: "인사관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-01-18",
     relatedLaws: "근로기준법 제14조, 노동조합법 제2조"
   },
@@ -55,6 +58,7 @@ export const sampleData: DutyData[] = [
     name: "재무관리업무와 관련된 책무",
     detailCode: "AM-금융-C13-A",
     detailContent: "재무관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "고위험",
     dutyRegistrationDate: "2024-01-22",
     relatedLaws: "자본시장법 제25조, 금융투자업법 제45조"
   },
@@ -69,6 +73,7 @@ export const sampleData: DutyData[] = [
     name: "정보관리업무와 관련된 책무",
     detailCode: "AM-지정책임자-C14-A",
     detailContent: "정보관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-01-28",
     relatedLaws: "개인정보보호법 제3조, 정보통신망법 제23조"
   },
@@ -83,6 +88,7 @@ export const sampleData: DutyData[] = [
     name: "법무관리업무와 관련된 책무",
     detailCode: "AM-경영관리-C15-A",
     detailContent: "법무관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "저위험",
     dutyRegistrationDate: "2024-02-02",
     relatedLaws: "상법 제209조, 민법 제681조"
   },
@@ -97,6 +103,7 @@ export const sampleData: DutyData[] = [
     name: "보안관리업무와 관련된 책무",
     detailCode: "AM-금융-C16-A",
     detailContent: "보안관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "고위험",
     dutyRegistrationDate: "2024-02-07",
     relatedLaws: "정보통신망법 제48조, 개인정보보호법 제29조"
   },
@@ -111,6 +118,7 @@ export const sampleData: DutyData[] = [
     name: "품질관리업무와 관련된 책무",
     detailCode: "AM-지정책임자-C17-A",
     detailContent: "품질관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-02-12",
     relatedLaws: "품질경영촉진법 제2조, 산업표준화법 제3조"
   },
@@ -125,6 +133,7 @@ export const sampleData: DutyData[] = [
     name: "환경관리업무와 관련된 책무",
     detailCode: "AM-경영관리-C18-A",
     detailContent: "환경관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "저위험",
     dutyRegistrationDate: "2024-02-17",
     relatedLaws: "환경정책기본법 제2조, 대기환경보전법 제3조"
   },
@@ -139,6 +148,7 @@ export const sampleData: DutyData[] = [
     name: "시설관리업무와 관련된 책무",
     detailCode: "AM-금융-C19-A",
     detailContent: "시설관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-02-22",
     relatedLaws: "건축법 제2조, 소방기본법 제3조"
   },
@@ -153,6 +163,7 @@ export const sampleData: DutyData[] = [
     name: "구매관리업무와 관련된 책무",
     detailCode: "AM-지정책임자-C20-A",
     detailContent: "구매관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "고위험",
     dutyRegistrationDate: "2024-02-28",
     relatedLaws: "국가를당사자로하는계약에관한법률 제2조, 조달사업에관한법률 제3조"
   },
@@ -167,6 +178,7 @@ export const sampleData: DutyData[] = [
     name: "물류관리업무와 관련된 책무",
     detailCode: "AM-경영관리-C21-A",
     detailContent: "물류관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "저위험",
     dutyRegistrationDate: "2024-03-02",
     relatedLaws: "물류정책기본법 제2조, 화물자동차운수사업법 제3조"
   },
@@ -181,6 +193,7 @@ export const sampleData: DutyData[] = [
     name: "고객관리업무와 관련된 책무",
     detailCode: "AM-금융-C22-A",
     detailContent: "고객관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-03-07",
     relatedLaws: "금융소비자보호법 제2조, 전자금융거래법 제3조"
   },
@@ -195,6 +208,7 @@ export const sampleData: DutyData[] = [
     name: "마케팅관리업무와 관련된 책무",
     detailCode: "AM-지정책임자-C23-A",
     detailContent: "마케팅관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "저위험",
     dutyRegistrationDate: "2024-03-12",
     relatedLaws: "표시·광고의공정화에관한법률 제2조, 전자상거래등에서의소비자보호에관한법률 제3조"
   },
@@ -209,6 +223,7 @@ export const sampleData: DutyData[] = [
     name: "연구개발관리업무와 관련된 책무",
     detailCode: "AM-경영관리-C24-A",
     detailContent: "연구개발관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "고위험",
     dutyRegistrationDate: "2024-03-17",
     relatedLaws: "과학기술기본법 제2조, 산업기술혁신촉진법 제3조"
   },
@@ -223,6 +238,7 @@ export const sampleData: DutyData[] = [
     name: "지식관리업무와 관련된 책무",
     detailCode: "AM-금융-C25-A",
     detailContent: "지식관리 업무 관련 기준 수립 및 운영을 관리·감독할 책임",
+    riskLevel: "중위험",
     dutyRegistrationDate: "2024-03-22",
     relatedLaws: "지식재산기본법 제2조, 저작권법 제3조"
   }
