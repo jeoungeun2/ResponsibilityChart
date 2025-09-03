@@ -389,8 +389,8 @@ export default function ManagementActionGenerationPage() {
                     {tableColumns.map((column) => (
                       <TableCell key={column.key}>
                         {column.render 
-                          ? column.render(row[column.key], row)
-                          : row[column.key]
+                          ? column.render(row[column.key as keyof ManagementActionGenerationData], row)
+                          : row[column.key as keyof ManagementActionGenerationData]
                         }
                       </TableCell>
                     ))}
@@ -405,7 +405,7 @@ export default function ManagementActionGenerationPage() {
         {generationData.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>대상연도와 대상월을 선택하고 "차수 생성" 버튼을 클릭하세요.</p>
+            <p>대상연도와 대상월을 선택하고 &quot;차수 생성&quot; 버튼을 클릭하세요.</p>
           </div>
         )}
       </div>

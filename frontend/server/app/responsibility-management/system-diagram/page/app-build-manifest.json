@@ -1,0 +1,23 @@
+{
+  "pages": {
+    "/responsibility-management/system-diagram/page": [
+      "static/chunks/5d6ebc21204af686.js",
+      "static/chunks/ca40b89fab366c85.js",
+      "static/chunks/7289f9fde5078b75.css",
+      "static/chunks/615574d75f798afb.css",
+      "static/chunks/d8f4517d408cc355.js",
+      "static/chunks/b23707f6fe34ce0f.js",
+      "static/chunks/3f18217ac05ca71b.js",
+      "static/chunks/1f4be6b6c0883891.js",
+      "static/chunks/d2d2a1193668be19.js",
+      "static/chunks/7bbe7d854a12b1a8.js",
+      "static/chunks/8729906a39ef1ba7.js",
+      "static/chunks/dd42fb7ba7270344.js",
+      "static/chunks/7b3c89fdf6de30ee.js",
+      "static/chunks/225a850cc8e221bd.js",
+      "static/chunks/35752847abf3b685.js",
+      "static/chunks/d06fba1b35aae9a9.js",
+      "static/chunks/turbopack-bca137c318e0f015.js"
+    ]
+  }
+}
